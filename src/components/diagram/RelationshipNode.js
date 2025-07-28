@@ -13,7 +13,10 @@ const RelationshipNode = memo(({ data, selected }) => {
   } = data;
 
   return (
-    <div className={`${styles.relationshipNode} ${selected ? styles.selected : ''}`}>
+    <div 
+      className={`${styles.relationshipNode} ${selected ? styles.selected : ''}`} 
+      data-draggable="true" // Ensure node is recognized as draggable
+    >
       {/* Relationship represented as a diamond */}
       <div className={`${styles.relationshipDiamond} ${isIdentifying ? styles.identifyingRelationship : ''}`}>
         <div className={styles.relationshipName}>{relationshipName}</div>

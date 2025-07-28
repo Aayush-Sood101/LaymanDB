@@ -266,9 +266,10 @@ const createRelationshipNodes = (schema, nodes, edges) => {
         relationshipName: rel.name || 'Relates',
         attributes: rel.attributes || [],
         isIdentifying: rel.isIdentifying || rel.identifying || false,
-        description: rel.description || ''
+        description: rel.description || '',
+        isDraggable: true // Ensure data includes draggability flag
       },
-      draggable: true,
+      draggable: true, // Explicitly set draggable property
     };
     
     nodes.push(relationshipNode);
