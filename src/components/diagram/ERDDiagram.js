@@ -75,9 +75,13 @@ const ERDDiagram = ({
         ? node.id.replace('entity-', '')
         : node.id;
       
-      updateTablePosition(entityName, {
-        x: Math.round(node.position.x),
-        y: Math.round(node.position.y)
+      // Pass the correct object format to updateTablePosition
+      updateTablePosition({
+        name: entityName,
+        position: {
+          x: Math.round(node.position.x),
+          y: Math.round(node.position.y)
+        }
       });
     }
   }, [onNodeDragStop, updateTablePosition]);
@@ -127,17 +131,63 @@ const ERDDiagram = ({
         }
       };
       
-      // Create edges from both entities to the relationship
+      // Calculate appropriate handle positions based on relative node positions
+      const determineHandlePositions = (sourcePos, targetPos) => {
+        // Determine direction based on relative positions
+        const dx = targetPos.x - sourcePos.x;
+        const dy = targetPos.y - sourcePos.y;
+        
+        // Default to horizontal connections if close to same y-level
+        if (Math.abs(dy) < Math.abs(dx) * 0.5) {
+          // Horizontal connection (left to right or right to left)
+          if (dx > 0) {
+            return {
+              sourceHandle: 'source-right',
+              targetHandle: 'target-left'
+            };
+          } else {
+            return {
+              sourceHandle: 'source-left',
+              targetHandle: 'target-right'
+            };
+          }
+        } else {
+          // Vertical connection (top to bottom or bottom to top)
+          if (dy > 0) {
+            return {
+              sourceHandle: 'source-bottom',
+              targetHandle: 'target-top'
+            };
+          } else {
+            return {
+              sourceHandle: 'source-top',
+              targetHandle: 'target-bottom'
+            };
+          }
+        }
+      };
+      
+      // Get handles for source to relationship connection
+      const sourceToRelHandles = determineHandlePositions(sourcePos, relationshipPos);
+      
+      // Get handles for relationship to target connection
+      const relToTargetHandles = determineHandlePositions(relationshipPos, targetPos);
+      
+      // Create edges from both entities to the relationship with automatic handle connections
       const sourceToRelationship = {
         id: `edge-${params.source}-${relationshipId}`,
         source: params.source,
         target: relationshipId,
+        sourceHandle: sourceToRelHandles.sourceHandle,
+        targetHandle: sourceToRelHandles.targetHandle,
         type: 'erdEdge',
+        animated: false,
         data: {
           sourceCardinality: '1',
           targetCardinality: '',
           sourceParticipation: 'partial',
           targetParticipation: 'partial',
+          label: '',
         }
       };
       
@@ -145,12 +195,16 @@ const ERDDiagram = ({
         id: `edge-${relationshipId}-${params.target}`,
         source: relationshipId,
         target: params.target,
+        sourceHandle: relToTargetHandles.sourceHandle,
+        targetHandle: relToTargetHandles.targetHandle,
         type: 'erdEdge',
+        animated: false,
         data: {
           sourceCardinality: '',
           targetCardinality: 'N',
           sourceParticipation: 'partial',
           targetParticipation: 'partial',
+          label: '',
         }
       };
       
@@ -224,12 +278,30 @@ const ERDDiagram = ({
         onEdgesChange={onEdgesChange}
         onNodeDragStop={handleNodeDragStop}
         onConnect={handleConnect}
-        onInit={setReactFlowInstance}
+        onInit={(instance) => {
+          setReactFlowInstance(instance);
+          // After initialization, update positions in the schema context
+          if (instance) {
+            // Save positions of all nodes to make them persistent
+            instance.getNodes().forEach(node => {
+              if (node.id.startsWith('entity-') && updateTablePosition) {
+                const entityName = node.id.replace('entity-', '');
+                updateTablePosition({
+                  name: entityName,
+                  position: node.position
+                });
+              }
+            });
+          }
+        }}
         fitView
+        fitViewOptions={{ padding: 0.2 }}
+        minZoom={0.1}
+        maxZoom={2}
         attributionPosition="bottom-right"
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
-        connectionLineType={ConnectionLineType.SmoothStep}
+        connectionLineType={ConnectionLineType.Bezier}
         connectionLineStyle={{ stroke: '#3b82f6', strokeWidth: 2 }}
         defaultEdgeOptions={{
           type: 'erdEdge',
@@ -240,6 +312,13 @@ const ERDDiagram = ({
             targetParticipation: 'partial',
           }
         }}
+        elementsSelectable={true}
+        nodesDraggable={true}
+        nodesConnectable={!readOnly}
+        zoomOnScroll={true}
+        panOnScroll={true}
+        snapToGrid={true}
+        snapGrid={[20, 20]} 
         className={styles.reactFlow}
       >
         <Background color="#aaa" gap={16} />

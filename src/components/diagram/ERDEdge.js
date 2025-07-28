@@ -35,7 +35,7 @@ const ERDEdge = ({
   } = data || {};
 
   // Calculate positions for cardinality labels
-  const distanceFromNode = 20; // Distance from node for cardinality label
+  const distanceFromNode = 30; // Increased distance from node for cardinality label
   
   // Calculate angle of the edge near the source and target
   const sourceAngle = Math.atan2(targetY - sourceY, targetX - sourceX);
@@ -47,6 +47,15 @@ const ERDEdge = ({
   const targetCardinalityX = targetX + Math.cos(targetAngle) * distanceFromNode;
   const targetCardinalityY = targetY + Math.sin(targetAngle) * distanceFromNode;
   
+  // Define a better background for cardinality labels for visibility
+  const cardinalityBgStyle = {
+    fill: 'white',
+    stroke: '#ddd',
+    strokeWidth: 1,
+    rx: 8,
+    ry: 8,
+  };
+  
   return (
     <>
       <path
@@ -55,6 +64,7 @@ const ERDEdge = ({
         className={`${styles.erEdgePath} ${sourceParticipation === 'total' ? styles.totalParticipation : styles.partialParticipation}`}
         d={edgePath}
         markerEnd={markerEnd}
+        markerStart={sourceCardinality === 'N' || sourceCardinality === 'M' ? "url(#many)" : null}
       />
       
       {/* Source Cardinality */}
@@ -62,10 +72,18 @@ const ERDEdge = ({
         transform={`translate(${sourceCardinalityX}, ${sourceCardinalityY})`}
         className={styles.cardinalityLabel}
       >
+        <rect
+          x="-10"
+          y="-10"
+          width="20"
+          height="20"
+          {...cardinalityBgStyle}
+        />
         <text
           dominantBaseline="central"
           textAnchor="middle"
           className={styles.cardinalityText}
+          style={{ fontWeight: 'bold' }}
         >
           {sourceCardinality}
         </text>
@@ -76,10 +94,18 @@ const ERDEdge = ({
         transform={`translate(${targetCardinalityX}, ${targetCardinalityY})`}
         className={styles.cardinalityLabel}
       >
+        <rect
+          x="-10"
+          y="-10"
+          width="20"
+          height="20"
+          {...cardinalityBgStyle}
+        />
         <text
           dominantBaseline="central"
           textAnchor="middle"
           className={styles.cardinalityText}
+          style={{ fontWeight: 'bold' }}
         >
           {targetCardinality}
         </text>

@@ -38,8 +38,8 @@ export const generateERDiagramElements = (schema, mode = 'conceptual') => {
       id: entityId,
       type: 'entityNode',
       position: table.position || { 
-        x: 100 + (index % 3) * 400, 
-        y: 100 + Math.floor(index / 3) * 300 
+        x: 100 + (index % 3) * 500, // Increased horizontal spacing
+        y: 100 + Math.floor(index / 3) * 400 // Increased vertical spacing
       },
       data: {
         entityName: tableName,
@@ -58,7 +58,8 @@ export const generateERDiagramElements = (schema, mode = 'conceptual') => {
         entityType: determineEntityType(table, schema),
         description: table.description || ''
       },
-      draggable: true,
+      draggable: true, // Ensure draggable is set to true
+      selectable: true, // Make sure nodes are selectable
     };
     
     nodes.push(entityNode);
@@ -165,9 +166,33 @@ const createAttributeNodes = (table, entityId, nodes, edges) => {
     if (!column || typeof column !== 'object') return;
     
     const attributeId = `attr-${entityId}-${column.name || index}`;
-    const angleStep = (2 * Math.PI) / table.columns.length;
-    const angle = index * angleStep;
-    const radius = 150; // Distance from entity center
+    
+    // Calculate the number of attributes to improve spacing
+    const totalAttrs = table.columns.length;
+    
+    // Distribute attributes more evenly based on the number of attributes
+    let radius, angle;
+    
+    if (totalAttrs <= 4) {
+      // For 1-4 attributes, place them in a simple circle
+      const angleStep = (2 * Math.PI) / Math.max(totalAttrs, 4);
+      angle = index * angleStep + Math.PI/4; // Offset to start at 45 degrees
+      radius = 180; // Base distance from entity center
+    } else {
+      // For more attributes, arrange in layers
+      const innerRadius = 180;
+      const outerRadius = 270;
+      
+      // Determine if this attribute should be in the inner or outer circle
+      const isInner = index % 2 === 0;
+      radius = isInner ? innerRadius : outerRadius;
+      
+      // Calculate position in the appropriate circle
+      const circleItemCount = Math.ceil(totalAttrs / 2); // Items per circle
+      const angleStep = (2 * Math.PI) / circleItemCount;
+      const circleIndex = Math.floor(index / 2);
+      angle = circleIndex * angleStep;
+    }
     
     // Position attribute in a circle around the entity
     const attrX = entityPosition.x + radius * Math.cos(angle);
@@ -294,11 +319,55 @@ const createLogicalEdges = (schema, edges) => {
     const sourceEntityId = `entity-${rel.sourceTable}`;
     const targetEntityId = `entity-${rel.targetTable}`;
     
+    // Calculate the best handles for connection based on node positions
+    const sourceNodeIndex = nodes.findIndex(n => n.id === sourceEntityId);
+    const targetNodeIndex = nodes.findIndex(n => n.id === targetEntityId);
+    
+    // Default handles
+    let sourceHandle = 'source-right';
+    let targetHandle = 'target-left';
+    
+    // If we have node positions, try to determine the best handles
+    if (sourceNodeIndex !== -1 && targetNodeIndex !== -1) {
+      const sourcePos = nodes[sourceNodeIndex].position;
+      const targetPos = nodes[targetNodeIndex].position;
+      
+      // Determine if connection should be horizontal or vertical
+      const dx = targetPos.x - sourcePos.x;
+      const dy = targetPos.y - sourcePos.y;
+      
+      if (Math.abs(dx) > Math.abs(dy)) {
+        // Horizontal connection
+        if (dx > 0) {
+          // Source is to the left of target
+          sourceHandle = 'source-right';
+          targetHandle = 'target-left';
+        } else {
+          // Source is to the right of target
+          sourceHandle = 'source-left';
+          targetHandle = 'target-right';
+        }
+      } else {
+        // Vertical connection
+        if (dy > 0) {
+          // Source is above target
+          sourceHandle = 'source-bottom';
+          targetHandle = 'target-top';
+        } else {
+          // Source is below target
+          sourceHandle = 'source-top';
+          targetHandle = 'target-bottom';
+        }
+      }
+    }
+    
     // Create a direct edge between entities with cardinality notations
     edges.push({
       id: `edge-${sourceEntityId}-to-${targetEntityId}-${index}`,
       source: sourceEntityId,
       target: targetEntityId,
+      sourceHandle: sourceHandle,
+      targetHandle: targetHandle,
       type: 'erdEdge',
       data: {
         sourceCardinality: getCardinalityNotation(rel.type, 'source'),
@@ -486,9 +555,11 @@ export const generateRelationshipEdges = (relationships = []) => {
         sourceParticipation: relationship.sourceParticipation || 'partial',
         targetParticipation: relationship.targetParticipation || 'partial',
         description: safeObjectAccess(relationship, 'description', ''),
-        participationType: safeObjectAccess(relationship, 'participationType', 'PARTIAL')
+        participationType: safeObjectAccess(relationship, 'participationType', 'PARTIAL'),
+        label: relationship.name || '',  // Make sure we have a label for the edge
       },
-      type,
+      // Use bezier curve for smoother lines
+      type: 'bezier',
     };
   }).filter(Boolean); // Filter out any null values
 };

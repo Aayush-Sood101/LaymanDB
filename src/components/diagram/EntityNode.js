@@ -89,28 +89,63 @@ const EntityNode = memo(({ data, selected }) => {
       </div>
       
       {/* Connection handles on all sides */}
+      {/* Source handles */}
       <Handle
         type="source"
         position={Position.Top}
         className={styles.handleTop}
+        id="source-top"
         isConnectable={true}
       />
       <Handle
         type="source"
         position={Position.Right}
         className={styles.handleRight}
+        id="source-right"
         isConnectable={true}
       />
       <Handle
         type="source"
         position={Position.Bottom}
         className={styles.handleBottom}
+        id="source-bottom"
         isConnectable={true}
       />
       <Handle
         type="source"
         position={Position.Left}
         className={styles.handleLeft}
+        id="source-left"
+        isConnectable={true}
+      />
+      
+      {/* Target handles */}
+      <Handle
+        type="target"
+        position={Position.Top}
+        className={`${styles.handleTop} ${styles.targetHandle}`}
+        id="target-top"
+        isConnectable={true}
+      />
+      <Handle
+        type="target"
+        position={Position.Right}
+        className={`${styles.handleRight} ${styles.targetHandle}`}
+        id="target-right"
+        isConnectable={true}
+      />
+      <Handle
+        type="target"
+        position={Position.Bottom}
+        className={`${styles.handleBottom} ${styles.targetHandle}`}
+        id="target-bottom"
+        isConnectable={true}
+      />
+      <Handle
+        type="target"
+        position={Position.Left}
+        className={`${styles.handleLeft} ${styles.targetHandle}`}
+        id="target-left"
         isConnectable={true}
       />
     </div>
