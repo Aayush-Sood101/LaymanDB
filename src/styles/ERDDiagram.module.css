@@ -1,0 +1,1107 @@
+/* Styles for the ERD Diagram */
+
+.diagramContainer {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom right, #f0f9ff, #e0f2fe);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+  transition: background 0.3s ease;
+}
+
+/* Dark mode version */
+.darkMode {
+  background: linear-gradient(to bottom right, #0f172a, #1e293b);
+  color: #f1f5f9;
+}
+
+/* EntityNode Styles */
+.entityNode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 180px;
+  max-width: 300px;
+}
+
+.entityWrapper {
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.strongEntityWrapper {
+  border: 2px solid #3b82f6;
+  background-color: #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.weakEntityWrapper {
+  border: 2px double #f59e0b;
+  background-color: #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.associativeEntityWrapper {
+  border: 2px solid #8b5cf6;
+  background-color: #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.entityHeader {
+  padding: 8px 12px;
+  background: #ffffff;
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+  color: #1e293b;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+}
+
+.weakEntityIndicator {
+  font-size: 10px;
+  background-color: #f59e0b;
+  color: white;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.entityDescription {
+  padding: 6px 10px;
+  font-size: 11px;
+  color: #64748b;
+  background-color: #f8fafc;
+  text-align: center;
+}
+
+/* ISA Relationship Styles */
+.isaRelationship {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.isaTriangle {
+  width: 0; 
+  height: 0; 
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 16px solid #94a3b8;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.isaTriangle:after {
+  content: 'ISA';
+  position: absolute;
+  top: 4px;
+  font-size: 8px;
+  color: white;
+  font-weight: bold;
+}
+
+.isaLine {
+  height: 15px;
+  width: 1px;
+  background-color: #94a3b8;
+  margin-top: -1px;
+}
+
+/* ReactFlow Container */
+.reactFlow {
+  height: 100%;
+}
+
+/* Error Container */
+.errorContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.errorMessage {
+  text-align: center;
+  padding: 2rem;
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.retryButton {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  margin-top: 1rem;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.retryButton:hover {
+  background: #1d4ed8;
+}
+
+/* Table Node Styles */
+.tableNode {
+  background: white;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  min-width: 180px;
+  max-width: 300px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.tableNode:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Table node borders for different entity types */
+.regularEntityBorder {
+  border: 1px solid #3b82f6;
+}
+
+.weakEntityBorder {
+  border: 2px dashed #f59e0b;
+}
+
+.associativeEntityBorder {
+  border: 1px solid #8b5cf6;
+}
+
+/* Relationship Node Styles */
+.relationshipNode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 150px;
+}
+
+.relationshipDiamond {
+  width: 100px;
+  height: 100px;
+  background-color: #ffffff;
+  border: 2px solid #8b5cf6;
+  transform: rotate(45deg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  position: relative;
+  transform-origin: center;
+}
+
+.identifyingRelationship {
+  border: 2px double #f59e0b;
+}
+
+.relationshipName {
+  transform: rotate(-45deg);
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  max-width: 80px;
+  overflow-wrap: break-word;
+  color: #1e293b;
+}
+
+.relationshipDescription {
+  transform: rotate(-45deg);
+  font-size: 10px;
+  color: #64748b;
+  margin-top: 4px;
+  text-align: center;
+  max-width: 80px;
+}
+
+.relationshipAttributesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+  margin-top: -10px; /* To counteract the diamond margin */
+}
+
+.relationshipAttribute {
+  background-color: #ffffff;
+  border: 1px solid #8b5cf6;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  color: #1e293b;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Attribute Styles */
+.attributesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.attribute {
+  background-color: #ffffff;
+  border: 1px solid #10b981;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.attributeName {
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.attributeType {
+  font-size: 10px;
+  color: #64748b;
+}
+
+.keyAttribute {
+  border: 2px solid #f59e0b;
+  font-weight: 600;
+}
+
+.derivedAttribute {
+  border: 1px dashed #10b981;
+}
+
+.multivaluedAttribute {
+  border: 2px solid #10b981;
+}
+
+.compositeAttribute {
+  background-color: #f0fdf4;
+}
+
+/* Standalone AttributeNode */
+.attributeNode {
+  background-color: #ffffff;
+  border: 1px solid #10b981;
+  padding: 6px 10px;
+  border-radius: 20px;
+  min-width: 80px;
+  max-width: 180px;
+}
+
+.attributeContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.attributeNameContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.subAttributesContainer {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed #d1d5db;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: center;
+}
+
+.subAttribute {
+  font-size: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.subAttributeName {
+  color: #334155;
+}
+
+.subAttributeType {
+  font-size: 9px;
+  color: #64748b;
+}
+
+/* ERD Edge styles */
+.erEdgePath {
+  stroke: #3b82f6;
+  stroke-width: 2;
+  fill: none;
+}
+
+.totalParticipation {
+  stroke-width: 3;
+}
+
+.partialParticipation {
+  stroke-width: 1.5;
+}
+
+.cardinalityLabel {
+  pointer-events: none;
+}
+
+.cardinalityText {
+  font-size: 12px;
+  font-weight: 600;
+  fill: #1e293b;
+  text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff;
+}
+
+/* Table Header */
+.tableNodeHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  font-weight: 600;
+  color: white;
+  font-size: 0.875rem;
+}
+
+.regularEntityHeader {
+  background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%);
+}
+
+.weakEntityHeader {
+  background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
+}
+
+.associativeEntityHeader {
+  background: linear-gradient(90deg, #8b5cf6 0%, #a78bfa 100%);
+}
+
+/* Handle styles for connection points */
+.handleTop,
+.handleBottom,
+.handleLeft,
+.handleRight {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #3b82f6;
+  border: 2px solid white;
+  transition: all 0.2s ease;
+}
+
+.handleTop:hover,
+.handleBottom:hover,
+.handleLeft:hover,
+.handleRight:hover {
+  background: #2563eb;
+  transform: scale(1.2);
+}
+
+/* Panel styles */
+.panel {
+  font-size: 12px;
+  background: white;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  max-width: 220px;
+  z-index: 10;
+}
+
+.panelContent {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.panelTitle {
+  font-weight: 600;
+  font-size: 14px;
+  margin: 0;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #1e293b;
+}
+
+.modeSwitcher {
+  display: flex;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.modeButton {
+  flex: 1;
+  padding: 4px 8px;
+  font-size: 11px;
+  background: #f8fafc;
+  border: none;
+  cursor: pointer;
+  color: #64748b;
+  transition: all 0.2s;
+}
+
+.activeMode {
+  background: #3b82f6;
+  color: white;
+  font-weight: 500;
+}
+
+.panelInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.legendTitle {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.infoItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #334155;
+}
+
+/* Legend symbols */
+.entitySymbol {
+  width: 20px;
+  height: 14px;
+  border: 2px solid #3b82f6;
+  background-color: white;
+}
+
+.weakEntitySymbol {
+  border: 2px double #f59e0b;
+}
+
+.relationshipSymbol {
+  width: 14px;
+  height: 14px;
+  background-color: white;
+  border: 2px solid #8b5cf6;
+  transform: rotate(45deg);
+}
+
+.identifyingRelationshipSymbol {
+  border: 2px double #f59e0b;
+}
+
+.attributeSymbol {
+  width: 18px;
+  height: 12px;
+  background-color: white;
+  border: 1px solid #10b981;
+  border-radius: 10px;
+}
+
+.keyAttributeSymbol {
+  border: 2px solid #f59e0b;
+}
+
+.derivedAttributeSymbol {
+  border: 1px dashed #10b981;
+}
+
+.multivaluedAttributeSymbol {
+  border: 2px solid #10b981;
+}
+
+.totalParticipationLine {
+  width: 20px;
+  height: 3px;
+  background-color: #3b82f6;
+}
+
+.partialParticipationLine {
+  width: 20px;
+  height: 1px;
+  background-color: #3b82f6;
+}
+
+.cardinalityExample {
+  font-size: 10px;
+  font-weight: 600;
+  color: #3b82f6;
+}
+
+/* Column styles */
+.columnsContainer {
+  padding: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.columnsTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.columnRow {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.columnRow:last-child {
+  border-bottom: none;
+}
+
+.columnIconCell {
+  width: 20px;
+  padding: 4px 2px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.columnNameCell {
+  padding: 4px;
+  vertical-align: middle;
+}
+
+.columnTypeCell {
+  padding: 4px;
+  vertical-align: middle;
+  text-align: right;
+  color: #64748b;
+}
+
+.columnType {
+  font-size: 11px;
+  background: #f1f5f9;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.requiredBadge {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
+.primaryKey {
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.primaryKeyIcon {
+  font-size: 10px;
+  color: #f59e0b;
+}
+
+.foreignKeyIcon {
+  font-size: 10px;
+  color: #3b82f6;
+}
+
+.tableDescription {
+  padding: 4px 8px;
+  font-size: 11px;
+  color: #64748b;
+  background: #f8fafc;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.noColumns {
+  padding: 8px;
+  text-align: center;
+  color: #94a3b8;
+  font-style: italic;
+  font-size: 12px;
+}
+
+/* Selected state for table nodes */
+.selected {
+  box-shadow: 0 0 0 2px #f97316;
+}
+
+.tableNodeTitle {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tableNodeBadges {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.primaryKeyBadge, 
+.foreignKeyBadge {
+  padding: 0 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.primaryKeyBadge {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.foreignKeyBadge {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+/* Column List */
+.tableNodeColumns {
+  padding: 0.5rem 0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Column Item */
+.tableColumn {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8rem;
+  border-bottom: 1px solid #f1f5f9;
+  position: relative;
+}
+
+.tableColumn:hover {
+  background: #f8fafc;
+}
+
+.columnContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.columnName {
+  color: #334155;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.primaryKey {
+  font-weight: 600;
+  color: #2563eb;
+}
+
+.foreignKey {
+  font-style: italic;
+  color: #9333ea;
+}
+
+.columnType {
+  color: #64748b;
+  font-size: 0.7rem;
+  margin-left: 0.5rem;
+}
+
+/* Handle Styles */
+.handleSource,
+.handleTarget {
+  background: #64748b;
+  width: 10px;
+  height: 10px;
+}
+
+/* Edge Styles */
+.relationshipEdge {
+  transition: stroke 0.3s ease;
+}
+
+.edgeLabel {
+  font-size: 10px;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Panel Components */
+.legendPanel,
+.searchPanel,
+.themePanel {
+  background: white;
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  max-width: 250px;
+  transition: all 0.3s ease;
+}
+
+.legend h4 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.legendColor {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.regularEntityLegend {
+  background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%);
+}
+
+.weakEntityLegend {
+  background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
+  border: 1px dashed #f59e0b;
+}
+
+.associativeEntityLegend {
+  background: linear-gradient(90deg, #8b5cf6 0%, #a78bfa 100%);
+}
+
+/* Search */
+.search {
+  position: relative;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.searchInput:focus {
+  border-color: #3b82f6;
+}
+
+.searchResults {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 0.25rem;
+  background: white;
+  border-radius: 0.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.searchResultsCount {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.searchResults ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.searchResultItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  color: #334155;
+  text-align: left;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.searchResultItem:hover {
+  background: #f8fafc;
+}
+
+.focusButton {
+  background: #3b82f6;
+  color: white;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.125rem;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+/* Highlight for search results */
+.highlightedNode {
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5);
+}
+
+/* Theme toggle */
+.themeToggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #334155;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.themeToggle:hover {
+  background: rgba(0, 0, 0, 0.05);
+  transform: rotate(12deg);
+}
+
+/* Controls styling */
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* MiniMap styling */
+.miniMap {
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+/* Animation for nodes */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tableNode {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.darkMode {
+  background: linear-gradient(to bottom right, #0f172a, #1e293b);
+  color: #e2e8f0;
+}
+
+.darkMode .tableNode {
+  background-color: #1e293b;
+  color: #f8fafc;
+}
+
+.darkMode .tableNodeColumns {
+  background-color: #334155;
+}
+
+.darkMode .columnName {
+  color: #e2e8f0;
+}
+
+.darkMode .columnType {
+  color: #94a3b8;
+}
+
+.darkMode .searchInput {
+  background-color: #334155;
+  color: #f8fafc;
+  border-color: #475569;
+}
+
+.darkMode .legendPanel, 
+.darkMode .searchPanel, 
+.darkMode .themePanel {
+  background-color: #1e293b;
+  color: #f8fafc;
+  border-color: #475569;
+}
+.darkMode {
+  background: linear-gradient(to bottom right, #0f172a, #1e293b);
+  color: #e2e8f0;
+}
+
+.darkMode .tableNode {
+  background-color: #1e293b;
+  color: #f8fafc;
+}
+
+.darkMode .tableNodeColumns {
+  background-color: #334155;
+}
+
+.darkMode .columnName {
+  color: #e2e8f0;
+}
+
+.darkMode .columnType {
+  color: #94a3b8;
+}
+
+.darkMode .searchInput {
+  background-color: #334155;
+  color: #f8fafc;
+  border-color: #475569;
+}
+
+.darkMode .legendPanel, 
+.darkMode .searchPanel, 
+.darkMode .themePanel {
+  background-color: #1e293b;
+  color: #f8fafc;
+  border-color: #475569;
+}
+
+/* Node styling */
+.entity-node {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s, transform 0.1s;
+}
+
+.entity-node:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.entity-header {
+  padding: 8px 12px;
+  font-weight: 600;
+  color: white;
+}
+
+.entity-body {
+  background: white;
+}
+
+.entity-column {
+  padding: 6px 12px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.entity-column:hover {
+  background-color: #f0f9ff;
+}
+
+/* Edge styling */
+.relationship-edge path {
+  stroke: #3b82f6;
+  stroke-width: 2;
+  transition: stroke-width 0.2s;
+}
+
+.relationship-edge:hover path {
+  stroke-width: 3;
+}
+
+.relationship-label {
+  background-color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  pointer-events: all;
+}
+
+/* Control elements */
+.diagram-controls {
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+}
+
+.diagram-minimap {
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  margin: 10px;
+}
+
+.diagram-panel {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  padding: 8px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+/* Handle node selection */
+.selected-node {
+  box-shadow: 0 0 0 2px #3b82f6, 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+/* Zoom controls */
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.zoom-button {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  background: none;
+  transition: background-color 0.2s;
+}
+
+.zoom-button:hover {
+  background-color: #f0f9ff;
+}
+
+.zoom-indicator {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+}

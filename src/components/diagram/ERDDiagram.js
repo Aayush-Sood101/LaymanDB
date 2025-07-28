@@ -1,0 +1,351 @@
+'use client';
+
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import ReactFlow, {
+  Background,
+  Controls,
+  MiniMap,
+  Panel,
+  useNodesState,
+  useEdgesState,
+  addEdge,
+  MarkerType,
+  ConnectionLineType,
+} from 'reactflow';
+import 'reactflow/dist/style.css';
+
+import { generateERDiagramElements } from '@/lib/diagramUtils';
+import styles from '@/styles/ERDDiagram.module.css';
+import EntityNode from './EntityNode';
+import RelationshipNode from './RelationshipNode';
+import AttributeNode from './AttributeNode';
+import ERDEdge from './ERDEdge';
+import { useSchemaContext } from '@/contexts/SchemaContext';
+
+// Custom node and edge types
+const nodeTypes = {
+  entityNode: EntityNode,
+  relationshipNode: RelationshipNode,
+  attributeNode: AttributeNode,
+};
+
+const edgeTypes = {
+  erdEdge: ERDEdge,
+};
+
+const ERDDiagram = ({ 
+  schema, 
+  onNodeDragStop, 
+  onConnect,
+  readOnly = false,
+  darkMode = false,
+}) => {
+  const reactFlowWrapper = useRef(null);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [reactFlowInstance, setReactFlowInstance] = useState(null);
+  const [diagramMode, setDiagramMode] = useState('conceptual'); // 'conceptual' or 'logical'
+  
+  const { updateTablePosition, addRelationship } = useSchemaContext();
+  
+  // Initialize the diagram with schema data
+  useEffect(() => {
+    if (schema) {
+      try {
+        // Generate all ER diagram elements based on the current mode
+        const { nodes: diagramNodes, edges: diagramEdges } = generateERDiagramElements(schema, diagramMode);
+        setNodes(diagramNodes);
+        setEdges(diagramEdges);
+      } catch (error) {
+        console.error('Error generating ER diagram elements:', error);
+      }
+    }
+  }, [schema, diagramMode, setNodes, setEdges]);
+
+  // Handle when a node is dragged and stopped
+  const handleNodeDragStop = useCallback((event, node) => {
+    if (onNodeDragStop && typeof onNodeDragStop === 'function') {
+      onNodeDragStop(node.id, node.position);
+    }
+    
+    // Update node position in schema context
+    if (updateTablePosition && typeof updateTablePosition === 'function') {
+      // Extract entity name from node id if it's an entity node
+      const entityName = node.id.startsWith('entity-') 
+        ? node.id.replace('entity-', '')
+        : node.id;
+      
+      updateTablePosition(entityName, {
+        x: Math.round(node.position.x),
+        y: Math.round(node.position.y)
+      });
+    }
+  }, [onNodeDragStop, updateTablePosition]);
+
+  // Handle connection between nodes (creating relationships)
+  const handleConnect = useCallback((params) => {
+    // Determine if we're connecting entities or attributes
+    const isEntityToEntity = params.source.startsWith('entity-') && params.target.startsWith('entity-');
+    const isEntityToRelationship = 
+      (params.source.startsWith('entity-') && params.target.startsWith('relationship-')) || 
+      (params.source.startsWith('relationship-') && params.target.startsWith('entity-'));
+    
+    // Create edge with custom settings
+    const edge = {
+      ...params,
+      type: 'erdEdge',
+      data: {
+        sourceCardinality: '1',
+        targetCardinality: 'N',
+        sourceParticipation: 'partial',
+        targetParticipation: 'partial',
+      }
+    };
+    
+    // If connecting entity to entity, create a relationship node in between
+    if (isEntityToEntity && !readOnly) {
+      // Generate a unique ID for the relationship
+      const relationshipId = `relationship-${Date.now()}`;
+      const sourcePos = nodes.find(n => n.id === params.source)?.position || { x: 0, y: 0 };
+      const targetPos = nodes.find(n => n.id === params.target)?.position || { x: 0, y: 0 };
+      
+      // Calculate position for the relationship node (midpoint)
+      const relationshipPos = {
+        x: (sourcePos.x + targetPos.x) / 2,
+        y: (sourcePos.y + targetPos.y) / 2
+      };
+      
+      // Create the relationship node
+      const relationshipNode = {
+        id: relationshipId,
+        type: 'relationshipNode',
+        position: relationshipPos,
+        data: {
+          relationshipName: 'Relates to',
+          attributes: [],
+          isIdentifying: false,
+        }
+      };
+      
+      // Create edges from both entities to the relationship
+      const sourceToRelationship = {
+        id: `edge-${params.source}-${relationshipId}`,
+        source: params.source,
+        target: relationshipId,
+        type: 'erdEdge',
+        data: {
+          sourceCardinality: '1',
+          targetCardinality: '',
+          sourceParticipation: 'partial',
+          targetParticipation: 'partial',
+        }
+      };
+      
+      const relationshipToTarget = {
+        id: `edge-${relationshipId}-${params.target}`,
+        source: relationshipId,
+        target: params.target,
+        type: 'erdEdge',
+        data: {
+          sourceCardinality: '',
+          targetCardinality: 'N',
+          sourceParticipation: 'partial',
+          targetParticipation: 'partial',
+        }
+      };
+      
+      // Add the new nodes and edges
+      setNodes(nds => [...nds, relationshipNode]);
+      setEdges(eds => [...eds, sourceToRelationship, relationshipToTarget]);
+      
+      // Add relationship to schema context
+      if (addRelationship && typeof addRelationship === 'function') {
+        const sourceEntity = params.source.replace('entity-', '');
+        const targetEntity = params.target.replace('entity-', '');
+        
+        addRelationship({
+          name: 'Relates to',
+          sourceTable: sourceEntity,
+          targetTable: targetEntity,
+          type: 'ONE_TO_MANY',
+        });
+      }
+    } 
+    // For direct connections or entity-relationship connections
+    else {
+      // Add edge to diagram
+      setEdges(eds => addEdge(edge, eds));
+      
+      // For entity-relationship connections, we don't need to add a schema relationship
+      // since the relationship node itself represents the relationship
+    }
+  }, [nodes, setNodes, setEdges, addRelationship, readOnly]);
+
+  // Handle errors with diagram rendering
+  const [hasError, setHasError] = useState(false);
+
+  if (hasError) {
+    return (
+      <div className={styles.errorContainer}>
+        <div className={styles.errorMessage}>
+          <h4>Error rendering diagram</h4>
+          <p>There was a problem rendering the ERD diagram.</p>
+          <button 
+            className={styles.retryButton}
+            onClick={() => setHasError(false)}
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle errors in rendering
+  useEffect(() => {
+    const handleError = (error) => {
+      console.error('ERD Diagram error:', error);
+      setHasError(true);
+    };
+
+    window.addEventListener('error', handleError);
+    
+    return () => {
+      window.removeEventListener('error', handleError);
+    };
+  }, []);
+
+  return (
+    <div className={`${styles.diagramContainer} ${darkMode ? styles.darkMode : ''}`} ref={reactFlowWrapper}>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onNodeDragStop={handleNodeDragStop}
+        onConnect={handleConnect}
+        onInit={setReactFlowInstance}
+        fitView
+        attributionPosition="bottom-right"
+        nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        connectionLineType={ConnectionLineType.SmoothStep}
+        connectionLineStyle={{ stroke: '#3b82f6', strokeWidth: 2 }}
+        defaultEdgeOptions={{
+          type: 'erdEdge',
+          data: {
+            sourceCardinality: '1',
+            targetCardinality: 'N',
+            sourceParticipation: 'partial',
+            targetParticipation: 'partial',
+          }
+        }}
+        className={styles.reactFlow}
+      >
+        <Background color="#aaa" gap={16} />
+        <Controls showInteractive={false} />
+        <MiniMap 
+          nodeStrokeColor={(n) => {
+            if (n.type === 'relationshipNode') return '#8b5cf6';
+            if (n.type === 'attributeNode') return '#10b981';
+            if (n.data?.entityType === 'weak') return '#f59e0b';
+            return '#3b82f6';
+          }}
+          nodeColor={(n) => {
+            if (n.selected) return '#f97316';
+            if (n.type === 'relationshipNode') return '#ddd6fe';
+            if (n.type === 'attributeNode') return '#d1fae5';
+            return '#fff';
+          }}
+          maskColor={darkMode ? 'rgba(0,0,0,0.2)' : 'rgba(240,249,255,0.7)'}
+        />
+        
+        <Panel position="top-right" className={styles.panel}>
+          <div className={styles.panelContent}>
+            <h4 className={styles.panelTitle}>ER Diagram Controls</h4>
+            
+            {/* Mode switcher */}
+            <div className={styles.modeSwitcher}>
+              <button 
+                className={`${styles.modeButton} ${diagramMode === 'conceptual' ? styles.activeMode : ''}`}
+                onClick={() => setDiagramMode('conceptual')}
+              >
+                Conceptual
+              </button>
+              <button 
+                className={`${styles.modeButton} ${diagramMode === 'logical' ? styles.activeMode : ''}`}
+                onClick={() => setDiagramMode('logical')}
+              >
+                Logical
+              </button>
+            </div>
+            
+            {/* Legend */}
+            <div className={styles.panelInfo}>
+              <div className={styles.legendTitle}>Legend</div>
+              
+              <div className={styles.infoItem}>
+                <div className={styles.entitySymbol}></div>
+                <span>Entity</span>
+              </div>
+              
+              <div className={styles.infoItem}>
+                <div className={`${styles.entitySymbol} ${styles.weakEntitySymbol}`}></div>
+                <span>Weak Entity</span>
+              </div>
+              
+              <div className={styles.infoItem}>
+                <div className={styles.relationshipSymbol}></div>
+                <span>Relationship</span>
+              </div>
+              
+              <div className={styles.infoItem}>
+                <div className={`${styles.relationshipSymbol} ${styles.identifyingRelationshipSymbol}`}></div>
+                <span>Identifying Relationship</span>
+              </div>
+              
+              <div className={styles.infoItem}>
+                <div className={styles.attributeSymbol}></div>
+                <span>Attribute</span>
+              </div>
+              
+              <div className={styles.infoItem}>
+                <div className={`${styles.attributeSymbol} ${styles.keyAttributeSymbol}`}></div>
+                <span>Key Attribute</span>
+              </div>
+              
+              <div className={styles.infoItem}>
+                <div className={`${styles.attributeSymbol} ${styles.derivedAttributeSymbol}`}></div>
+                <span>Derived Attribute</span>
+              </div>
+              
+              <div className={styles.infoItem}>
+                <div className={`${styles.attributeSymbol} ${styles.multivaluedAttributeSymbol}`}></div>
+                <span>Multivalued Attribute</span>
+              </div>
+              
+              <div className={styles.infoItem}>
+                <div className={styles.totalParticipationLine}></div>
+                <span>Total Participation</span>
+              </div>
+              
+              <div className={styles.infoItem}>
+                <div className={styles.partialParticipationLine}></div>
+                <span>Partial Participation</span>
+              </div>
+              
+              {diagramMode === 'logical' && (
+                <div className={styles.infoItem}>
+                  <div className={styles.cardinalityExample}>1 : N</div>
+                  <span>Cardinality</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </Panel>
+      </ReactFlow>
+    </div>
+  );
+};
+
+export default ERDDiagram;
