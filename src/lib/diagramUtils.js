@@ -267,7 +267,8 @@ const createRelationshipNodes = (schema, nodes, edges) => {
         attributes: rel.attributes || [],
         isIdentifying: rel.isIdentifying || rel.identifying || false,
         description: rel.description || '',
-        isDraggable: true // Ensure data includes draggability flag
+        isDraggable: true, // Ensure data includes draggability flag
+        type: rel.type || '' // Include relationship type for styling
       },
       draggable: true, // Explicitly set draggable property
     };
@@ -286,6 +287,8 @@ const createRelationshipNodes = (schema, nodes, edges) => {
         sourceParticipation: rel.sourceParticipation || 'partial',
         targetParticipation: 'partial',
         label: '',
+        relationshipType: rel.type || '',
+        isIdentifying: rel.isIdentifying || rel.identifying || false
       }
     });
     
@@ -299,6 +302,8 @@ const createRelationshipNodes = (schema, nodes, edges) => {
         sourceCardinality: '',
         targetCardinality: getCardinalityNotation(rel.type, 'target'),
         sourceParticipation: 'partial',
+        relationshipType: rel.type || '',
+        isIdentifying: rel.isIdentifying || rel.identifying || false,
         targetParticipation: rel.targetParticipation || 'partial',
         label: '',
       }
@@ -376,9 +381,11 @@ const createLogicalEdges = (schema, edges) => {
         sourceParticipation: rel.sourceParticipation || 'partial',
         targetParticipation: rel.targetParticipation || 'partial',
         label: rel.name || '',
+        relationshipType: rel.type || '',
+        isIdentifying: rel.isIdentifying || rel.identifying || false
       },
       style: {
-        stroke: rel.isIdentifying ? '#f59e0b' : '#3b82f6',
+        // We'll use classes for styling now instead of inline styles
         strokeWidth: 2,
       },
       animated: false,

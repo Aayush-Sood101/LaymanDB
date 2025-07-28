@@ -9,8 +9,24 @@ const RelationshipNode = memo(({ data, selected }) => {
     relationshipName,
     attributes = [],
     isIdentifying = false,
-    description = ""
+    description = "",
+    type = "" // "ONE_TO_ONE", "ONE_TO_MANY", "MANY_TO_MANY", etc.
   } = data;
+  
+  // Determine relationship style class based on type
+  const getRelationshipStyleClass = () => {
+    if (isIdentifying) return styles.identifyingRelationship;
+    
+    switch(type) {
+      case "MANY_TO_MANY":
+        return styles.manyToManyRelationship;
+      case "ONE_TO_MANY":
+      case "MANY_TO_ONE":
+        return styles.oneToManyRelationship;
+      default:
+        return "";
+    }
+  };
 
   return (
     <div 
@@ -18,7 +34,7 @@ const RelationshipNode = memo(({ data, selected }) => {
       data-draggable="true" // Ensure node is recognized as draggable
     >
       {/* Relationship represented as a diamond */}
-      <div className={`${styles.relationshipDiamond} ${isIdentifying ? styles.identifyingRelationship : ''}`}>
+      <div className={`${styles.relationshipDiamond} ${getRelationshipStyleClass()}`}>
         <div className={styles.relationshipName}>{relationshipName}</div>
         
         {/* Description */}

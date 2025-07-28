@@ -69,13 +69,13 @@ const EntityNode = memo(({ data, selected }) => {
             className={`
               ${styles.attribute}
               ${attr.isPrimaryKey ? styles.keyAttribute : ''}
+              ${attr.isForeignKey ? styles.foreignKeyAttribute : ''}
               ${attr.isDerived ? styles.derivedAttribute : ''}
               ${attr.isMultivalued ? styles.multivaluedAttribute : ''}
               ${attr.isComposite ? styles.compositeAttribute : ''}
             `}
           >
             <span className={styles.attributeName}>
-              {attr.isPrimaryKey && '🔑 '}
               {attr.name}
               {attr.isMultivalued && ' [*]'}
             </span>

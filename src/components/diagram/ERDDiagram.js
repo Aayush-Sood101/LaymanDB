@@ -45,6 +45,7 @@ const ERDDiagram = ({
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
   const [diagramMode, setDiagramMode] = useState('conceptual'); // 'conceptual' or 'logical'
+  const [showLegend, setShowLegend] = useState(false); // Toggle for legend visibility
   
   const { updateTablePosition, addRelationship } = useSchemaContext();
   
@@ -363,62 +364,109 @@ const ERDDiagram = ({
             <div className={styles.panelInfo}>
               <div className={styles.legendTitle}>Legend</div>
               
-              <div className={styles.infoItem}>
-                <div className={styles.entitySymbol}></div>
-                <span>Entity</span>
-              </div>
-              
-              <div className={styles.infoItem}>
-                <div className={`${styles.entitySymbol} ${styles.weakEntitySymbol}`}></div>
-                <span>Weak Entity</span>
-              </div>
-              
-              <div className={styles.infoItem}>
-                <div className={styles.relationshipSymbol}></div>
-                <span>Relationship</span>
-              </div>
-              
-              <div className={styles.infoItem}>
-                <div className={`${styles.relationshipSymbol} ${styles.identifyingRelationshipSymbol}`}></div>
-                <span>Identifying Relationship</span>
-              </div>
-              
-              <div className={styles.infoItem}>
-                <div className={styles.attributeSymbol}></div>
-                <span>Attribute</span>
-              </div>
-              
-              <div className={styles.infoItem}>
-                <div className={`${styles.attributeSymbol} ${styles.keyAttributeSymbol}`}></div>
-                <span>Key Attribute</span>
-              </div>
-              
-              <div className={styles.infoItem}>
-                <div className={`${styles.attributeSymbol} ${styles.derivedAttributeSymbol}`}></div>
-                <span>Derived Attribute</span>
-              </div>
-              
-              <div className={styles.infoItem}>
-                <div className={`${styles.attributeSymbol} ${styles.multivaluedAttributeSymbol}`}></div>
-                <span>Multivalued Attribute</span>
-              </div>
-              
-              <div className={styles.infoItem}>
-                <div className={styles.totalParticipationLine}></div>
-                <span>Total Participation</span>
-              </div>
-              
-              <div className={styles.infoItem}>
-                <div className={styles.partialParticipationLine}></div>
-                <span>Partial Participation</span>
-              </div>
-              
-              {diagramMode === 'logical' && (
+              <div className={styles.legendSection}>
+                <h4 className={styles.legendSectionTitle}>Entity Types</h4>
                 <div className={styles.infoItem}>
-                  <div className={styles.cardinalityExample}>1 : N</div>
-                  <span>Cardinality</span>
+                  <div className={styles.entitySymbol}></div>
+                  <span>Strong Entity</span>
                 </div>
-              )}
+                
+                <div className={styles.infoItem}>
+                  <div className={`${styles.entitySymbol} ${styles.weakEntitySymbol}`}></div>
+                  <span>Weak Entity</span>
+                </div>
+                
+                <div className={styles.infoItem}>
+                  <div className={`${styles.entitySymbol} ${styles.associativeEntitySymbol}`}></div>
+                  <span>Associative Entity</span>
+                </div>
+              </div>
+              
+              <div className={styles.legendSection}>
+                <h4 className={styles.legendSectionTitle}>Relationship Types</h4>
+                <div className={styles.infoItem}>
+                  <div className={styles.relationshipSymbol}></div>
+                  <span>Basic Relationship</span>
+                </div>
+                
+                <div className={styles.infoItem}>
+                  <div className={`${styles.relationshipSymbol} ${styles.identifyingRelationshipSymbol}`}></div>
+                  <span>Identifying Relationship</span>
+                </div>
+                
+                <div className={styles.infoItem}>
+                  <div className={`${styles.relationshipSymbol} ${styles.oneToManyRelationshipSymbol}`}></div>
+                  <span>One-to-Many</span>
+                </div>
+                
+                <div className={styles.infoItem}>
+                  <div className={`${styles.relationshipSymbol} ${styles.manyToManyRelationshipSymbol}`}></div>
+                  <span>Many-to-Many</span>
+                </div>
+              </div>
+              
+              <div className={styles.legendSection}>
+                <h4 className={styles.legendSectionTitle}>Attributes</h4>
+                <div className={styles.infoItem}>
+                  <div className={styles.attributeSymbol}></div>
+                  <span>Attribute</span>
+                </div>
+                
+                <div className={styles.infoItem}>
+                  <div className={`${styles.attributeSymbol} ${styles.keyAttributeSymbol}`}></div>
+                  <span>Primary Key</span>
+                </div>
+                
+                <div className={styles.infoItem}>
+                  <div className={`${styles.attributeSymbol} ${styles.foreignKeyAttributeSymbol}`}></div>
+                  <span>Foreign Key</span>
+                </div>
+                
+                <div className={styles.infoItem}>
+                  <div className={`${styles.attributeSymbol} ${styles.derivedAttributeSymbol}`}></div>
+                  <span>Derived Attribute</span>
+                </div>
+                
+                <div className={styles.infoItem}>
+                  <div className={`${styles.attributeSymbol} ${styles.multivaluedAttributeSymbol}`}></div>
+                  <span>Multivalued Attribute</span>
+                </div>
+              </div>
+              
+              <div className={styles.legendSection}>
+                <h4 className={styles.legendSectionTitle}>Relationships</h4>
+                <div className={styles.infoItem}>
+                  <div className={styles.totalParticipationLine}></div>
+                  <span>Total Participation</span>
+                </div>
+                
+                <div className={styles.infoItem}>
+                  <div className={styles.partialParticipationLine}></div>
+                  <span>Partial Participation</span>
+                </div>
+                
+                <div className={styles.infoItem}>
+                  <div className={styles.oneToManyEdgeLine}></div>
+                  <span>One-to-Many Edge</span>
+                </div>
+                
+                <div className={styles.infoItem}>
+                  <div className={styles.manyToManyEdgeLine}></div>
+                  <span>Many-to-Many Edge</span>
+                </div>
+                
+                <div className={styles.infoItem}>
+                  <div className={styles.identifyingEdgeLine}></div>
+                  <span>Identifying Edge</span>
+                </div>
+                
+                {diagramMode === 'logical' && (
+                  <div className={styles.infoItem}>
+                    <div className={styles.cardinalityExample}>1 : N</div>
+                    <span>Cardinality</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </Panel>

@@ -32,7 +32,26 @@ const ERDEdge = ({
     sourceParticipation = 'partial', // 'partial' or 'total'
     targetParticipation = 'partial', // 'partial' or 'total'
     label = '',
+    relationshipType = '',  // "ONE_TO_ONE", "ONE_TO_MANY", "MANY_TO_MANY"
+    isIdentifying = false
   } = data || {};
+  
+  // Determine edge class based on relationship type
+  const getEdgeClass = () => {
+    if (isIdentifying) return styles.identifyingEdge;
+    
+    switch(relationshipType) {
+      case "MANY_TO_MANY":
+        return styles.manyToManyEdge;
+      case "ONE_TO_MANY":
+      case "MANY_TO_ONE": 
+        return styles.oneToManyEdge;
+      case "ONE_TO_ONE":
+        return styles.oneToOneEdge;
+      default:
+        return "";
+    }
+  };
 
   // Calculate positions for cardinality labels
   const distanceFromNode = 30; // Increased distance from node for cardinality label
@@ -61,7 +80,7 @@ const ERDEdge = ({
       <path
         id={id}
         style={style}
-        className={`${styles.erEdgePath} ${sourceParticipation === 'total' ? styles.totalParticipation : styles.partialParticipation}`}
+        className={`${styles.erEdgePath} ${getEdgeClass()} ${sourceParticipation === 'total' ? styles.totalParticipation : styles.partialParticipation}`}
         d={edgePath}
         markerEnd={markerEnd}
         markerStart={sourceCardinality === 'N' || sourceCardinality === 'M' ? "url(#many)" : null}

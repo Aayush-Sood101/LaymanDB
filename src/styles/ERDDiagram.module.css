@@ -36,26 +36,47 @@
 }
 
 .strongEntityWrapper {
-  border: 2px solid #3b82f6;
+  border: 2px solid #3b82f6; /* Blue border */
   background-color: #ffffff;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
+  position: relative;
+}
+
+.strongEntityWrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background-color: #3b82f6;
 }
 
 .weakEntityWrapper {
-  border: 2px double #f59e0b;
-  background-color: #ffffff;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border: 2px dashed #f59e0b; /* Orange dashed border */
+  background-color: #fffbeb; /* Light orange background */
+  box-shadow: 0 4px 8px rgba(245, 158, 11, 0.2);
 }
 
 .associativeEntityWrapper {
-  border: 2px solid #8b5cf6;
-  background-color: #ffffff;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border: 2px solid #8b5cf6; /* Purple border */
+  background-color: #f5f3ff; /* Light purple background */
+  box-shadow: 0 4px 8px rgba(139, 92, 246, 0.2);
+  position: relative;
+}
+
+.associativeEntityWrapper::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(to right, #8b5cf6, #d8b4fe, #8b5cf6);
 }
 
 .entityHeader {
-  padding: 8px 12px;
-  background: #ffffff;
+  padding: 12px;
   text-align: center;
   font-weight: 600;
   font-size: 14px;
@@ -65,18 +86,37 @@
   justify-content: center;
   align-items: center;
   gap: 6px;
+  position: relative;
+}
+
+/* Different backgrounds for different entity types */
+.strongEntityWrapper .entityHeader {
+  background: linear-gradient(to right, #dbeafe, #eff6ff);
+  color: #1e40af;
+}
+
+.weakEntityWrapper .entityHeader {
+  background: linear-gradient(to right, #ffedd5, #fff7ed);
+  color: #9a3412;
+}
+
+.associativeEntityWrapper .entityHeader {
+  background: linear-gradient(to right, #ede9fe, #f5f3ff);
+  color: #5b21b6;
 }
 
 .weakEntityIndicator {
   font-size: 10px;
   background-color: #f59e0b;
   color: white;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-left: 4px;
 }
 
 .entityDescription {
@@ -210,10 +250,67 @@
   margin-bottom: 20px;
   position: relative;
   transform-origin: center;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* Relationship types */
+.relationshipDiamond::before {
+  content: "Relationship";
+  position: absolute;
+  top: -30px;
+  left: -30px;
+  transform: rotate(-45deg);
+  font-size: 8px;
+  color: #8b5cf6;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 2px 4px;
+  border-radius: 4px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.relationshipDiamond:hover::before {
+  opacity: 1;
+}
+
+.relationshipDiamond:hover {
+  transform: rotate(45deg) scale(1.05);
+  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.25);
+}
+
+/* Different styles for different relationship types */
 .identifyingRelationship {
-  border: 2px double #f59e0b;
+  border: 3px double #f59e0b;
+  background: linear-gradient(135deg, #ffffff 70%, rgba(245, 158, 11, 0.1) 100%);
+}
+
+.identifyingRelationship::before {
+  content: "Identifying";
+  color: #f59e0b;
+}
+
+/* Many-to-many relationship style */
+.manyToManyRelationship {
+  border: 2px solid #10b981; /* Green border */
+  background: linear-gradient(135deg, #ffffff 70%, rgba(16, 185, 129, 0.1) 100%);
+}
+
+.manyToManyRelationship::before {
+  content: "Many-to-Many";
+  color: #10b981;
+}
+
+/* One-to-many relationship style */
+.oneToManyRelationship {
+  border: 2px solid #3b82f6; /* Blue border */
+  background: linear-gradient(135deg, #ffffff 70%, rgba(59, 130, 246, 0.1) 100%);
+}
+
+.oneToManyRelationship::before {
+  content: "One-to-Many";
+  color: #3b82f6;
 }
 
 .relationshipName {
@@ -272,13 +369,20 @@
 
 .attribute {
   background-color: #ffffff;
-  border: 1px solid #10b981;
-  padding: 4px 8px;
+  border: 1px solid #10b981; /* Green border for regular attributes */
+  padding: 6px 10px;
   border-radius: 12px;
   font-size: 11px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.attribute:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .attributeName {
@@ -289,19 +393,85 @@
 .attributeType {
   font-size: 10px;
   color: #64748b;
+  background-color: #f8fafc;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 3px;
 }
 
+/* Primary key attributes */
 .keyAttribute {
-  border: 2px solid #f59e0b;
+  border: 2px solid #f59e0b; /* Orange border for primary keys */
   font-weight: 600;
+  background: linear-gradient(to bottom, #ffffff, #fff7ed);
+  position: relative;
 }
 
+.keyAttribute::before {
+  content: "🔑";
+  position: absolute;
+  top: -8px;
+  left: -6px;
+  font-size: 12px;
+  background: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Foreign key attributes */
+.foreignKeyAttribute {
+  border: 2px solid #3b82f6; /* Blue border for foreign keys */
+  background: linear-gradient(to bottom, #ffffff, #eff6ff);
+  position: relative;
+}
+
+.foreignKeyAttribute::before {
+  content: "🔗";
+  position: absolute;
+  top: -8px;
+  left: -6px;
+  font-size: 12px;
+  background: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Derived attributes */
 .derivedAttribute {
   border: 1px dashed #10b981;
+  background: linear-gradient(to bottom, #ffffff, #f0fdfa);
 }
 
+/* Multi-valued attributes */
 .multivaluedAttribute {
   border: 2px solid #10b981;
+  background: linear-gradient(to bottom, #ffffff, #ecfdf5);
+  position: relative;
+}
+
+.multivaluedAttribute::after {
+  content: "*";
+  position: absolute;
+  top: -8px;
+  right: -6px;
+  font-size: 16px;
+  font-weight: bold;
+  background: #10b981;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .compositeAttribute {
@@ -368,14 +538,37 @@
 .erEdgePath:hover {
   stroke-width: 3;
   stroke: #2563eb;
+  filter: drop-shadow(0 0 3px rgba(59, 130, 246, 0.4));
 }
 
+/* Different edge styles for relationship types */
+.oneToOneEdge {
+  stroke: #8b5cf6; /* Purple */
+  stroke-dasharray: none;
+}
+
+.oneToManyEdge {
+  stroke: #3b82f6; /* Blue */
+  stroke-dasharray: none;
+}
+
+.manyToManyEdge {
+  stroke: #10b981; /* Green */
+  stroke-dasharray: none;
+}
+
+.identifyingEdge {
+  stroke: #f59e0b; /* Orange */
+}
+
+/* Participation constraints */
 .totalParticipation {
   stroke-width: 3;
 }
 
 .partialParticipation {
   stroke-width: 1.8;
+  stroke-dasharray: 5, 3;
 }
 
 .cardinalityLabel {
@@ -453,8 +646,10 @@
 .panel {
   font-size: 12px;
   background: white;
-  padding: 10px;
-  border-radius: 5px;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(226, 232, 240, 0.8);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(59, 130, 246, 0.2);
   max-width: 220px;
@@ -501,16 +696,53 @@
 }
 
 .panelInfo {
+  font-size: 12px;
+  color: #475569;
   display: flex;
   flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 6px;
+  max-height: 700px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
   gap: 8px;
 }
 
 .legendTitle {
-  font-size: 11px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 6px;
+}
+
+.legendSection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed #e2e8f0;
+}
+
+.legendSection:last-child {
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.legendSectionTitle {
+  font-size: 12px;
   font-weight: 600;
-  color: #64748b;
-  margin-bottom: 4px;
+  color: #475569;
+  margin: 0 0 4px 0;
+  background: #f1f5f9;
+  padding: 4px 8px;
+  border-radius: 4px;
 }
 
 .infoItem {
@@ -519,6 +751,7 @@
   gap: 8px;
   font-size: 11px;
   color: #334155;
+  padding: 3px 0;
 }
 
 /* Legend symbols */
@@ -526,11 +759,17 @@
   width: 20px;
   height: 14px;
   border: 2px solid #3b82f6;
-  background-color: white;
+  background: linear-gradient(to right, #dbeafe, #eff6ff);
 }
 
 .weakEntitySymbol {
-  border: 2px double #f59e0b;
+  border: 2px dashed #f59e0b;
+  background: #fffbeb;
+}
+
+.associativeEntitySymbol {
+  border: 2px solid #8b5cf6;
+  background: #f5f3ff;
 }
 
 .relationshipSymbol {
@@ -543,6 +782,17 @@
 
 .identifyingRelationshipSymbol {
   border: 2px double #f59e0b;
+  background: linear-gradient(135deg, #ffffff 70%, rgba(245, 158, 11, 0.1) 100%);
+}
+
+.manyToManyRelationshipSymbol {
+  border: 2px solid #10b981;
+  background: linear-gradient(135deg, #ffffff 70%, rgba(16, 185, 129, 0.1) 100%);
+}
+
+.oneToManyRelationshipSymbol {
+  border: 2px solid #3b82f6;
+  background: linear-gradient(135deg, #ffffff 70%, rgba(59, 130, 246, 0.1) 100%);
 }
 
 .attributeSymbol {
@@ -555,16 +805,54 @@
 
 .keyAttributeSymbol {
   border: 2px solid #f59e0b;
+  background: linear-gradient(to bottom, #ffffff, #fff7ed);
+  position: relative;
+}
+
+.keyAttributeSymbol::after {
+  content: "🔑";
+  position: absolute;
+  top: -8px;
+  left: -3px;
+  font-size: 8px;
+}
+
+.foreignKeyAttributeSymbol {
+  border: 2px solid #3b82f6;
+  background: linear-gradient(to bottom, #ffffff, #eff6ff);
+  position: relative;
+}
+
+.foreignKeyAttributeSymbol::after {
+  content: "🔗";
+  position: absolute;
+  top: -8px;
+  left: -3px;
+  font-size: 8px;
 }
 
 .derivedAttributeSymbol {
   border: 1px dashed #10b981;
+  background: #f0fdfa;
 }
 
 .multivaluedAttributeSymbol {
   border: 2px solid #10b981;
+  background: #ecfdf5;
+  position: relative;
 }
 
+.multivaluedAttributeSymbol::after {
+  content: "*";
+  position: absolute;
+  top: -8px;
+  right: -3px;
+  font-size: 8px;
+  font-weight: bold;
+  color: #10b981;
+}
+
+/* Edge styles for legend */
 .totalParticipationLine {
   width: 20px;
   height: 3px;
@@ -575,6 +863,25 @@
   width: 20px;
   height: 1px;
   background-color: #3b82f6;
+  border-top: 1px dashed #3b82f6;
+}
+
+.manyToManyEdgeLine {
+  width: 20px;
+  height: 3px;
+  background-color: #10b981;
+}
+
+.oneToManyEdgeLine {
+  width: 20px;
+  height: 3px;
+  background-color: #3b82f6;
+}
+
+.identifyingEdgeLine {
+  width: 20px;
+  height: 3px;
+  background-color: #f59e0b;
 }
 
 .cardinalityExample {
