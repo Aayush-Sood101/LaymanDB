@@ -68,7 +68,7 @@ export const generateERDiagramElements = (schema, mode = 'conceptual') => {
     if (mode === 'conceptual') {
       // Only process attribute nodes for non-empty columns
       if (Array.isArray(table.columns) && table.columns.length > 0) {
-        createAttributeNodes(table, entityId, nodes, edges);
+        createAttributeNodes(table, entityId, nodes, edges, schema);
       }
     }
   });
@@ -156,7 +156,7 @@ const isJunctionTable = (tableName, table, relationships) => {
  * @param {Array} nodes - Nodes array to append to
  * @param {Array} edges - Edges array to append to
  */
-const createAttributeNodes = (table, entityId, nodes, edges) => {
+const createAttributeNodes = (table, entityId, nodes, edges, schema = {}) => {
   if (!Array.isArray(table.columns)) return;
   
   const entityPosition = nodes.find(n => n.id === entityId)?.position || { x: 0, y: 0 };
@@ -199,10 +199,14 @@ const createAttributeNodes = (table, entityId, nodes, edges) => {
     const attrY = entityPosition.y + radius * Math.sin(angle);
     
     // Create attribute node
+    // Check if we have a saved position for this attribute
+    const savedPosition = schema?.nodePositions?.[attributeId];
+    
     const attributeNode = {
       id: attributeId,
       type: 'attributeNode',
-      position: { x: attrX, y: attrY },
+      // Use saved position if available, otherwise use calculated position
+      position: savedPosition || { x: attrX, y: attrY },
       data: {
         attributeName: column.name || 'Unnamed',
         dataType: column.dataType || '',
@@ -251,17 +255,21 @@ const createRelationshipNodes = (schema, nodes, edges) => {
     
     if (!sourcePos || !targetPos) return;
     
-    // Calculate position for the relationship (midpoint)
-    const relationshipPos = {
+    // Calculate default position for the relationship (midpoint)
+    const defaultPos = {
       x: (sourcePos.x + targetPos.x) / 2,
       y: (sourcePos.y + targetPos.y) / 2
     };
+    
+    // Check if we have a saved position for this relationship
+    const savedPosition = schema?.nodePositions?.[relationshipId] || 
+                          rel.position?.isDraggable ? rel.position : null;
     
     // Create relationship node
     const relationshipNode = {
       id: relationshipId,
       type: 'relationshipNode',
-      position: relationshipPos,
+      position: savedPosition || defaultPos,
       data: {
         relationshipName: rel.name || 'Relates',
         attributes: rel.attributes || [],

@@ -58,18 +58,67 @@ const schemaReducer = (state, action) => {
     case ActionTypes.UPDATE_TABLE_POSITION:
       if (!state.currentSchema) return state;
       
-      const updatedTables = state.currentSchema.tables.map(table => {
-        if (table.name === action.payload.name) {
-          return { ...table, position: action.payload.position };
-        }
-        return table;
-      });
+      // If this is an entity (table) node
+      if (action.payload.type === 'entity') {
+        const updatedTables = state.currentSchema.tables.map(table => {
+          if (table.name === action.payload.name) {
+            return { ...table, position: action.payload.position };
+          }
+          return table;
+        });
+        
+        return {
+          ...state,
+          currentSchema: {
+            ...state.currentSchema,
+            tables: updatedTables
+          }
+        };
+      }
+      
+      // If this is a relationship node
+      else if (action.payload.type === 'relationship') {
+        // Create a new array if relationships doesn't exist or modify existing
+        const relationships = Array.isArray(state.currentSchema.relationships) 
+          ? state.currentSchema.relationships 
+          : [];
+          
+        const updatedRelationships = relationships.map(rel => {
+          // For relationships, name might be rel1, rel2, etc. or the actual relationship name
+          const relName = rel.name || '';
+          if (relName === action.payload.name) {
+            return { 
+              ...rel, 
+              position: { 
+                ...action.payload.position,
+                isDraggable: true 
+              } 
+            };
+          }
+          return rel;
+        });
+        
+        return {
+          ...state,
+          currentSchema: {
+            ...state.currentSchema,
+            relationships: updatedRelationships
+          }
+        };
+      }
+      
+      // If this is an attribute node or any other node type
+      // Store the positions in a nodePositions map for persistence
+      const nodePositions = state.currentSchema.nodePositions || {};
       
       return {
         ...state,
         currentSchema: {
           ...state.currentSchema,
-          tables: updatedTables
+          nodePositions: {
+            ...nodePositions,
+            [action.payload.id]: action.payload.position
+          }
         }
       };
       

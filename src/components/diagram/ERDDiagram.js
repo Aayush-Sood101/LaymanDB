@@ -55,6 +55,16 @@ const ERDDiagram = ({
       try {
         // Generate all ER diagram elements based on the current mode
         const { nodes: diagramNodes, edges: diagramEdges } = generateERDiagramElements(schema, diagramMode);
+        
+        // Apply any saved positions to the nodes before rendering
+        if (schema.nodePositions) {
+          diagramNodes.forEach(node => {
+            if (schema.nodePositions[node.id]) {
+              node.position = schema.nodePositions[node.id];
+            }
+          });
+        }
+        
         setNodes(diagramNodes);
         setEdges(diagramEdges);
       } catch (error) {
@@ -71,17 +81,28 @@ const ERDDiagram = ({
     
     // Update node position in schema context
     if (updateTablePosition && typeof updateTablePosition === 'function') {
-      // Extract entity name from node id if it's an entity node
-      const entityName = node.id.startsWith('entity-') 
-        ? node.id.replace('entity-', '')
-        : node.id;
+      // Store position for all node types (entity, attribute, relationship)
+      const parts = node.id.split('-');
+      const nodeType = parts[0];
+      
+      // For attributes of entities, we need to handle the ID differently
+      // Format is typically 'attr-entity-entityName-attrName'
+      let nodeName = '';
+      if (nodeType === 'attr' && parts.length > 2) {
+        nodeName = parts.slice(2).join('-');
+      } else {
+        nodeName = node.id.substring(node.id.indexOf('-') + 1);
+      }
       
       // Pass the correct object format to updateTablePosition
       updateTablePosition({
-        name: entityName,
+        id: node.id, // Keep the full ID for position lookup
+        name: nodeName,
+        type: nodeType,
         position: {
           x: Math.round(node.position.x),
-          y: Math.round(node.position.y)
+          y: Math.round(node.position.y),
+          isDraggable: true
         }
       });
     }
@@ -285,10 +306,15 @@ const ERDDiagram = ({
           if (instance) {
             // Save positions of all nodes to make them persistent
             instance.getNodes().forEach(node => {
-              if (node.id.startsWith('entity-') && updateTablePosition) {
-                const entityName = node.id.replace('entity-', '');
+              if (updateTablePosition) {
+                // Handle all node types
+                const nodeType = node.id.split('-')[0];
+                const nodeName = node.id.substring(node.id.indexOf('-') + 1);
+                
                 updateTablePosition({
-                  name: entityName,
+                  id: node.id,
+                  name: nodeName,
+                  type: nodeType,
                   position: node.position
                 });
               }
@@ -318,6 +344,10 @@ const ERDDiagram = ({
         nodesConnectable={!readOnly}
         zoomOnScroll={true}
         panOnScroll={true}
+        onNodeClick={(e, node) => {
+          // This helps ensure the node is properly recognized as selected
+          node.selected = true;
+        }}
         snapToGrid={true}
         snapGrid={[20, 20]} 
         className={styles.reactFlow}
