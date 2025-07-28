@@ -17,25 +17,64 @@ const RelationshipNode = memo(({ data, selected }) => {
   const getRelationshipStyleClass = () => {
     if (isIdentifying) return styles.identifyingRelationship;
     
+    // Check for relationship type in various formats from OpenAI responses
+    const normalizedType = type.toUpperCase();
+    
+    if (normalizedType.includes("MANY_TO_MANY") || 
+        normalizedType === "MANY:MANY" || 
+        normalizedType === "M:N" || 
+        normalizedType === "N:M") {
+      return styles.manyToManyRelationship;
+    }
+    
+    if (normalizedType.includes("ONE_TO_MANY") || 
+        normalizedType.includes("MANY_TO_ONE") || 
+        normalizedType === "ONE:MANY" || 
+        normalizedType === "MANY:ONE" || 
+        normalizedType === "1:N" || 
+        normalizedType === "N:1") {
+      return styles.oneToManyRelationship;
+    }
+    
+    if (normalizedType.includes("ONE_TO_ONE") || 
+        normalizedType === "ONE:ONE" || 
+        normalizedType === "1:1") {
+      return styles.oneToOneRelationship;
+    }
+    
+    return "";
+  };
+
+  // Format relationship type for display
+  const formatRelationshipType = (type) => {
     switch(type) {
       case "MANY_TO_MANY":
-        return styles.manyToManyRelationship;
+        return "M:N";
       case "ONE_TO_MANY":
+        return "1:N";
       case "MANY_TO_ONE":
-        return styles.oneToManyRelationship;
+        return "N:1";
+      case "ONE_TO_ONE":
+        return "1:1";
       default:
-        return "";
+        return type;
     }
   };
 
   return (
     <div 
       className={`${styles.relationshipNode} ${selected ? styles.selected : ''}`} 
-      data-draggable="true" // Ensure node is recognized as draggable
+      draggable="true"
+      style={{ cursor: 'move' }}
     >
       {/* Relationship represented as a diamond */}
       <div className={`${styles.relationshipDiamond} ${getRelationshipStyleClass()}`}>
         <div className={styles.relationshipName}>{relationshipName}</div>
+        
+        {/* Relationship type displayed prominently */}
+        <div className={styles.relationshipType}>
+          {formatRelationshipType(type)}
+        </div>
         
         {/* Description */}
         {description && (

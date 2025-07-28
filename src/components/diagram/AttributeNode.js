@@ -28,7 +28,7 @@ const AttributeNode = memo(({ data, selected }) => {
   };
 
   return (
-    <div className={getAttributeClass()}>
+    <div className={getAttributeClass()} draggable="true" style={{ cursor: 'move' }}>
       <div className={styles.attributeContent}>
         <div className={styles.attributeNameContainer}>
           <span className={styles.attributeName}>
