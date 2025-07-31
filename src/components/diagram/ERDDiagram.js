@@ -410,13 +410,18 @@ const ERDDiagram = ({
                   <div className={`${styles.entitySymbol} ${styles.associativeEntitySymbol}`}></div>
                   <span>Associative Entity</span>
                 </div>
+                
+                <div className={styles.infoItem}>
+                  <div className={`${styles.entitySymbol} ${styles.lookupTableSymbol}`}></div>
+                  <span>Lookup/Reference Table</span>
+                </div>
               </div>
-              
+                
               <div className={styles.legendSection}>
                 <h4 className={styles.legendSectionTitle}>Relationship Types</h4>
                 <div className={styles.infoItem}>
                   <div className={styles.relationshipSymbol}></div>
-                  <span>Basic Relationship</span>
+                  <span>Relationship Diamond (Contains verb phrase)</span>
                 </div>
                 
                 <div className={styles.infoItem}>
@@ -426,12 +431,17 @@ const ERDDiagram = ({
                 
                 <div className={styles.infoItem}>
                   <div className={`${styles.relationshipSymbol} ${styles.oneToManyRelationshipSymbol}`}></div>
-                  <span>One-to-Many</span>
+                  <span>One-to-Many (1:N)</span>
                 </div>
                 
                 <div className={styles.infoItem}>
                   <div className={`${styles.relationshipSymbol} ${styles.manyToManyRelationshipSymbol}`}></div>
-                  <span>Many-to-Many</span>
+                  <span>Many-to-Many (M:N)</span>
+                </div>
+                
+                <div className={styles.infoItem}>
+                  <div className={`${styles.relationshipSymbol} ${styles.oneToOneRelationshipSymbol}`}></div>
+                  <span>One-to-One (1:1)</span>
                 </div>
               </div>
               
@@ -464,38 +474,51 @@ const ERDDiagram = ({
               </div>
               
               <div className={styles.legendSection}>
-                <h4 className={styles.legendSectionTitle}>Relationships</h4>
+                <h4 className={styles.legendSectionTitle}>Relationship Lines & Cardinality</h4>
                 <div className={styles.infoItem}>
                   <div className={styles.totalParticipationLine}></div>
-                  <span>Total Participation</span>
+                  <span>Total Participation (Solid Line - Entity MUST participate in relationship)</span>
                 </div>
                 
                 <div className={styles.infoItem}>
                   <div className={styles.partialParticipationLine}></div>
-                  <span>Partial Participation</span>
+                  <span>Partial Participation (Dashed Line - Entity MAY participate in relationship)</span>
                 </div>
                 
                 <div className={styles.infoItem}>
                   <div className={styles.oneToManyEdgeLine}></div>
-                  <span>One-to-Many Edge</span>
+                  <span>One-to-Many Edge (1:N)</span>
                 </div>
                 
                 <div className={styles.infoItem}>
                   <div className={styles.manyToManyEdgeLine}></div>
-                  <span>Many-to-Many Edge</span>
+                  <span>Many-to-Many Edge (M:N)</span>
                 </div>
                 
                 <div className={styles.infoItem}>
                   <div className={styles.identifyingEdgeLine}></div>
-                  <span>Identifying Edge</span>
+                  <span>Identifying Edge (PK dependency)</span>
                 </div>
                 
-                {diagramMode === 'logical' && (
-                  <div className={styles.infoItem}>
-                    <div className={styles.cardinalityExample}>1 : N</div>
-                    <span>Cardinality</span>
-                  </div>
-                )}
+                <div className={styles.infoItem}>
+                  <div className={styles.cardinalitySymbol}>1</div>
+                  <span>Exactly One</span>
+                </div>
+                
+                <div className={styles.infoItem}>
+                  <div className={styles.cardinalitySymbol}>N</div>
+                  <span>Many</span>
+                </div>
+                
+                <div className={styles.infoItem}>
+                  <div className={styles.cardinalitySymbol}>0..1</div>
+                  <span>Zero or One (Optional)</span>
+                </div>
+                
+                <div className={styles.infoItem}>
+                  <div className={styles.cardinalitySymbol}>1..*</div>
+                  <span>One or More (Required Many)</span>
+                </div>
               </div>
             </div>
           </div>

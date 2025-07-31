@@ -33,6 +33,13 @@ export const generateERDiagramElements = (schema, mode = 'conceptual') => {
     const tableName = table.name || `Table_${index}`;
     const entityId = `entity-${tableName}`;
     
+    // Check if this is a lookup/reference table
+    const isLookupTable = table.isLookupTable || 
+                          (schema.lookupTables && 
+                           Array.isArray(schema.lookupTables) && 
+                           schema.lookupTables.some(lt => lt === tableName || 
+                                                    (lt.name && lt.name === tableName)));
+    
     // Create entity node
     const entityNode = {
       id: entityId,
@@ -56,7 +63,9 @@ export const generateERDiagramElements = (schema, mode = 'conceptual') => {
             isComposite: column.isComposite || false,
           })),
         entityType: determineEntityType(table, schema),
-        description: table.description || ''
+        description: table.description || '',
+        isLookupTable: isLookupTable,
+        assumptionsMade: table.assumptionsMade || []
       },
       draggable: true, // Ensure draggable is set to true
       selectable: true, // Make sure nodes are selectable
@@ -275,8 +284,10 @@ const createRelationshipNodes = (schema, nodes, edges) => {
         attributes: rel.attributes || [],
         isIdentifying: rel.isIdentifying || rel.identifying || false,
         description: rel.description || '',
+        assumptionsMade: rel.assumptionsMade || [],
         isDraggable: true, // Ensure data includes draggability flag
-        type: rel.type || '' // Include relationship type for styling
+        type: rel.type || '', // Include relationship type for styling
+        cardinality: rel.cardinality || null // Include specific cardinality range if available
       },
       draggable: true, // Explicitly set draggable property
     };
@@ -290,13 +301,15 @@ const createRelationshipNodes = (schema, nodes, edges) => {
       target: relationshipId,
       type: 'erdEdge',
       data: {
-        sourceCardinality: getCardinalityNotation(rel.type, 'source'),
+        sourceCardinality: rel.sourceCardinality || getCardinalityNotation(rel.type, 'source'),
         targetCardinality: '',
         sourceParticipation: rel.sourceParticipation || 'partial',
         targetParticipation: 'partial',
-        label: '',
+        label: rel.name || '', // Add relationship name to the edge
         relationshipType: rel.type || '',
-        isIdentifying: rel.isIdentifying || rel.identifying || false
+        isIdentifying: rel.isIdentifying || rel.identifying || false,
+        // Add support for exact cardinality ranges
+        cardinalityRange: rel.cardinality?.split('-')[0] || null
       }
     });
     
@@ -308,12 +321,14 @@ const createRelationshipNodes = (schema, nodes, edges) => {
       type: 'erdEdge',
       data: {
         sourceCardinality: '',
-        targetCardinality: getCardinalityNotation(rel.type, 'target'),
+        targetCardinality: rel.targetCardinality || getCardinalityNotation(rel.type, 'target'),
         sourceParticipation: 'partial',
         relationshipType: rel.type || '',
         isIdentifying: rel.isIdentifying || rel.identifying || false,
         targetParticipation: rel.targetParticipation || 'partial',
-        label: '',
+        label: rel.name || '', // Add relationship name to the edge
+        // Add support for exact cardinality ranges
+        cardinalityRange: rel.cardinality?.split('-')[1] || null
       }
     });
   });
@@ -405,9 +420,15 @@ const createLogicalEdges = (schema, edges) => {
  * Get the cardinality notation based on relationship type
  * @param {string} relType - Relationship type (ONE_TO_ONE, ONE_TO_MANY, etc.)
  * @param {string} side - 'source' or 'target'
- * @returns {string} - Cardinality notation ('1', 'N', 'M', etc.)
+ * @param {string} exactRange - Optional exact cardinality range (e.g., "0..1", "1..*")
+ * @returns {string} - Cardinality notation ('1', 'N', 'M', etc.) or exact range
  */
-const getCardinalityNotation = (relType, side) => {
+const getCardinalityNotation = (relType, side, exactRange) => {
+  // If exact cardinality range is provided, use it
+  if (exactRange) {
+    return exactRange;
+  }
+  
   if (!relType) return '1';
   
   switch (relType) {

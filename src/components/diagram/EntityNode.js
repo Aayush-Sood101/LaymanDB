@@ -11,11 +11,17 @@ const EntityNode = memo(({ data, selected }) => {
     entityType = 'strong', 
     description,
     isSpecialization = false,
-    parentEntity = null
+    parentEntity = null,
+    isLookupTable = false, // New property for lookup/reference tables
+    assumptionsMade = [] // For documenting assumptions made for this entity
   } = data;
 
   // Get the appropriate style classes based on the entity type
   const getEntityWrapperClass = () => {
+    if (isLookupTable) {
+      return styles.lookupTableWrapper;
+    }
+    
     switch (entityType) {
       case 'weak':
         return styles.weakEntityWrapper;
@@ -43,6 +49,9 @@ const EntityNode = memo(({ data, selected }) => {
           {entityType === 'weak' && (
             <span className={styles.weakEntityIndicator} title="Weak Entity">W</span>
           )}
+          {isLookupTable && (
+            <span className={styles.lookupTableIndicator} title="Lookup/Reference Table">LT</span>
+          )}
         </div>
 
         {/* If this is a specialization entity, show the ISA relationship indicator */}
@@ -57,6 +66,18 @@ const EntityNode = memo(({ data, selected }) => {
         {description && (
           <div className={styles.entityDescription}>
             {description}
+          </div>
+        )}
+        
+        {/* Display assumptions made if any */}
+        {assumptionsMade && assumptionsMade.length > 0 && (
+          <div className={styles.entityAssumptions}>
+            <small className={styles.assumptionsHeading}>Assumptions:</small>
+            <ul className={styles.assumptionsList}>
+              {assumptionsMade.map((assumption, idx) => (
+                <li key={`assumption-${idx}`} className={styles.assumptionItem}>{assumption}</li>
+              ))}
+            </ul>
           </div>
         )}
       </div>

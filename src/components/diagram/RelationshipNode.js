@@ -10,7 +10,9 @@ const RelationshipNode = memo(({ data, selected }) => {
     attributes = [],
     isIdentifying = false,
     description = "",
-    type = "" // "ONE_TO_ONE", "ONE_TO_MANY", "MANY_TO_MANY", etc.
+    type = "", // "ONE_TO_ONE", "ONE_TO_MANY", "MANY_TO_MANY", etc.
+    assumptionsMade = [], // New field for assumptions made for ambiguous inputs
+    cardinality = null // For precise cardinality ranges
   } = data;
   
   // Determine relationship style class based on type
@@ -69,17 +71,30 @@ const RelationshipNode = memo(({ data, selected }) => {
     >
       {/* Relationship represented as a diamond */}
       <div className={`${styles.relationshipDiamond} ${getRelationshipStyleClass()}`}>
+        {/* Display relationship name (verb phrase) prominently */}
         <div className={styles.relationshipName}>{relationshipName}</div>
         
-        {/* Relationship type displayed prominently */}
+        {/* Relationship cardinality as smaller text */}
         <div className={styles.relationshipType}>
-          {formatRelationshipType(type)}
+          {cardinality ? cardinality : formatRelationshipType(type)}
         </div>
         
         {/* Description */}
         {description && (
           <div className={styles.relationshipDescription}>
             {description}
+          </div>
+        )}
+        
+        {/* Display any assumptions made for ambiguous inputs */}
+        {assumptionsMade && assumptionsMade.length > 0 && (
+          <div className={styles.relationshipAssumptions}>
+            <small className={styles.assumptionsHeading}>Assumptions:</small>
+            <ul className={styles.assumptionsList}>
+              {assumptionsMade.map((assumption, idx) => (
+                <li key={`assumption-${idx}`} className={styles.assumptionItem}>{assumption}</li>
+              ))}
+            </ul>
           </div>
         )}
       </div>

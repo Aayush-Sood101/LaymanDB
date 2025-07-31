@@ -33,7 +33,8 @@ const ERDEdge = ({
     targetParticipation = 'partial', // 'partial' or 'total'
     label = '',
     relationshipType = '',  // "ONE_TO_ONE", "ONE_TO_MANY", "MANY_TO_MANY"
-    isIdentifying = false
+    isIdentifying = false,
+    cardinalityRange = null // For precise cardinality ranges like "0..1", "1..*"
   } = data || {};
   
   // Determine edge class based on relationship type
@@ -75,15 +76,35 @@ const ERDEdge = ({
     ry: 8,
   };
   
+  // Enhanced handling of participation constraints for both source and target
+  const getSourceParticipationClass = () => 
+    sourceParticipation === 'total' ? styles.totalParticipation : styles.partialParticipation;
+  
+  const getTargetParticipationClass = () => 
+    targetParticipation === 'total' ? styles.totalParticipation : styles.partialParticipation;
+
   return (
     <>
+      {/* Source side path - for participation display on source side */}
       <path
-        id={id}
+        id={`${id}-source`}
         style={style}
-        className={`${styles.erEdgePath} ${getEdgeClass()} ${sourceParticipation === 'total' ? styles.totalParticipation : styles.partialParticipation}`}
+        className={`${styles.erEdgePath} ${getEdgeClass()} ${getSourceParticipationClass()}`}
         d={edgePath}
-        markerEnd={markerEnd}
+        strokeDasharray="0 50% 100%" // Show only first half of the path
+        markerEnd=""
         markerStart={sourceCardinality === 'N' || sourceCardinality === 'M' ? "url(#many)" : null}
+      />
+      
+      {/* Target side path - for participation display on target side */}
+      <path
+        id={`${id}-target`}
+        style={style}
+        className={`${styles.erEdgePath} ${getEdgeClass()} ${getTargetParticipationClass()}`}
+        d={edgePath}
+        strokeDasharray="50% 50%" // Show only second half of the path
+        markerEnd={markerEnd}
+        markerStart=""
       />
       
       {/* Source Cardinality */}
@@ -102,9 +123,9 @@ const ERDEdge = ({
           dominantBaseline="central"
           textAnchor="middle"
           className={styles.cardinalityText}
-          style={{ fontWeight: 'bold' }}
+          style={{ fontWeight: 'bold', fontSize: cardinalityRange ? '9px' : '12px' }}
         >
-          {sourceCardinality}
+          {data.cardinalityRange || sourceCardinality}
         </text>
       </g>
       
@@ -124,9 +145,9 @@ const ERDEdge = ({
           dominantBaseline="central"
           textAnchor="middle"
           className={styles.cardinalityText}
-          style={{ fontWeight: 'bold' }}
+          style={{ fontWeight: 'bold', fontSize: cardinalityRange ? '9px' : '12px' }}
         >
-          {targetCardinality}
+          {data.cardinalityRange || targetCardinality}
         </text>
       </g>
       
