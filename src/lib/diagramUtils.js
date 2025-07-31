@@ -305,7 +305,7 @@ const createRelationshipNodes = (schema, nodes, edges) => {
         targetCardinality: '',
         sourceParticipation: rel.sourceParticipation || 'partial',
         targetParticipation: 'partial',
-        label: rel.name || '', // Add relationship name to the edge
+        label: '', // Remove relationship name from the edge
         relationshipType: rel.type || '',
         isIdentifying: rel.isIdentifying || rel.identifying || false,
         // Add support for exact cardinality ranges
@@ -326,7 +326,7 @@ const createRelationshipNodes = (schema, nodes, edges) => {
         relationshipType: rel.type || '',
         isIdentifying: rel.isIdentifying || rel.identifying || false,
         targetParticipation: rel.targetParticipation || 'partial',
-        label: rel.name || '', // Add relationship name to the edge
+        label: '', // Remove relationship name from the edge
         // Add support for exact cardinality ranges
         cardinalityRange: rel.cardinality?.split('-')[1] || null
       }

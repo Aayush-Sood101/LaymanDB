@@ -151,18 +151,7 @@ const ERDEdge = ({
         </text>
       </g>
       
-      {/* Relationship label */}
-      {label && (
-        <EdgeText
-          x={labelX}
-          y={labelY}
-          label={label}
-          labelStyle={{ fill: '#333', fontSize: 12 }}
-          labelBgStyle={{ fill: 'white', fillOpacity: 0.8 }}
-          labelBgPadding={[2, 4]}
-          labelBgBorderRadius={2}
-        />
-      )}
+      {/* Relationship label - removed as per request */}
     </>
   );
 };

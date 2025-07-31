@@ -79,14 +79,9 @@ const RelationshipNode = memo(({ data, selected }) => {
           {cardinality ? cardinality : formatRelationshipType(type)}
         </div>
         
-        {/* Description */}
-        {description && (
-          <div className={styles.relationshipDescription}>
-            {description}
-          </div>
-        )}
+        {/* No description displayed on the relationship node */}
         
-        {/* Display any assumptions made for ambiguous inputs */}
+        {/* Display assumptions only in edit mode */}
         {assumptionsMade && assumptionsMade.length > 0 && (
           <div className={styles.relationshipAssumptions}>
             <small className={styles.assumptionsHeading}>Assumptions:</small>

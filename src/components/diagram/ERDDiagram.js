@@ -147,9 +147,10 @@ const ERDDiagram = ({
         type: 'relationshipNode',
         position: relationshipPos,
         data: {
-          relationshipName: 'Relates to',
+          relationshipName: 'Relates to', // Default relationship name
           attributes: [],
           isIdentifying: false,
+          type: 'ONE_TO_MANY', // Default relationship type
         }
       };
       
@@ -209,7 +210,7 @@ const ERDDiagram = ({
           targetCardinality: '',
           sourceParticipation: 'partial',
           targetParticipation: 'partial',
-          label: '',
+          label: '', // No label on the edge
         }
       };
       
@@ -226,7 +227,7 @@ const ERDDiagram = ({
           targetCardinality: 'N',
           sourceParticipation: 'partial',
           targetParticipation: 'partial',
-          label: '',
+          label: '', // No label on the edge
         }
       };
       
