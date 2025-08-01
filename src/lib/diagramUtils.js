@@ -303,7 +303,7 @@ const createRelationshipNodes = (schema, nodes, edges) => {
       data: {
         sourceCardinality: rel.sourceCardinality || getCardinalityNotation(rel.type, 'source'),
         targetCardinality: '',
-        sourceParticipation: rel.sourceParticipation || 'partial',
+        sourceParticipation: rel.sourceParticipation || 'partial', // Get from schema or default to partial
         targetParticipation: 'partial',
         label: '', // Remove relationship name from the edge
         relationshipType: rel.type || '',
@@ -325,7 +325,7 @@ const createRelationshipNodes = (schema, nodes, edges) => {
         sourceParticipation: 'partial',
         relationshipType: rel.type || '',
         isIdentifying: rel.isIdentifying || rel.identifying || false,
-        targetParticipation: rel.targetParticipation || 'partial',
+        targetParticipation: rel.targetParticipation || 'partial', // Get from schema or default to partial
         label: '', // Remove relationship name from the edge
         // Add support for exact cardinality ranges
         cardinalityRange: rel.cardinality?.split('-')[1] || null
@@ -401,8 +401,8 @@ const createLogicalEdges = (schema, edges) => {
       data: {
         sourceCardinality: getCardinalityNotation(rel.type, 'source'),
         targetCardinality: getCardinalityNotation(rel.type, 'target'),
-        sourceParticipation: rel.sourceParticipation || 'partial',
-        targetParticipation: rel.targetParticipation || 'partial',
+        sourceParticipation: rel.sourceParticipation || 'partial', // Get from schema or default to partial
+        targetParticipation: rel.targetParticipation || 'partial', // Get from schema or default to partial
         label: rel.name || '',
         relationshipType: rel.type || '',
         isIdentifying: rel.isIdentifying || rel.identifying || false

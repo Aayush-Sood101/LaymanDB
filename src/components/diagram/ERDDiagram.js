@@ -123,8 +123,8 @@ const ERDDiagram = ({
       data: {
         sourceCardinality: '1',
         targetCardinality: 'N',
-        sourceParticipation: 'partial',
-        targetParticipation: 'partial',
+        sourceParticipation: 'partial', // Default is partial (optional participation)
+        targetParticipation: 'partial', // Default is partial (optional participation)
       }
     };
     
@@ -208,7 +208,7 @@ const ERDDiagram = ({
         data: {
           sourceCardinality: '1',
           targetCardinality: '',
-          sourceParticipation: 'partial',
+          sourceParticipation: 'partial', // Default to partial participation (may participate)
           targetParticipation: 'partial',
           label: '', // No label on the edge
         }
@@ -226,7 +226,7 @@ const ERDDiagram = ({
           sourceCardinality: '',
           targetCardinality: 'N',
           sourceParticipation: 'partial',
-          targetParticipation: 'partial',
+          targetParticipation: 'partial', // Default to partial participation (may participate)
           label: '', // No label on the edge
         }
       };
@@ -245,6 +245,8 @@ const ERDDiagram = ({
           sourceTable: sourceEntity,
           targetTable: targetEntity,
           type: 'ONE_TO_MANY',
+          sourceParticipation: 'partial', // Default to partial
+          targetParticipation: 'partial'  // Default to partial
         });
       }
     } 
@@ -336,8 +338,8 @@ const ERDDiagram = ({
           data: {
             sourceCardinality: '1',
             targetCardinality: 'N',
-            sourceParticipation: 'partial',
-            targetParticipation: 'partial',
+            sourceParticipation: 'partial', // Default to partial participation (entity MAY participate)
+            targetParticipation: 'partial', // Default to partial participation (entity MAY participate)
           }
         }}
         elementsSelectable={true}
@@ -475,15 +477,15 @@ const ERDDiagram = ({
               </div>
               
               <div className={styles.legendSection}>
-                <h4 className={styles.legendSectionTitle}>Relationship Lines & Cardinality</h4>
+                <h4 className={styles.legendSectionTitle}>Relationship Lines & Participation</h4>
                 <div className={styles.infoItem}>
                   <div className={styles.totalParticipationLine}></div>
-                  <span>Total Participation (Solid Line - Entity MUST participate in relationship)</span>
+                  <span>Total Participation (Thick Solid Line - Every entity MUST participate in relationship)</span>
                 </div>
                 
                 <div className={styles.infoItem}>
                   <div className={styles.partialParticipationLine}></div>
-                  <span>Partial Participation (Dashed Line - Entity MAY participate in relationship)</span>
+                  <span>Partial Participation (Dashed Line - Entity MAY or MAY NOT participate in relationship)</span>
                 </div>
                 
                 <div className={styles.infoItem}>

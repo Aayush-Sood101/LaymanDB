@@ -82,16 +82,30 @@ const ERDEdge = ({
   
   const getTargetParticipationClass = () => 
     targetParticipation === 'total' ? styles.totalParticipation : styles.partialParticipation;
+    
+  // Enhanced style attributes for participation
+  const getSourceParticipationStyle = () => ({
+    strokeWidth: sourceParticipation === 'total' ? 3 : 1.8,
+    strokeDasharray: sourceParticipation === 'total' ? 'none' : '4, 3',
+  });
+  
+  const getTargetParticipationStyle = () => ({
+    strokeWidth: targetParticipation === 'total' ? 3 : 1.8,
+    strokeDasharray: targetParticipation === 'total' ? 'none' : '4, 3',
+  });
 
   return (
     <>
       {/* Source side path - for participation display on source side */}
       <path
         id={`${id}-source`}
-        style={style}
+        style={{
+          ...style,
+          ...getSourceParticipationStyle()
+        }}
         className={`${styles.erEdgePath} ${getEdgeClass()} ${getSourceParticipationClass()}`}
         d={edgePath}
-        strokeDasharray="0 50% 100%" // Show only first half of the path
+        strokeDasharray={getSourceParticipationStyle().strokeDasharray === 'none' ? "0 50% 100%" : "0 50% 100%, " + getSourceParticipationStyle().strokeDasharray}
         markerEnd=""
         markerStart={sourceCardinality === 'N' || sourceCardinality === 'M' ? "url(#many)" : null}
       />
@@ -99,10 +113,13 @@ const ERDEdge = ({
       {/* Target side path - for participation display on target side */}
       <path
         id={`${id}-target`}
-        style={style}
+        style={{
+          ...style,
+          ...getTargetParticipationStyle()
+        }}
         className={`${styles.erEdgePath} ${getEdgeClass()} ${getTargetParticipationClass()}`}
         d={edgePath}
-        strokeDasharray="50% 50%" // Show only second half of the path
+        strokeDasharray={getTargetParticipationStyle().strokeDasharray === 'none' ? "50% 50%" : "50% 50%, " + getTargetParticipationStyle().strokeDasharray}
         markerEnd={markerEnd}
         markerStart=""
       />

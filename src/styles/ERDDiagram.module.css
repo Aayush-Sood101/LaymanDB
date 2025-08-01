@@ -708,7 +708,7 @@
 
 /* Participation constraints */
 .totalParticipation {
-  stroke-width: 2.8;
+  stroke-width: 3;
   stroke-linecap: round;
   filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.3));
 }
@@ -1003,9 +1003,9 @@
 /* Edge styles for legend */
 .totalParticipationLine {
   width: 30px;
-  height: 3px;
+  height: 4px;
   background-color: #3b82f6;
-  border-radius: 1.5px;
+  border-radius: 2px;
   box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
 }
 
