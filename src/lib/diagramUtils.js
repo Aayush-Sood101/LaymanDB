@@ -17,11 +17,79 @@ export const generateERDiagramElements = (schema, mode = 'conceptual') => {
     return { nodes: [], edges: [] };
   }
   
+  console.log('Generating diagram elements with schema:', schema);
+  
   const nodes = [];
   const edges = [];
   
   // Extract tables/entities and their positions
   const tables = Array.isArray(schema.tables) ? schema.tables : [];
+  
+  // Initialize entities array if not present
+  if (!Array.isArray(schema.entities)) {
+    schema.entities = tables.map(table => ({
+      name: table.name,
+      attributes: table.columns
+    }));
+    
+    console.log('Generated entities from tables:', schema.entities.map(e => e.name));
+  }
+  
+  // Ensure case consistency in entity names
+  const normalizeEntityNames = (data) => {
+    // Create a map of lowercase entity names to their actual casing in tables
+    const entityMap = {};
+    
+    // Add entities from tables
+    if (Array.isArray(data.tables)) {
+      data.tables.forEach(table => {
+        if (table.name) {
+          entityMap[table.name.toLowerCase()] = table.name;
+        }
+      });
+    }
+    
+    // Also add entities from the entities array if it exists
+    if (Array.isArray(data.entities)) {
+      data.entities.forEach(entity => {
+        if (entity.name) {
+          entityMap[entity.name.toLowerCase()] = entity.name;
+        }
+      });
+    }
+    
+    // Normalize relationship entity references
+    if (Array.isArray(data.relationships)) {
+      data.relationships.forEach(rel => {
+        // First try direct match, then try case-insensitive match
+        if (rel.sourceEntity) {
+          if (entityMap[rel.sourceEntity.toLowerCase()]) {
+            rel.sourceEntity = entityMap[rel.sourceEntity.toLowerCase()];
+          }
+        }
+        if (rel.sourceTable) {
+          if (entityMap[rel.sourceTable.toLowerCase()]) {
+            rel.sourceTable = entityMap[rel.sourceTable.toLowerCase()];
+          }
+        }
+        if (rel.targetEntity) {
+          if (entityMap[rel.targetEntity.toLowerCase()]) {
+            rel.targetEntity = entityMap[rel.targetEntity.toLowerCase()];
+          }
+        }
+        if (rel.targetTable) {
+          if (entityMap[rel.targetTable.toLowerCase()]) {
+            rel.targetTable = entityMap[rel.targetTable.toLowerCase()];
+          }
+        }
+      });
+    }
+    
+    return data;
+  };
+  
+  // Normalize entity names to ensure case consistency
+  schema = normalizeEntityNames(schema);
   
   // Process entities
   tables.forEach((table, index) => {
@@ -31,6 +99,8 @@ export const generateERDiagramElements = (schema, mode = 'conceptual') => {
     }
     
     const tableName = table.name || `Table_${index}`;
+    
+    // Create a consistent entity ID - using the exact case from the original table.name
     const entityId = `entity-${tableName}`;
     
     // Check if this is a lookup/reference table
@@ -98,7 +168,7 @@ export const generateERDiagramElements = (schema, mode = 'conceptual') => {
  * Determine the type of entity based on its properties and relationships
  * @param {Object} table - Table object
  * @param {Object} schema - Complete schema
- * @returns {string} - 'strong', 'weak', or 'associative'
+ * @returns {string} - 'strong' or 'weak'
  */
 const determineEntityType = (table, schema) => {
   if (!table || !schema) return 'strong';
@@ -109,11 +179,7 @@ const determineEntityType = (table, schema) => {
   // Check if it's a weak entity (depends on another entity for identification)
   const isWeakEntity = hasIdentifyingRelationship(tableName, relationships);
   
-  // Check if it's an associative entity (junction table for M:N relationship)
-  const isAssociativeEntity = isJunctionTable(tableName, table, relationships);
-  
   if (isWeakEntity) return 'weak';
-  if (isAssociativeEntity) return 'associative';
   return 'strong';
 };
 
@@ -128,34 +194,6 @@ const hasIdentifyingRelationship = (tableName, relationships) => {
     rel.targetTable === tableName && 
     (rel.isIdentifying === true || rel.identifying === true)
   );
-};
-
-/**
- * Check if a table is a junction table (associative entity)
- * @param {string} tableName - Name of the table
- * @param {Object} table - Table object
- * @param {Array} relationships - All relationships
- * @returns {boolean} - True if the table is a junction table
- */
-const isJunctionTable = (tableName, table, relationships) => {
-  // Check if the table has exactly two foreign keys
-  const foreignKeyColumns = (Array.isArray(table.columns) ? table.columns : [])
-    .filter(col => col.isForeignKey);
-    
-  if (foreignKeyColumns.length !== 2) return false;
-  
-  // Check if there are relationships from this table to two different tables
-  const relFromTable = relationships.filter(rel => 
-    rel.sourceTable === tableName || rel.targetTable === tableName
-  );
-  
-  const relatedTables = new Set();
-  relFromTable.forEach(rel => {
-    if (rel.sourceTable !== tableName) relatedTables.add(rel.sourceTable);
-    if (rel.targetTable !== tableName) relatedTables.add(rel.targetTable);
-  });
-  
-  return relatedTables.size >= 2;
 };
 
 /**
@@ -230,9 +268,11 @@ const createAttributeNodes = (table, entityId, nodes, edges, schema = {}) => {
     
     nodes.push(attributeNode);
     
-    // Create edge from entity to attribute
+    // Create edge from entity to attribute with a stable unique ID
+    // Include entity name in the ID to ensure uniqueness across different entities with same-named attributes
+    const edgeId = `edge-${entityId}-to-attr-${column.name || index}-${index}`;
     edges.push({
-      id: `edge-${entityId}-to-${attributeId}`,
+      id: edgeId,
       source: entityId,
       target: attributeId,
       style: { stroke: '#10b981', strokeWidth: 1 },
@@ -249,20 +289,243 @@ const createAttributeNodes = (table, entityId, nodes, edges, schema = {}) => {
  * @param {Array} edges - Edges array to append to
  */
 const createRelationshipNodes = (schema, nodes, edges) => {
-  if (!Array.isArray(schema.relationships)) return;
+  if (!Array.isArray(schema.relationships)) {
+    console.warn('No relationships array in schema:', schema);
+    return;
+  }
+  
+  console.log('Creating relationship nodes from', schema.relationships.length, 'relationships');
+  
+  // Generate a debug mapping of all entity names for easier troubleshooting
+  const entityMap = {};
+  const entityNodeIds = nodes.filter(n => n.type === 'entityNode').map(n => n.id);
+  
+  // Create a map of entity IDs and their variations for easier lookup
+  entityNodeIds.forEach(nodeId => {
+    const entityName = nodeId.replace('entity-', '');
+    entityMap[entityName] = nodeId;
+    entityMap[entityName.toLowerCase()] = nodeId;
+    // Also add without special characters
+    const cleanName = entityName.replace(/[^a-zA-Z0-9]/g, '');
+    if (cleanName !== entityName) {
+      entityMap[cleanName] = nodeId;
+      entityMap[cleanName.toLowerCase()] = nodeId;
+    }
+  });
+  
+  console.log('Entity name mapping for debugging:', entityMap);
   
   schema.relationships.forEach((rel, index) => {
-    if (!rel || typeof rel !== 'object') return;
+    if (!rel || typeof rel !== 'object') {
+      console.warn('Invalid relationship object at index', index);
+      return;
+    }
     
-    const relationshipId = `relationship-${rel.name || `rel${index}`}`;
-    const sourceEntityId = `entity-${rel.sourceTable}`;
-    const targetEntityId = `entity-${rel.targetTable}`;
+    console.log('Processing relationship:', rel);
+    
+    // Check if we have sourceEntity/targetEntity or sourceTable/targetTable
+    const sourceEntityName = rel.sourceEntity || rel.sourceTable;
+    const targetEntityName = rel.targetEntity || rel.targetTable;
+    
+    if (!sourceEntityName || !targetEntityName) {
+      console.warn('Relationship missing source or target entity/table:', rel);
+      return;
+    }
+    
+    // Create a unique relationship ID that includes source and target entities
+    // This ensures two relationships with the same name but different entities get unique IDs
+    const relationshipId = `relationship-${rel.name || `rel${index}`}-${sourceEntityName}-to-${targetEntityName}`;
+    
+    // For backwards compatibility, also check the old style ID format in saved positions
+    const legacyRelationshipId = `relationship-${rel.name || `rel${index}`}`;
+    
+    console.log(`Looking for source entity: ${sourceEntityName}, target entity: ${targetEntityName}`);
+    
+    // Try to find source entity using the mapping
+    const mappedSourceEntityId = entityMap[sourceEntityName] || entityMap[sourceEntityName.toLowerCase()];
+    const mappedTargetEntityId = entityMap[targetEntityName] || entityMap[targetEntityName.toLowerCase()];
+    
+    // If we found entity IDs using the map, use them directly
+    let sourceEntity = mappedSourceEntityId ? nodes.find(n => n.id === mappedSourceEntityId) : null;
+    let targetEntity = mappedTargetEntityId ? nodes.find(n => n.id === mappedTargetEntityId) : null;
+    
+    // Fallback to the previous search method if mapping didn't work
+    if (!sourceEntity) {
+      // Try different variations of the entity name
+      const sourceVariations = [
+        sourceEntityName,
+        sourceEntityName.toLowerCase(),
+        sourceEntityName.toUpperCase(),
+        sourceEntityName.charAt(0).toUpperCase() + sourceEntityName.slice(1).toLowerCase(), // Title case
+        // Try removing underscores or replacing with spaces
+        sourceEntityName.replace(/_/g, ''),
+        sourceEntityName.replace(/_/g, ' '),
+        // Try singular/plural variations
+        sourceEntityName.endsWith('s') ? sourceEntityName.slice(0, -1) : sourceEntityName + 's'
+      ];
+      
+      // Try each variation
+      for (const variation of sourceVariations) {
+        sourceEntity = nodes.find(n => {
+          return n.id === `entity-${variation}` || 
+                 n.id.toLowerCase() === `entity-${variation}`.toLowerCase();
+        });
+        
+        if (sourceEntity) {
+          console.log(`Found source entity using variation: ${variation}`);
+          break;
+        }
+      }
+      
+      // If still not found, try the original method
+      if (!sourceEntity) {
+        sourceEntity = nodes.find(n => {
+          if (n.id === `entity-${sourceEntityName}`) return true;
+          return n.id.toLowerCase() === `entity-${sourceEntityName}`.toLowerCase();
+        });
+      }
+      
+      // Last resort: search in the entity data
+      if (!sourceEntity) {
+        sourceEntity = nodes.find(n => {
+          if (!n.data) return false;
+          
+          // Look for the entity name in the node data
+          const nodeLabel = (n.data.label || '').toLowerCase();
+          const nodeName = (n.data.name || '').toLowerCase();
+          const nodeTableName = (n.data.tableName || '').toLowerCase();
+          
+          return (
+            nodeLabel === sourceEntityName.toLowerCase() ||
+            nodeName === sourceEntityName.toLowerCase() ||
+            nodeTableName === sourceEntityName.toLowerCase()
+          );
+        });
+        
+        if (sourceEntity) {
+          console.log(`Found source entity by searching node data: ${sourceEntity.id}`);
+        }
+      }
+    }
+    
+    if (!targetEntity) {
+      // Try different variations of the entity name
+      const targetVariations = [
+        targetEntityName,
+        targetEntityName.toLowerCase(),
+        targetEntityName.toUpperCase(),
+        targetEntityName.charAt(0).toUpperCase() + targetEntityName.slice(1).toLowerCase(), // Title case
+        // Try removing underscores or replacing with spaces
+        targetEntityName.replace(/_/g, ''),
+        targetEntityName.replace(/_/g, ' '),
+        // Try singular/plural variations
+        targetEntityName.endsWith('s') ? targetEntityName.slice(0, -1) : targetEntityName + 's'
+      ];
+      
+      // Try each variation
+      for (const variation of targetVariations) {
+        targetEntity = nodes.find(n => {
+          return n.id === `entity-${variation}` || 
+                 n.id.toLowerCase() === `entity-${variation}`.toLowerCase();
+        });
+        
+        if (targetEntity) {
+          console.log(`Found target entity using variation: ${variation}`);
+          break;
+        }
+      }
+      
+      // If still not found, try the original method
+      if (!targetEntity) {
+        targetEntity = nodes.find(n => {
+          if (n.id === `entity-${targetEntityName}`) return true;
+          return n.id.toLowerCase() === `entity-${targetEntityName}`.toLowerCase();
+        });
+      }
+      
+      // Last resort: search in the entity data
+      if (!targetEntity) {
+        targetEntity = nodes.find(n => {
+          if (!n.data) return false;
+          
+          // Look for the entity name in the node data
+          const nodeLabel = (n.data.label || '').toLowerCase();
+          const nodeName = (n.data.name || '').toLowerCase();
+          const nodeTableName = (n.data.tableName || '').toLowerCase();
+          
+          return (
+            nodeLabel === targetEntityName.toLowerCase() ||
+            nodeName === targetEntityName.toLowerCase() ||
+            nodeTableName === targetEntityName.toLowerCase()
+          );
+        });
+        
+        if (targetEntity) {
+          console.log(`Found target entity by searching node data: ${targetEntity.id}`);
+        }
+      }
+    }
+    
+    console.log('Source entity lookup:', {
+      relationshipSource: sourceEntityName,
+      lookingFor: `entity-${sourceEntityName}`,
+      foundSource: sourceEntity ? sourceEntity.id : 'NOT FOUND',
+      availableEntities: nodes.filter(n => n.type === 'entityNode').map(n => n.id)
+    });
+    
+    console.log('Target entity lookup:', {
+      relationshipTarget: targetEntityName,
+      lookingFor: `entity-${targetEntityName}`,
+      foundTarget: targetEntity ? targetEntity.id : 'NOT FOUND',
+      availableEntities: nodes.filter(n => n.type === 'entityNode').map(n => n.id)
+    });
+    
+    if (!sourceEntity || !targetEntity) {
+      // Detailed debugging for entity not found cases
+      console.warn('Entity not found with detailed info:', {
+        sourceRequested: sourceEntityName,
+        targetRequested: targetEntityName,
+        sourceFound: sourceEntity ? sourceEntity.id : null,
+        targetFound: targetEntity ? targetEntity.id : null,
+        mappedSourceId: mappedSourceEntityId,
+        mappedTargetId: mappedTargetEntityId,
+        sourceVariationsTried: [
+          sourceEntityName,
+          sourceEntityName.toLowerCase(),
+          sourceEntityName.toUpperCase(),
+          sourceEntityName.charAt(0).toUpperCase() + sourceEntityName.slice(1).toLowerCase(),
+          sourceEntityName.replace(/_/g, ''),
+          sourceEntityName.replace(/_/g, ' '),
+          sourceEntityName.endsWith('s') ? sourceEntityName.slice(0, -1) : sourceEntityName + 's'
+        ],
+        targetVariationsTried: [
+          targetEntityName,
+          targetEntityName.toLowerCase(),
+          targetEntityName.toUpperCase(),
+          targetEntityName.charAt(0).toUpperCase() + targetEntityName.slice(1).toLowerCase(),
+          targetEntityName.replace(/_/g, ''),
+          targetEntityName.replace(/_/g, ' '),
+          targetEntityName.endsWith('s') ? targetEntityName.slice(0, -1) : targetEntityName + 's'
+        ],
+        entityMapKeys: Object.keys(entityMap).slice(0, 20), // Show first 20 keys to avoid overwhelming logs
+        entityMapSamples: Object.entries(entityMap).slice(0, 5) // Show just a few sample mappings
+      });
+      
+      console.warn(`Entity not found: source=${sourceEntityName}, target=${targetEntityName}`);
+      return;
+    }
+    
+    const sourceEntityId = sourceEntity.id;
+    const targetEntityId = targetEntity.id;
     
     // Get source and target positions
-    const sourcePos = nodes.find(n => n.id === sourceEntityId)?.position;
-    const targetPos = nodes.find(n => n.id === targetEntityId)?.position;
+    const sourcePos = sourceEntity?.position;
+    const targetPos = targetEntity?.position;
     
-    if (!sourcePos || !targetPos) return;
+    if (!sourcePos || !targetPos) {
+      console.warn(`Missing positions for entities: source=${sourceEntityId}, target=${targetEntityId}`);
+      return;
+    }
     
     // Calculate default position for the relationship (midpoint)
     const defaultPos = {
@@ -270,18 +533,43 @@ const createRelationshipNodes = (schema, nodes, edges) => {
       y: (sourcePos.y + targetPos.y) / 2
     };
     
-    // Check if we have a saved position for this relationship
-    const savedPosition = schema?.nodePositions?.[relationshipId] || 
-                          rel.position?.isDraggable ? rel.position : null;
+    // Validate default position to avoid NaN
+    if (isNaN(defaultPos.x) || isNaN(defaultPos.y)) {
+      console.warn(`Calculated NaN position for relationship ${relationshipId}, using fallback`);
+      defaultPos.x = isNaN(defaultPos.x) ? sourcePos.x + 100 : defaultPos.x;
+      defaultPos.y = isNaN(defaultPos.y) ? sourcePos.y + 100 : defaultPos.y;
+    }
     
-    // Create relationship node
+    // Check if we have a saved position for this relationship
+    // First try with the new ID format, then fall back to the legacy format
+    const savedPosition = schema?.nodePositions?.[relationshipId] || 
+                          schema?.nodePositions?.[legacyRelationshipId] ||
+                          (rel.position?.isDraggable ? rel.position : null);
+                          
+    // Validate saved position
+    let finalPosition = defaultPos;
+    if (savedPosition) {
+      if (!isNaN(savedPosition.x) && !isNaN(savedPosition.y)) {
+        finalPosition = savedPosition;
+      } else {
+        console.warn(`Invalid saved position for relationship ${relationshipId}, using default position`);
+        finalPosition = {
+          x: !isNaN(savedPosition.x) ? savedPosition.x : defaultPos.x,
+          y: !isNaN(savedPosition.y) ? savedPosition.y : defaultPos.y
+        };
+      }
+    }
+    
+  // Create relationship node
     const relationshipNode = {
       id: relationshipId,
       type: 'relationshipNode',
-      position: savedPosition || defaultPos,
+      position: finalPosition,
       data: {
         relationshipName: rel.name || 'Relates',
-        attributes: rel.attributes || [],
+        // Don't pass attributes to the relationship node anymore as they will be separate nodes
+        // Just keep count for badge display
+        attributeCount: Array.isArray(rel.attributes) ? rel.attributes.length : 0,
         isIdentifying: rel.isIdentifying || rel.identifying || false,
         description: rel.description || '',
         assumptionsMade: rel.assumptionsMade || [],
@@ -294,9 +582,15 @@ const createRelationshipNodes = (schema, nodes, edges) => {
     
     nodes.push(relationshipNode);
     
-    // Create edges from source entity to relationship
+    // Create relationship attribute nodes (if any)
+    if (Array.isArray(rel.attributes) && rel.attributes.length > 0) {
+      createRelationshipAttributeNodes(rel, relationshipId, nodes, edges, schema);
+    }
+    
+    // Create edges from source entity to relationship with a stable unique ID
+    const sourceEdgeId = `edge-${sourceEntityId}-to-${relationshipId}`;
     edges.push({
-      id: `edge-${sourceEntityId}-to-${relationshipId}`,
+      id: sourceEdgeId,
       source: sourceEntityId,
       target: relationshipId,
       type: 'erdEdge',
@@ -313,9 +607,10 @@ const createRelationshipNodes = (schema, nodes, edges) => {
       }
     });
     
-    // Create edge from relationship to target entity
+    // Create edge from relationship to target entity with a stable unique ID
+    const targetEdgeId = `edge-${relationshipId}-to-${targetEntityId}`;
     edges.push({
-      id: `edge-${relationshipId}-to-${targetEntityId}`,
+      id: targetEdgeId,
       source: relationshipId,
       target: targetEntityId,
       type: 'erdEdge',
@@ -390,9 +685,10 @@ const createLogicalEdges = (schema, edges) => {
       }
     }
     
-    // Create a direct edge between entities with cardinality notations
+    // Create a direct edge between entities with cardinality notations and a stable unique ID
+    const logicalEdgeId = `edge-${sourceEntityId}-to-${targetEntityId}-${index}`;
     edges.push({
-      id: `edge-${sourceEntityId}-to-${targetEntityId}-${index}`,
+      id: logicalEdgeId,
       source: sourceEntityId,
       target: targetEntityId,
       sourceHandle: sourceHandle,
@@ -443,6 +739,148 @@ const getCardinalityNotation = (relType, side, exactRange) => {
     default:
       return '1';
   }
+};
+
+/**
+ * Create attribute nodes for relationships in conceptual mode, similar to entity attributes
+ * @param {Object} relationship - Relationship object
+ * @param {string} relationshipId - ID of the relationship node
+ * @param {Array} nodes - Nodes array to append to
+ * @param {Array} edges - Edges array to append to
+ * @param {Object} schema - Complete schema with saved positions
+ */
+const createRelationshipAttributeNodes = (relationship, relationshipId, nodes, edges, schema = {}) => {
+  if (!Array.isArray(relationship.attributes) || relationship.attributes.length === 0) return;
+  
+  const relationshipNode = nodes.find(n => n.id === relationshipId);
+  if (!relationshipNode) {
+    console.warn(`Relationship node ${relationshipId} not found`);
+    return;
+  }
+  
+  // Extract source and target entities from the relationship ID
+  // Format: relationship-RelName-SourceEntity-to-TargetEntity
+  const relationshipParts = relationshipId.split('-');
+  let sourceEntity = '';
+  let targetEntity = '';
+  
+  if (relationshipParts.length >= 5) {
+    // Find the index of 'to' in the parts array
+    const toIndex = relationshipParts.indexOf('to');
+    if (toIndex > 2 && toIndex < relationshipParts.length - 1) {
+      // Extract source entity (everything between the relationship name and 'to')
+      sourceEntity = relationshipParts.slice(2, toIndex).join('-');
+      // Extract target entity (everything after 'to')
+      targetEntity = relationshipParts.slice(toIndex + 1).join('-');
+    }
+  }
+  
+  const relationshipPosition = relationshipNode.position || { x: 0, y: 0 };
+  
+  // Validate position to avoid NaN
+  if (isNaN(relationshipPosition.x) || isNaN(relationshipPosition.y)) {
+    console.warn(`Invalid position for relationship ${relationshipId}:`, relationshipPosition);
+    relationshipPosition.x = relationshipPosition.x || 0;
+    relationshipPosition.y = relationshipPosition.y || 0;
+  }
+  
+  // Calculate positions around the relationship in a circular pattern
+  relationship.attributes.forEach((attr, index) => {
+    if (!attr || typeof attr !== 'object' || !attr.name) return;
+    
+    // Create a more unique attribute ID that includes source and target information
+    const attributeId = sourceEntity && targetEntity 
+      ? `attr-${relationshipId}-${sourceEntity}-${targetEntity}-${attr.name}`
+      : `attr-${relationshipId}-${attr.name}`;
+    
+    // Calculate the number of attributes to improve spacing
+    const totalAttrs = relationship.attributes.length;
+    
+    // Distribute attributes more evenly based on the number of attributes
+    let radius, angle;
+    
+    // For relationship attributes, use a smaller radius
+    radius = 150;
+    
+    // Distribute attributes in a circle around the relationship
+    const angleStep = (2 * Math.PI) / Math.max(totalAttrs, 4);
+    angle = index * angleStep + Math.PI/4; // Offset to start at 45 degrees
+    
+    // Ensure the angle is a valid number
+    if (isNaN(angle)) {
+      console.warn(`Calculated NaN angle for attribute ${attributeId}, using fallback`);
+      angle = (index * Math.PI/4) % (2 * Math.PI);
+    }
+    
+    // Position attribute in a circle around the relationship
+    let attrX = relationshipPosition.x + radius * Math.cos(angle);
+    let attrY = relationshipPosition.y + radius * Math.sin(angle);
+    
+    // Safety check for NaN values
+    if (isNaN(attrX) || isNaN(attrY)) {
+      console.warn(`Calculated NaN position for attribute ${attributeId}, using fallback`);
+      attrX = relationshipPosition.x + 100 + (index * 50);
+      attrY = relationshipPosition.y + 100;
+    }
+    
+    // Create attribute node
+    // Check if we have a saved position for this attribute
+    const savedPosition = schema?.nodePositions?.[attributeId];
+    
+    // Validate saved position to avoid NaN
+    let position = { x: attrX, y: attrY };
+    if (savedPosition) {
+      // Make sure the saved position values are valid numbers
+      if (!isNaN(savedPosition.x) && !isNaN(savedPosition.y)) {
+        position = savedPosition;
+      } else {
+        console.warn(`Invalid saved position for ${attributeId}, using calculated position instead`);
+        // Use specific properties if they're valid, fallback to calculated values otherwise
+        position = {
+          x: !isNaN(savedPosition.x) ? savedPosition.x : attrX,
+          y: !isNaN(savedPosition.y) ? savedPosition.y : attrY
+        };
+      }
+    }
+    
+    const attributeNode = {
+      id: attributeId,
+      type: 'relationshipAttributeNode',
+      // Use validated position
+      position: position,
+      data: {
+        attributeName: attr.name || 'Unnamed',
+        dataType: attr.dataType || '',
+        isPrimaryKey: attr.isPrimaryKey || false,
+        isDerived: attr.isDerived || false,
+        isMultivalued: attr.isMultivalued || attr.isMultiValued || false,
+        isComposite: attr.isComposite || false,
+      },
+      draggable: true,
+    };
+    
+    nodes.push(attributeNode);
+    
+    // Create edge from relationship to attribute with a stable unique ID
+    // Extract relationship name from the relationship ID (excluding the entities)
+    // The relationshipId now includes source and target entities
+    const nameParts = relationshipId.split('-');
+    // The relationship name is the part after 'relationship-'
+    const relationshipName = nameParts.length > 1 ? nameParts[1] : '';
+    
+    // Create a unique edge ID that incorporates the entire relationship context
+    // This ensures uniqueness even when two relationships have the same name
+    const uniqueEdgeId = `edge-${relationshipId}-to-attr-${attr.name}-${index}`;
+    
+    edges.push({
+      id: uniqueEdgeId,
+      source: relationshipId,
+      target: attributeId,
+      style: { stroke: '#8b5cf6', strokeWidth: 1 }, // Purple stroke for relationship attributes
+      type: 'default',
+      animated: false,
+    });
+  });
 };
 
 /**

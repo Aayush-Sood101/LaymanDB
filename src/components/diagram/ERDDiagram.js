@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import ReactFlow, {
   Background,
   Controls,
@@ -19,20 +19,11 @@ import styles from '@/styles/ERDDiagram.module.css';
 import EntityNode from './EntityNode';
 import RelationshipNode from './RelationshipNode';
 import AttributeNode from './AttributeNode';
+import RelationshipAttributeNode from './RelationshipAttributeNode';
 import ERDEdge from './ERDEdge';
 import { useSchemaContext } from '@/contexts/SchemaContext';
 
-// Custom node and edge types
-const nodeTypes = {
-  entityNode: EntityNode,
-  relationshipNode: RelationshipNode,
-  attributeNode: AttributeNode,
-};
-
-const edgeTypes = {
-  erdEdge: ERDEdge,
-};
-
+// Custom node and edge types are memoized to prevent recreation on each render
 const ERDDiagram = ({ 
   schema, 
   onNodeDragStop, 
@@ -49,6 +40,18 @@ const ERDDiagram = ({
   
   const { updateTablePosition, addRelationship } = useSchemaContext();
   
+  // Memoize nodeTypes and edgeTypes to prevent recreation on each render
+  const nodeTypes = useMemo(() => ({
+    entityNode: EntityNode,
+    relationshipNode: RelationshipNode,
+    attributeNode: AttributeNode,
+    relationshipAttributeNode: RelationshipAttributeNode,
+  }), []);
+
+  const edgeTypes = useMemo(() => ({
+    erdEdge: ERDEdge,
+  }), []);
+  
   // Initialize the diagram with schema data
   useEffect(() => {
     if (schema) {
@@ -60,7 +63,25 @@ const ERDDiagram = ({
         if (schema.nodePositions) {
           diagramNodes.forEach(node => {
             if (schema.nodePositions[node.id]) {
-              node.position = schema.nodePositions[node.id];
+              const savedPosition = schema.nodePositions[node.id];
+              
+              // Validate saved position to prevent NaN
+              if (savedPosition && typeof savedPosition === 'object') {
+                // Check if x and y are valid numbers
+                const x = !isNaN(savedPosition.x) ? savedPosition.x : node.position.x;
+                const y = !isNaN(savedPosition.y) ? savedPosition.y : node.position.y;
+                
+                node.position = { x, y };
+              }
+            }
+            
+            // Final safety check for the node position
+            if (isNaN(node.position.x) || isNaN(node.position.y)) {
+              console.warn(`Node ${node.id} has invalid position, using default`);
+              node.position = {
+                x: isNaN(node.position.x) ? 100 : node.position.x,
+                y: isNaN(node.position.y) ? 100 : node.position.y
+              };
             }
           });
         }
@@ -85,12 +106,28 @@ const ERDDiagram = ({
       const parts = node.id.split('-');
       const nodeType = parts[0];
       
-      // For attributes of entities, we need to handle the ID differently
-      // Format is typically 'attr-entity-entityName-attrName'
+      // Extract the appropriate name based on node type
       let nodeName = '';
-      if (nodeType === 'attr' && parts.length > 2) {
+      
+      if (nodeType === 'relationship') {
+        // For relationships, the format is now 'relationship-RelName-SourceEntity-to-TargetEntity'
+        // We need the full ID for proper matching in the context
+        nodeName = parts.length > 1 ? parts[1] : '';
+        
+        // For debugging purposes, log the relationship details
+        console.log('Saving relationship position:', {
+          id: node.id,
+          name: nodeName,
+          position: node.position
+        });
+      } 
+      else if (nodeType === 'attr' && parts.length > 2) {
+        // For attributes of entities, we need to handle the ID differently
+        // Format is typically 'attr-entity-entityName-attrName'
         nodeName = parts.slice(2).join('-');
-      } else {
+      } 
+      else {
+        // For simple entity nodes
         nodeName = node.id.substring(node.id.indexOf('-') + 1);
       }
       
@@ -130,8 +167,10 @@ const ERDDiagram = ({
     
     // If connecting entity to entity, create a relationship node in between
     if (isEntityToEntity && !readOnly) {
-      // Generate a unique ID for the relationship
-      const relationshipId = `relationship-${Date.now()}`;
+      // Generate a stable unique ID for the relationship based on connected entities
+      const sourceEntity = params.source.replace('entity-', '');
+      const targetEntity = params.target.replace('entity-', '');
+      const relationshipId = `relationship-${sourceEntity}-to-${targetEntity}`;
       const sourcePos = nodes.find(n => n.id === params.source)?.position || { x: 0, y: 0 };
       const targetPos = nodes.find(n => n.id === params.target)?.position || { x: 0, y: 0 };
       
@@ -198,7 +237,7 @@ const ERDDiagram = ({
       
       // Create edges from both entities to the relationship with automatic handle connections
       const sourceToRelationship = {
-        id: `edge-${params.source}-${relationshipId}`,
+        id: `edge-${params.source}-to-${relationshipId}`,
         source: params.source,
         target: relationshipId,
         sourceHandle: sourceToRelHandles.sourceHandle,
@@ -215,7 +254,7 @@ const ERDDiagram = ({
       };
       
       const relationshipToTarget = {
-        id: `edge-${relationshipId}-${params.target}`,
+        id: `edge-${relationshipId}-to-${params.target}`,
         source: relationshipId,
         target: params.target,
         sourceHandle: relToTargetHandles.sourceHandle,
@@ -407,11 +446,6 @@ const ERDDiagram = ({
                 <div className={styles.infoItem}>
                   <div className={`${styles.entitySymbol} ${styles.weakEntitySymbol}`}></div>
                   <span>Weak Entity</span>
-                </div>
-                
-                <div className={styles.infoItem}>
-                  <div className={`${styles.entitySymbol} ${styles.associativeEntitySymbol}`}></div>
-                  <span>Associative Entity</span>
                 </div>
                 
                 <div className={styles.infoItem}>

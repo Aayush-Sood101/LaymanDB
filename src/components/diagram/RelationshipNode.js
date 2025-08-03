@@ -7,7 +7,7 @@ import styles from '@/styles/ERDDiagram.module.css';
 const RelationshipNode = memo(({ data, selected }) => {
   const { 
     relationshipName,
-    attributes = [],
+    attributeCount = 0,
     isIdentifying = false,
     description = "",
     type = "", // "ONE_TO_ONE", "ONE_TO_MANY", "MANY_TO_MANY", etc.
@@ -79,7 +79,12 @@ const RelationshipNode = memo(({ data, selected }) => {
           {cardinality ? cardinality : formatRelationshipType(type)}
         </div>
         
-        {/* No description displayed on the relationship node */}
+        {/* Show attribute count badge if there are attributes */}
+        {attributeCount > 0 && (
+          <div className={styles.attributeCountBadge} title={`${attributeCount} attribute(s)`}>
+            {attributeCount}
+          </div>
+        )}
         
         {/* Display assumptions only in edit mode */}
         {assumptionsMade && assumptionsMade.length > 0 && (
@@ -93,29 +98,6 @@ const RelationshipNode = memo(({ data, selected }) => {
           </div>
         )}
       </div>
-      
-      {/* Attributes of the relationship (if any) */}
-      {attributes.length > 0 && (
-        <div className={styles.relationshipAttributesContainer}>
-          {attributes.map((attr, index) => (
-            <div 
-              key={`rel-attr-${index}`} 
-              className={`
-                ${styles.relationshipAttribute}
-                ${attr.isDerived ? styles.derivedAttribute : ''}
-                ${attr.isMultivalued ? styles.multivaluedAttribute : ''}
-              `}
-            >
-              <span className={styles.attributeName}>{attr.name}</span>
-              {attr.dataType && (
-                <span className={styles.attributeType}>
-                  ({attr.dataType})
-                </span>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
       
       {/* Connection handles on all sides */}
       <Handle

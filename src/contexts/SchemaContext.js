@@ -83,10 +83,43 @@ const schemaReducer = (state, action) => {
           ? state.currentSchema.relationships 
           : [];
           
+        // Get the full node ID which is in the format 'relationship-RelName-SourceEntity-to-TargetEntity'
+        const nodeId = action.payload.id;
+        const idParts = nodeId.split('-');
+        
+        // Extract relationship details from the ID
+        // Format: relationship-RelName-SourceEntity-to-TargetEntity
+        let relationshipName = '';
+        let sourceEntity = '';
+        let targetEntity = '';
+        
+        if (idParts.length >= 4) {
+          relationshipName = idParts[1];
+          // Find the position of 'to' to extract source and target entities
+          const toIndex = idParts.indexOf('to');
+          if (toIndex > 0) {
+            sourceEntity = idParts.slice(2, toIndex).join('-');
+            targetEntity = idParts.slice(toIndex + 1).join('-');
+          }
+        } else {
+          // Fallback for old-style IDs
+          relationshipName = action.payload.name;
+        }
+        
         const updatedRelationships = relationships.map(rel => {
-          // For relationships, name might be rel1, rel2, etc. or the actual relationship name
           const relName = rel.name || '';
-          if (relName === action.payload.name) {
+          const relSourceEntity = rel.sourceEntity || rel.sourceTable || '';
+          const relTargetEntity = rel.targetEntity || rel.targetTable || '';
+          
+          // Match on name, source, and target to ensure we update the correct relationship
+          // Use case-insensitive comparison for more robust matching
+          const nameMatch = relName.toLowerCase() === relationshipName.toLowerCase();
+          const sourceMatch = sourceEntity ? relSourceEntity.toLowerCase() === sourceEntity.toLowerCase() : true;
+          const targetMatch = targetEntity ? relTargetEntity.toLowerCase() === targetEntity.toLowerCase() : true;
+          
+          // If all criteria match or if we only have a name (old-style)
+          if ((nameMatch && sourceMatch && targetMatch) || 
+              (idParts.length <= 2 && nameMatch)) {
             return { 
               ...rel, 
               position: { 

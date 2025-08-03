@@ -16,14 +16,29 @@ const ERDEdge = ({
   markerEnd,
   data,
 }) => {
+  // Safety check for NaN values in coordinates
+  const safeX = (x) => isNaN(x) ? 0 : x;
+  const safeY = (y) => isNaN(y) ? 0 : y;
+
+  // Apply safety checks to all coordinates
+  const safeSourceX = safeX(sourceX);
+  const safeSourceY = safeY(sourceY);
+  const safeTargetX = safeX(targetX);
+  const safeTargetY = safeY(targetY);
+
+  // Use safe values for the bezier path calculation
   const [edgePath, labelX, labelY] = getBezierPath({
-    sourceX,
-    sourceY,
+    sourceX: safeSourceX,
+    sourceY: safeSourceY,
     sourcePosition,
-    targetX,
-    targetY,
+    targetX: safeTargetX,
+    targetY: safeTargetY,
     targetPosition,
   });
+
+  // Apply safety to label coordinates as well
+  const safeLabelX = safeX(labelX);
+  const safeLabelY = safeY(labelY);
 
   // Default values
   const {
@@ -58,14 +73,18 @@ const ERDEdge = ({
   const distanceFromNode = 30; // Increased distance from node for cardinality label
   
   // Calculate angle of the edge near the source and target
-  const sourceAngle = Math.atan2(targetY - sourceY, targetX - sourceX);
-  const targetAngle = Math.atan2(sourceY - targetY, sourceX - targetX);
+  const sourceAngle = Math.atan2(safeTargetY - safeSourceY, safeTargetX - safeSourceX);
+  const targetAngle = Math.atan2(safeSourceY - safeTargetY, safeSourceX - safeTargetX);
   
-  // Calculate cardinality positions
-  const sourceCardinalityX = sourceX + Math.cos(sourceAngle) * distanceFromNode;
-  const sourceCardinalityY = sourceY + Math.sin(sourceAngle) * distanceFromNode;
-  const targetCardinalityX = targetX + Math.cos(targetAngle) * distanceFromNode;
-  const targetCardinalityY = targetY + Math.sin(targetAngle) * distanceFromNode;
+  // Handle NaN in angles (might happen if source and target positions are identical)
+  const safeSourceAngle = isNaN(sourceAngle) ? 0 : sourceAngle;
+  const safeTargetAngle = isNaN(targetAngle) ? 0 : targetAngle;
+  
+  // Calculate cardinality positions with safe angles
+  const sourceCardinalityX = safeSourceX + Math.cos(safeSourceAngle) * distanceFromNode;
+  const sourceCardinalityY = safeSourceY + Math.sin(safeSourceAngle) * distanceFromNode;
+  const targetCardinalityX = safeTargetX + Math.cos(safeTargetAngle) * distanceFromNode;
+  const targetCardinalityY = safeTargetY + Math.sin(safeTargetAngle) * distanceFromNode;
   
   // Define a better background for cardinality labels for visibility
   const cardinalityBgStyle = {
@@ -124,9 +143,9 @@ const ERDEdge = ({
         markerStart=""
       />
       
-      {/* Source Cardinality */}
+      {/* Source Cardinality - with safe values */}
       <g
-        transform={`translate(${sourceCardinalityX}, ${sourceCardinalityY})`}
+        transform={`translate(${safeX(sourceCardinalityX)}, ${safeY(sourceCardinalityY)})`}
         className={styles.cardinalityLabel}
       >
         <rect
@@ -146,9 +165,9 @@ const ERDEdge = ({
         </text>
       </g>
       
-      {/* Target Cardinality */}
+      {/* Target Cardinality - with safe values */}
       <g
-        transform={`translate(${targetCardinalityX}, ${targetCardinalityY})`}
+        transform={`translate(${safeX(targetCardinalityX)}, ${safeY(targetCardinalityY)})`}
         className={styles.cardinalityLabel}
       >
         <rect
@@ -167,8 +186,6 @@ const ERDEdge = ({
           {data.cardinalityRange || targetCardinality}
         </text>
       </g>
-      
-      {/* Relationship label - removed as per request */}
     </>
   );
 };

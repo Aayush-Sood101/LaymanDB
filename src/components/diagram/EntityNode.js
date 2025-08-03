@@ -25,8 +25,6 @@ const EntityNode = memo(({ data, selected }) => {
     switch (entityType) {
       case 'weak':
         return styles.weakEntityWrapper;
-      case 'associative':
-        return styles.associativeEntityWrapper;
       default:
         return styles.strongEntityWrapper;
     }

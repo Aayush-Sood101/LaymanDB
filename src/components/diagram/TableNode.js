@@ -12,8 +12,6 @@ const TableNode = memo(({ data, selected }) => {
     switch (entityType) {
       case 'weak':
         return styles.weakEntityBorder;
-      case 'associative':
-        return styles.associativeEntityBorder;
       default:
         return styles.regularEntityBorder;
     }
@@ -23,8 +21,6 @@ const TableNode = memo(({ data, selected }) => {
     switch (entityType) {
       case 'weak':
         return styles.weakEntityHeader;
-      case 'associative':
-        return styles.associativeEntityHeader;
       default:
         return styles.regularEntityHeader;
     }
@@ -45,7 +41,6 @@ const TableNode = memo(({ data, selected }) => {
         <span className={styles.tableName}>{tableName}</span>
         <span className={styles.entityBadge}>
           {entityType === 'weak' && 'W'}
-          {entityType === 'associative' && 'A'}
         </span>
       </div>
       
