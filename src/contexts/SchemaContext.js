@@ -429,6 +429,44 @@ export const SchemaProvider = ({ children }) => {
     }
   };
   
+  // Generate Mermaid ER diagram
+  const generateMermaidERD = async (schemaId) => {
+    dispatch({ type: ActionTypes.SET_LOADING, payload: true });
+    
+    try {
+      const response = await fetch('/api/export/mermaid', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ schemaId }),
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to generate Mermaid diagram');
+      }
+      
+      const { mermaidSyntax } = await response.json();
+      
+      dispatch({ 
+        type: ActionTypes.SET_EXPORT_DATA, 
+        payload: { 
+          type: 'mermaid', 
+          data: mermaidSyntax,
+          format: 'mermaid'
+        } 
+      });
+      
+      return mermaidSyntax;
+    } catch (error) {
+      dispatch({ type: ActionTypes.SET_ERROR, payload: error.message });
+      throw error;
+    } finally {
+      dispatch({ type: ActionTypes.SET_LOADING, payload: false });
+    }
+  };
+  
   // Clear export data
   const clearExportData = () => {
     dispatch({ type: ActionTypes.CLEAR_EXPORT_DATA });
@@ -444,6 +482,7 @@ export const SchemaProvider = ({ children }) => {
     exportSQL,
     exportERD,
     generateDocumentation,
+    generateMermaidERD,
     clearExportData,
   };
   

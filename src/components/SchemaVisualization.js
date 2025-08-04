@@ -13,7 +13,8 @@ const SchemaVisualization = () => {
     addRelationship, 
     exportSQL, 
     exportERD, 
-    generateDocumentation
+    generateDocumentation,
+    generateMermaidERD
   } = useSchemaContext();
   
   const [sqlDialect, setSqlDialect] = useState('mysql');
@@ -68,6 +69,19 @@ const SchemaVisualization = () => {
       await generateDocumentation(currentSchema._id, format);
     } catch (error) {
       console.error('Failed to generate documentation:', error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+  
+  const handleGenerateMermaidERD = async () => {
+    if (!currentSchema) return;
+
+    setIsExporting(true);
+    try {
+      await generateMermaidERD(currentSchema._id);
+    } catch (error) {
+      console.error('Failed to generate Mermaid ER diagram:', error);
     } finally {
       setIsExporting(false);
     }
@@ -160,6 +174,19 @@ const SchemaVisualization = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/>
                 </svg>
                 Diagram
+              </Button>
+              
+              <Button
+                size="sm"
+                variant="outline"
+                className="flex items-center bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100"
+                onClick={handleGenerateMermaidERD}
+                disabled={isExporting}
+              >
+                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                </svg>
+                Mermaid
               </Button>
 
               <Button
