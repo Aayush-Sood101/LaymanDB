@@ -1,14 +1,21 @@
 "use client";
 
 import React, { useState } from 'react';
-import Textarea from '@/components/ui/Textarea';
-import Button from '@/components/ui/Button';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 import { useSchemaContext } from '@/contexts/SchemaContext';
+import { Pencil, Loader2, FileText, Trash2, Database } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const PromptInputPanel = () => {
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
   
   const { generateSchema } = useSchemaContext();
   
@@ -33,99 +40,121 @@ const PromptInputPanel = () => {
     }
   };
   
-  const examplePrompts = [
-    "Create a database for a school with students, teachers, classes, and enrollments.",
-    "Design a blog system with users, posts, comments, and categories.",
-    "Build a CRM database with customers, contacts, deals, and activities.",
-    "Create an inventory management system for products, suppliers, orders, and warehouses."
-  ];
-  
-  const handleUseExample = (example) => {
-    setPrompt(example);
-  };
-  
   return (
-    <div className="bg-white rounded-lg shadow-md border border-blue-100 overflow-hidden animate-fade-in">
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 py-3 px-5">
-        <h2 className="text-lg font-bold text-white flex items-center">
-          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
-          </svg>
-          Describe Your Database
-        </h2>
-      </div>
-      
-      <div className="p-5">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Textarea
-            label="Enter a natural language description of your database schema:"
-            id="prompt"
-            placeholder="Describe your database entities and their relationships..."
-            rows={5}
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            error={error}
-            disabled={isLoading}
-            className="focus:border-blue-500 focus:ring-blue-200"
-          />
-          
-          <div className="text-sm text-gray-500">
-            <p className="mb-2">Example prompts (click to use):</p>
-            <div className="flex flex-wrap gap-2">
-              {examplePrompts.map((example, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  onClick={() => handleUseExample(example)}
-                  className="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs py-1 px-2 rounded-md transition-colors duration-200 border border-blue-200"
-                  disabled={isLoading}
-                >
-                  {example.substring(0, 30)}...
-                </button>
-              ))}
-            </div>
+    <Card className="w-full max-w-2xl mx-auto bg-white dark:bg-black border-2 border-gray-200 dark:border-gray-800 shadow-xl transition-all duration-300 hover:shadow-2xl">
+      <CardHeader className="space-y-2 pb-6 border-b border-gray-100 dark:border-gray-800">
+        <div className="flex items-center space-x-4">
+          <div className="p-3 rounded-lg bg-black dark:bg-white transition-colors duration-300">
+            <Database className="h-6 w-6 text-white dark:text-black" />
           </div>
-          
-          <div className="flex justify-end space-x-3 pt-2">
+          <div>
+            <CardTitle className="text-2xl font-bold text-black dark:text-white">
+              Schema Generator
+            </CardTitle>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Generate database schemas with AI
+            </p>
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-6 p-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-3">
+            <Label 
+              htmlFor="prompt" 
+              className="text-sm font-semibold text-gray-900 dark:text-gray-100"
+            >
+              Database Description
+            </Label>
+            
+            <div className="relative">
+              <Textarea
+                id="prompt"
+                placeholder="Describe your database entities, relationships, and requirements in detail..."
+                rows={6}
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                disabled={isLoading}
+                className={cn(
+                  "min-h-[150px] max-h-[150px] resize-none overflow-y-auto transition-all duration-300",
+                  "bg-white dark:bg-black",
+                  "border-2 border-gray-200 dark:border-gray-800",
+                  "text-gray-900 dark:text-gray-100",
+                  "placeholder:text-gray-500 dark:placeholder:text-gray-400",
+                  "focus:border-black dark:focus:border-white",
+                  "focus:ring-2 focus:ring-black/10 dark:focus:ring-white/10",
+                  "hover:border-gray-400 dark:hover:border-gray-600",
+                  "disabled:opacity-50 disabled:cursor-not-allowed",
+                  isFocused && "shadow-lg",
+                  error && "border-red-500 dark:border-red-400 focus:border-red-500 focus:ring-red-500/10"
+                )}
+              />
+            </div>
+            
+            {error && (
+              <div className="flex items-center space-x-2 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                <div className="w-2 h-2 rounded-full bg-red-500" />
+                <p className="text-sm text-red-700 dark:text-red-400">
+                  {error}
+                </p>
+              </div>
+            )}
+          </div>
+
+          <Separator className="bg-gray-200 dark:bg-gray-800" />
+
+          <div className="flex justify-end space-x-3">
             <Button 
               type="button" 
-              variant="outline" 
+              variant="outline"
               onClick={() => setPrompt('')}
               disabled={isLoading || !prompt}
-              className="border-gray-300 hover:bg-gray-100"
+              className={cn(
+                "border-2 border-gray-200 dark:border-gray-800",
+                "bg-white dark:bg-black",
+                "text-gray-700 dark:text-gray-300",
+                "hover:bg-gray-50 dark:hover:bg-gray-900",
+                "hover:border-gray-400 dark:hover:border-gray-600",
+                "transition-all duration-200",
+                "disabled:opacity-50"
+              )}
             >
-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-              </svg>
+              <Trash2 className="h-4 w-4 mr-2" />
               Clear
             </Button>
             
             <Button
               type="submit"
-              disabled={isLoading}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex items-center"
+              disabled={isLoading || !prompt.trim()}
+              className={cn(
+                "bg-black dark:bg-white",
+                "text-white dark:text-black",
+                "hover:bg-gray-800 dark:hover:bg-gray-200",
+                "shadow-lg hover:shadow-xl",
+                "transition-all duration-200",
+                "disabled:opacity-50 disabled:cursor-not-allowed",
+                "font-semibold px-6"
+              )}
             >
               {isLoading ? (
                 <>
-                  <svg className="animate-spin h-4 w-4 text-white mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <span>Generating Schema...</span>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Generating...
                 </>
               ) : (
                 <>
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-                  </svg>
-                  <span>Generate Schema</span>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Generate
                 </>
               )}
             </Button>
           </div>
         </form>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

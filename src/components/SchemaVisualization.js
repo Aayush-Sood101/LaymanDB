@@ -3,244 +3,357 @@
 import React, { useState, useEffect } from 'react';
 import ERDDiagram from '@/components/diagram/ERDDiagram';
 import { useSchemaContext } from '@/contexts/SchemaContext';
-import Button from './ui/Button';
-import { SunIcon, MoonIcon } from './ui/ThemeIcons';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel
+} from '@/components/ui/dropdown-menu';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Database, Download, FileText, Sun, Moon, Settings, Share2, Code2, FileImage, GitBranch, Loader2, ChevronDown, Zap, Eye, Copy } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const SchemaVisualization = () => {
-  const { 
-    currentSchema, 
-    updateTablePosition, 
-    addRelationship, 
-    exportSQL, 
-    exportERD, 
+  const {
+    currentSchema,
+    updateTablePosition,
+    addRelationship,
+    exportSQL,
+    exportERD,
     generateDocumentation,
     generateMermaidERD
   } = useSchemaContext();
-  
+
   const [sqlDialect, setSqlDialect] = useState('mysql');
   const [isExporting, setIsExporting] = useState(false);
   const [diagramKey, setDiagramKey] = useState(0);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  
-  // Track schema changes to force diagram re-render when needed
+  const [exportingType, setExportingType] = useState('');
+
   const prevSchemaIdRef = React.useRef(null);
-  
-  // Update the diagram key when schema changes
+
   useEffect(() => {
     if (currentSchema && currentSchema._id !== prevSchemaIdRef.current) {
       console.log('Schema changed, updating diagram');
       prevSchemaIdRef.current = currentSchema._id;
-      // Force re-render of the diagram by changing key
       setDiagramKey(Date.now());
     }
   }, [currentSchema]);
 
   const handleExportSQL = async () => {
     if (!currentSchema) return;
-
     setIsExporting(true);
+    setExportingType('sql');
     try {
       await exportSQL(currentSchema._id, sqlDialect);
     } catch (error) {
       console.error('Failed to export SQL:', error);
     } finally {
       setIsExporting(false);
+      setExportingType('');
     }
   };
 
   const handleExportERD = async (format = 'svg') => {
     if (!currentSchema) return;
-
     setIsExporting(true);
+    setExportingType('erd');
     try {
       await exportERD(currentSchema._id, format);
     } catch (error) {
       console.error('Failed to export ERD:', error);
     } finally {
       setIsExporting(false);
+      setExportingType('');
     }
   };
 
   const handleGenerateDocumentation = async (format = 'markdown') => {
     if (!currentSchema) return;
-
     setIsExporting(true);
+    setExportingType('docs');
     try {
       await generateDocumentation(currentSchema._id, format);
     } catch (error) {
       console.error('Failed to generate documentation:', error);
     } finally {
       setIsExporting(false);
+      setExportingType('');
     }
   };
-  
+
   const handleGenerateMermaidERD = async () => {
     if (!currentSchema) return;
-
     setIsExporting(true);
+    setExportingType('mermaid');
     try {
       await generateMermaidERD(currentSchema._id);
     } catch (error) {
       console.error('Failed to generate Mermaid ER diagram:', error);
     } finally {
       setIsExporting(false);
+      setExportingType('');
     }
   };
 
   if (!currentSchema) {
     return (
-      <div className="bg-white p-6 rounded-lg shadow-md flex items-center justify-center h-full">
-        <div className="text-center">
-          <h3 className="text-xl font-semibold mb-4">No Schema Generated Yet</h3>
-          <p className="text-gray-600 mb-4">
-            Use the prompt input panel above to describe your database and generate a schema.
-          </p>
-          <img 
-            src="/globe.svg" 
-            alt="Empty state" 
-            className="mx-auto w-32 h-32 opacity-50"
-          />
-        </div>
+      <div className="h-full flex flex-col">
+        <Card className="flex-1 border-2 border-dashed border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50">
+          <CardContent className="flex items-center justify-center h-full p-12">
+            <div className="text-center space-y-6 max-w-md">
+              <div className="w-24 h-24 mx-auto rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                <Database className="w-12 h-12 text-gray-400 dark:text-gray-500" />
+              </div>
+              <div className="space-y-3">
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  No Schema Generated
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                  Describe your database requirements in the prompt above to generate 
+                  a professional schema visualization with interactive diagrams.
+                </p>
+              </div>
+              <div className="flex items-center justify-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+                <Zap className="w-4 h-4" />
+                <span>AI-powered schema generation</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
+  const entityCount = currentSchema.entities?.length || 0;
+  const relationshipCount = currentSchema.relationships?.length || 0;
+
   return (
-    <div className="bg-white rounded-lg shadow-md flex flex-col h-full border border-blue-100 overflow-hidden animate-fade-in">
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 border-b border-blue-100">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <div className="flex items-center justify-center w-8 h-8 bg-blue-600 rounded-md shadow-sm">
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
-              </svg>
+    <div className="h-full flex flex-col bg-white dark:bg-gray-950 border-2 border-gray-200 dark:border-gray-800 shadow-xl overflow-hidden">
+      {/* Compact Header */}
+      <div className="border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 p-4">
+        <div className="flex items-center justify-between">
+          {/* Schema Info - Compact */}
+          <div className="flex items-center space-x-3">
+            <div className="p-2 rounded-lg bg-gray-900 dark:bg-gray-100 shadow-md">
+              <Database className="w-5 h-5 text-white dark:text-gray-900" />
             </div>
-            <div>
-              <h2 className="text-lg font-bold bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent">
+            <div className="space-y-1">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
                 {currentSchema.name || 'Database Schema'}
               </h2>
-              <p className="text-xs text-gray-500">
-                {currentSchema.entities?.length || 0} entities • {currentSchema.relationships?.length || 0} relationships
-              </p>
+              <div className="flex items-center space-x-3 text-sm text-gray-600 dark:text-gray-400">
+                <div className="flex items-center space-x-1">
+                  <div className="w-2 h-2 rounded-full bg-blue-500" />
+                  <span>{entityCount} entities</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <div className="w-2 h-2 rounded-full bg-green-500" />
+                  <span>{relationshipCount} relationships</span>
+                </div>
+                <Badge variant="secondary" className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs px-2 py-1">
+                  <Eye className="w-3 h-3 mr-1" />
+                  Interactive
+                </Badge>
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center space-x-3">
+          {/* Compact Controls */}
+          <div className="flex items-center space-x-2">
+            {/* Theme Toggle */}
             <Button
-              size="sm"
               variant="outline"
-              className="flex items-center"
+              size="sm"
               onClick={() => setIsDarkMode(!isDarkMode)}
-              title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              className={cn(
+                "border-2 transition-all duration-200 text-gray-700 dark:text-gray-300",
+                "hover:scale-105 active:scale-95 hover:text-gray-900 dark:hover:text-gray-100"
+              )}
             >
-              {isDarkMode ? <SunIcon className="w-4 h-4" /> : <MoonIcon className="w-4 h-4" />}
+              {isDarkMode ? (
+                <Sun className="w-4 h-4" />
+              ) : (
+                <Moon className="w-4 h-4" />
+              )}
             </Button>
-            
-            <div className="bg-white rounded-md border border-gray-200 flex items-center p-1 shadow-sm">
-              <select
-                className="text-sm py-1 px-2 focus:outline-none bg-transparent"
-                value={sqlDialect}
-                onChange={(e) => setSqlDialect(e.target.value)}
-                title="Select SQL dialect"
-              >
-                <option value="mysql">MySQL</option>
-                <option value="postgresql">PostgreSQL</option>
-                <option value="sqlite">SQLite</option>
-                <option value="sqlserver">SQL Server</option>
-              </select>
-            </div>
 
-            <div className="flex space-x-2">
+            {/* SQL Dialect Selector */}
+            <Select value={sqlDialect} onValueChange={setSqlDialect}>
+              <SelectTrigger className="w-28 border-2 text-sm text-gray-700 dark:text-gray-300">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="mysql">MySQL</SelectItem>
+                <SelectItem value="postgresql">PostgreSQL</SelectItem>
+                <SelectItem value="sqlite">SQLite</SelectItem>
+                <SelectItem value="sqlserver">SQL Server</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Separator orientation="vertical" className="h-6" />
+
+            {/* Export Actions - Compact */}
+            <div className="flex items-center space-x-2">
+              {/* SQL Export */}
               <Button
-                size="sm"
-                className="bg-blue-600 hover:bg-blue-700 transition-colors flex items-center"
                 onClick={handleExportSQL}
                 disabled={isExporting}
+                size="sm"
+                className={cn(
+                  "bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900",
+                  "hover:bg-gray-800 dark:hover:bg-gray-200",
+                  "shadow-lg hover:shadow-xl transition-all duration-200",
+                  "font-semibold"
+                )}
               >
-                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                </svg>
+                {isExporting && exportingType === 'sql' ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Code2 className="w-4 h-4 mr-2" />
+                )}
                 SQL
               </Button>
 
-              <Button
-                size="sm"
-                variant="outline"
-                className="flex items-center"
-                onClick={() => handleExportERD('svg')}
-                disabled={isExporting}
-              >
-                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/>
-                </svg>
-                Diagram
-              </Button>
-              
-              <Button
-                size="sm"
-                variant="outline"
-                className="flex items-center bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100"
-                onClick={handleGenerateMermaidERD}
-                disabled={isExporting}
-              >
-                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
-                </svg>
-                Mermaid
-              </Button>
-
-              <Button
-                size="sm"
-                variant="secondary"
-                className="flex items-center"
-                onClick={() => handleGenerateDocumentation()}
-                disabled={isExporting}
-              >
-                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
-                Docs
-              </Button>
+              {/* Export Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="border-2 hover:bg-gray-50 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
+                    disabled={isExporting}
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Export
+                    <ChevronDown className="w-4 h-4 ml-2" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel className="font-semibold text-gray-900 dark:text-gray-100">Export Options</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  
+                  <DropdownMenuItem 
+                    onClick={() => handleExportERD('svg')}
+                    disabled={isExporting}
+                    className="cursor-pointer text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
+                  >
+                    <FileImage className="w-4 h-4 mr-2" />
+                    <span>Diagram (SVG)</span>
+                    {isExporting && exportingType === 'erd' && (
+                      <Loader2 className="w-4 h-4 ml-auto animate-spin" />
+                    )}
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuItem 
+                    onClick={() => handleExportERD('png')}
+                    disabled={isExporting}
+                    className="cursor-pointer text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
+                  >
+                    <FileImage className="w-4 h-4 mr-2" />
+                    <span>Diagram (PNG)</span>
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuSeparator />
+                  
+                  <DropdownMenuItem 
+                    onClick={handleGenerateMermaidERD}
+                    disabled={isExporting}
+                    className="cursor-pointer text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
+                  >
+                    <GitBranch className="w-4 h-4 mr-2" />
+                    <span>Mermaid Diagram</span>
+                    {isExporting && exportingType === 'mermaid' && (
+                      <Loader2 className="w-4 h-4 ml-auto animate-spin" />
+                    )}
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuItem 
+                    onClick={() => handleGenerateDocumentation('markdown')}
+                    disabled={isExporting}
+                    className="cursor-pointer text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    <span>Documentation</span>
+                    {isExporting && exportingType === 'docs' && (
+                      <Loader2 className="w-4 h-4 ml-auto animate-spin" />
+                    )}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="flex-grow overflow-hidden">
-        <div className="w-full h-full relative">
-          <ERDDiagram 
-            schema={currentSchema}
-            onNodeDragStop={(nodeId, position) => {
-              // Extract entity name from nodeId if it's an entity node
-              const entityName = nodeId.startsWith('entity-') 
-                ? nodeId.replace('entity-', '')
-                : nodeId;
+      {/* Maximized Diagram Container */}
+      <div className="flex-1 overflow-hidden bg-gray-50/30 dark:bg-gray-900/30 relative">
+        <ERDDiagram 
+          schema={currentSchema}
+          onNodeDragStop={(nodeId, position) => {
+            const entityName = nodeId.startsWith('entity-') 
+              ? nodeId.replace('entity-', '') 
+              : nodeId;
+            updateTablePosition(entityName, position);
+          }}
+          onConnect={(params) => {
+            const sourceIsEntity = params.source.startsWith('entity-');
+            const targetIsEntity = params.target.startsWith('entity-');
+            
+            if (sourceIsEntity && targetIsEntity) {
+              const sourceEntity = params.source.replace('entity-', '');
+              const targetEntity = params.target.replace('entity-', '');
               
-              updateTablePosition(entityName, position);
-            }}
-            onConnect={(params) => {
-              // Handle relationship creation
-              const sourceIsEntity = params.source.startsWith('entity-');
-              const targetIsEntity = params.target.startsWith('entity-');
-              
-              // If connecting two entities
-              if (sourceIsEntity && targetIsEntity) {
-                const sourceEntity = params.source.replace('entity-', '');
-                const targetEntity = params.target.replace('entity-', '');
-                
-                addRelationship({
-                  sourceTable: sourceEntity,
-                  targetTable: targetEntity,
-                  type: 'ONE_TO_MANY',
-                  name: 'Relates to'
-                });
-              }
-            }}
-            key={`erd-diagram-${diagramKey}`}
-            darkMode={isDarkMode}
-          />
+              addRelationship({
+                sourceTable: sourceEntity,
+                targetTable: targetEntity,
+                type: 'ONE_TO_MANY',
+                name: 'Relates to'
+              });
+            }
+          }}
+          key={`erd-diagram-${diagramKey}`}
+          darkMode={isDarkMode}
+        />
+
+        {/* Floating Status Badge */}
+        <div className="absolute top-4 right-4 z-10">
+          <Badge variant="outline" className="border-gray-300 dark:border-gray-600 bg-white/90 dark:bg-gray-900/90 text-gray-700 dark:text-gray-300 backdrop-blur-sm">
+            {sqlDialect.toUpperCase()}
+          </Badge>
         </div>
       </div>
+
+      {/* Loading Overlay */}
+      {isExporting && (
+        <div className="absolute inset-0 bg-white/80 dark:bg-gray-950/80 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl p-8 border-2 border-gray-200 dark:border-gray-800">
+            <div className="flex items-center space-x-4">
+              <Loader2 className="w-8 h-8 animate-spin text-gray-900 dark:text-gray-100" />
+              <div>
+                <p className="font-semibold text-gray-900 dark:text-gray-100">
+                  Exporting {exportingType}...
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Please wait while we generate your file
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
