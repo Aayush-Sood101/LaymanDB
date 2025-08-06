@@ -1,7 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 // Import required css for React Flow
-import 'react-flow-renderer/dist/style.css';
+import 'reactflow/dist/style.css';
 // Import the monkey patch to fix React Flow Object.keys error
 import '@/lib/reactFlowMonkeyPatch';
 
