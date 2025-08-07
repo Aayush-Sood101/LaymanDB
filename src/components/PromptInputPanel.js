@@ -42,28 +42,28 @@ const PromptInputPanel = () => {
   
   return (
     <Card className="w-full max-w-2xl mx-auto bg-white dark:bg-black border-2 border-gray-200 dark:border-gray-800 shadow-xl transition-all duration-300 hover:shadow-2xl">
-      <CardHeader className="space-y-2 pb-6 border-b border-gray-100 dark:border-gray-800">
-        <div className="flex items-center space-x-4">
-          <div className="p-3 rounded-lg bg-black dark:bg-white transition-colors duration-300">
-            <Database className="h-6 w-6 text-white dark:text-black" />
+      <CardHeader className="space-y-1 pb-3 border-b border-gray-100 dark:border-gray-800">
+        <div className="flex items-center space-x-3">
+          <div className="p-3 rounded-xl bg-black dark:bg-white transition-colors duration-300 shadow-lg">
+            <Database className="h-7 w-7 text-white dark:text-black" />
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold text-black dark:text-white">
+            <CardTitle className="text-2xl font-bold text-black dark:text-white tracking-tight">
               Schema Generator
             </CardTitle>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 font-light tracking-wide">
               Generate database schemas with AI
             </p>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-6 p-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-3">
+      <CardContent className="space-y-3 p-4 pt-2">
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="space-y-2">
             <Label 
               htmlFor="prompt" 
-              className="text-sm font-semibold text-gray-900 dark:text-gray-100"
+              className="text-sm font-semibold text-gray-900 dark:text-gray-100 font-sans tracking-wide"
             >
               Database Description
             </Label>
@@ -79,7 +79,7 @@ const PromptInputPanel = () => {
                 onBlur={() => setIsFocused(false)}
                 disabled={isLoading}
                 className={cn(
-                  "min-h-[150px] max-h-[150px] resize-none overflow-y-auto transition-all duration-300",
+                  "min-h-[160px] max-h-[160px] resize-none overflow-y-auto transition-all duration-300",
                   "bg-white dark:bg-black",
                   "border-2 border-gray-200 dark:border-gray-800",
                   "text-gray-900 dark:text-gray-100",
@@ -95,7 +95,7 @@ const PromptInputPanel = () => {
             </div>
             
             {error && (
-              <div className="flex items-center space-x-2 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+              <div className="flex items-center space-x-2 p-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
                 <div className="w-2 h-2 rounded-full bg-red-500" />
                 <p className="text-sm text-red-700 dark:text-red-400">
                   {error}
@@ -104,12 +104,11 @@ const PromptInputPanel = () => {
             )}
           </div>
 
-          <Separator className="bg-gray-200 dark:bg-gray-800" />
-
-          <div className="flex justify-end space-x-3">
+          <div className="flex justify-center space-x-3 pt-3">
             <Button 
               type="button" 
               variant="outline"
+              size="lg"
               onClick={() => setPrompt('')}
               disabled={isLoading || !prompt}
               className={cn(
@@ -119,7 +118,8 @@ const PromptInputPanel = () => {
                 "hover:bg-gray-50 dark:hover:bg-gray-900",
                 "hover:border-gray-400 dark:hover:border-gray-600",
                 "transition-all duration-200",
-                "disabled:opacity-50"
+                "disabled:opacity-50",
+                "h-11 px-6"
               )}
             >
               <Trash2 className="h-4 w-4 mr-2" />
@@ -128,6 +128,7 @@ const PromptInputPanel = () => {
             
             <Button
               type="submit"
+              size="lg"
               disabled={isLoading || !prompt.trim()}
               className={cn(
                 "bg-black dark:bg-white",
@@ -136,7 +137,7 @@ const PromptInputPanel = () => {
                 "shadow-lg hover:shadow-xl",
                 "transition-all duration-200",
                 "disabled:opacity-50 disabled:cursor-not-allowed",
-                "font-semibold px-6"
+                "font-medium tracking-wide h-11 px-8"
               )}
             >
               {isLoading ? (

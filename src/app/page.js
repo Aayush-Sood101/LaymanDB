@@ -14,7 +14,7 @@ export default function Home() {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col">
         {/* Compact Header */}
         <header className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm shadow-sm border-b border-blue-100">
-          <div className="container max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8 flex justify-between items-center">
+          <div className="w-full px-3 py-3 sm:px-6 flex justify-between items-center">
             <div className="flex items-center">
               <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-2 rounded-lg shadow-md mr-3 flex items-center justify-center">
                 <Database size={18} className="text-white" />
@@ -46,8 +46,8 @@ export default function Home() {
         </header>
         
         {/* Main content with maximized visualization area */}
-        <main className="flex-1 container max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-8rem)]">
+        <main className="flex-1 w-full px-3 py-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-2 h-[calc(100vh-8rem)]">
             {/* Left column - Compact Tools panel */}
             <div className="lg:col-span-3 space-y-4 lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto">
               <PromptInputPanel />
@@ -63,7 +63,7 @@ export default function Home() {
         
         {/* Compact Footer */}
         <footer className="py-2 border-t border-blue-100 bg-white/50 backdrop-blur-sm">
-          <div className="container max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
+          <div className="w-full px-6 text-center text-xs text-slate-500">
             <p>© {new Date().getFullYear()} Database Creator | Designed for database schema visualization</p>
           </div>
         </footer>
