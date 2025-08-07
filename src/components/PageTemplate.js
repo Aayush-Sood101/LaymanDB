@@ -1,16 +1,17 @@
-"use client";
-
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+// src/components/PageTemplate.js
+import { NavbarComponent } from './Navbar'; // Adjust path if needed
 
 export default function PageTemplate({ children }) {
   return (
-    <>
-      <Navbar />
-      <main className="flex-1">
+    <div>
+      <NavbarComponent />
+      {/* This 'main' tag wraps your page content.
+        The 'pt-24' (padding-top: 6rem) pushes the content down,
+        creating space for the fixed navbar above it.
+      */}
+      <main className="pt-24"> 
         {children}
       </main>
-      <Footer />
-    </>
+    </div>
   );
 }

@@ -1,39 +1,107 @@
 "use client";
+import {
+  Navbar,
+  NavBody,
+  NavItems,
+  MobileNav,
+  NavbarLogo,
+  NavbarButton,
+  MobileNavHeader,
+  MobileNavToggle,
+  MobileNavMenu,
+} from "@/components/ui/resizable-navbar";
+import { useState, useEffect } from "react";
 
-import { Database, Github } from "lucide-react";
+export function NavbarComponent() {
+  const navItems = [
+    { name: "Features", link: "#features" },
+    { name: "Pricing", link: "#pricing" },
+    { name: "Contact", link: "#contact" },
+  ];
 
-export default function Navbar() {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  // Effect to handle scroll detection
+  useEffect(() => {
+    const handleScroll = () => {
+      // Set isScrolled to true if user scrolls more than 10px
+      if (window.scrollY > 10) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    // Add event listener when the component mounts
+    window.addEventListener("scroll", handleScroll);
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   return (
-    <header className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm shadow-sm border-b border-blue-100">
-      <div className="w-full px-3 py-3 sm:px-6 flex justify-between items-center">
-        <div className="flex items-center">
-          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-2 rounded-lg shadow-md mr-3 flex items-center justify-center">
-            <Database size={18} className="text-white" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-700 to-indigo-700 bg-clip-text text-transparent">
-              Database Creator
-            </h1>
-            <p className="text-xs text-slate-500 tracking-wide">Design • Visualize • Generate</p>
-          </div>
+    <Navbar
+      // Apply dynamic classes based on the isScrolled state
+      className={`
+        fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out
+        ${isScrolled ? "py-2 shadow-md backdrop-blur-sm bg-white/80 dark:bg-neutral-900/80" : "py-4"}
+      `}
+    >
+      {/* --- Desktop Navigation --- */}
+      <NavBody>
+        <NavbarLogo />
+        <NavItems items={navItems} />
+        <div className="flex items-center gap-4">
+          <NavbarButton variant="secondary">Login</NavbarButton>
+          <NavbarButton variant="primary">Book a call</NavbarButton>
         </div>
-        
-        <div className="flex items-center space-x-4">
-          <div className="hidden sm:flex items-center text-sm text-slate-600 bg-blue-50/80 py-1 px-3 rounded-full border border-blue-100">
-            <span className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
-            Intelligent Database Design Platform
+      </NavBody>
+
+      {/* --- Mobile Navigation --- */}
+      <MobileNav>
+        <MobileNavHeader>
+          <NavbarLogo />
+          <MobileNavToggle
+            isOpen={isMobileMenuOpen}
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          />
+        </MobileNavHeader>
+
+        <MobileNavMenu
+          isOpen={isMobileMenuOpen}
+          onClose={() => setIsMobileMenuOpen(false)}
+        >
+          {navItems.map((item, idx) => (
+            <a
+              key={`mobile-link-${idx}`}
+              href={item.link}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="relative text-neutral-600 dark:text-neutral-300"
+            >
+              <span className="block">{item.name}</span>
+            </a>
+          ))}
+          <div className="flex w-full flex-col gap-4">
+            <NavbarButton
+              onClick={() => setIsMobileMenuOpen(false)}
+              variant="secondary"
+              className="w-full"
+            >
+              Login
+            </NavbarButton>
+            <NavbarButton
+              onClick={() => setIsMobileMenuOpen(false)}
+              variant="primary"
+              className="w-full"
+            >
+              Book a call
+            </NavbarButton>
           </div>
-          <a 
-            href="https://github.com/Aayush-Sood101/LaymanDB" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="flex items-center justify-center h-9 w-9 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-blue-600 rounded-full transition-all duration-200"
-            aria-label="GitHub Repository"
-          >
-            <Github size={18} />
-          </a>
-        </div>
-      </div>
-    </header>
+        </MobileNavMenu>
+      </MobileNav>
+    </Navbar>
   );
 }
