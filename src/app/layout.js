@@ -55,9 +55,10 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased min-h-screen bg-background text-foreground`}
       >
-        <div className="relative flex min-h-screen flex-col">
-          {children}
-        </div>
+          <div className="relative flex min-h-screen flex-col bg-gradient-to-br from-slate-50 to-blue-50">
+            {/* Navbar and children will be client components */}
+            {children}
+          </div>
       </body>
     </html>
   );
