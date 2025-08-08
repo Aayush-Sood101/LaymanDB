@@ -35,7 +35,7 @@ const PromptInputPanel = () => {
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => {
           reject(new Error('The request is taking longer than expected. The server might be overloaded.'));
-        }, 30000); // 30 second client-side timeout
+        }, 90000); // 90 second client-side timeout
       });
       
       // Race between actual request and timeout

@@ -176,7 +176,7 @@ export const SchemaProvider = ({ children }) => {
     try {
       // Set a timeout for the fetch operation
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 90000); // 90 second timeout
       
       const response = await fetch('/api/schema/generate', {
         method: 'POST',
