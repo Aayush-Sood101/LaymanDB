@@ -47,7 +47,7 @@ export function NavbarComponent() {
       // Apply dynamic classes based on the isScrolled state
       className={`
         fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out
-        ${isScrolled ? "py-2 shadow-md backdrop-blur-sm bg-white/80 dark:bg-neutral-900/80" : "py-4"}
+        ${isScrolled ? "py-2" : "py-4"}
       `}
     >
       {/* --- Desktop Navigation --- */}
