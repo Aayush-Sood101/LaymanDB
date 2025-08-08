@@ -2,130 +2,34 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-
-// Create a fallback component for the cases when main rendering fails
-const MermaidFallback = ({ chart }) => {
-  const ref = useRef(null);
-
-  useEffect(() => {
-    let isMounted = true;
-    
-    // Ensure we're in the browser and DOM is ready
-    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
-      const timer = setTimeout(async () => {
-        try {
-          // Dynamically import mermaid
-          const mermaidModule = await import('mermaid');
-          const mermaid = mermaidModule.default;
-          
-          if (!isMounted || !ref.current) return;
-          
-          // Clear any previous content
-          ref.current.innerHTML = '';
-          
-          // Basic initialization with minimal options
-          mermaid.initialize({
-            startOnLoad: false,
-            securityLevel: 'loose',
-            theme: 'default'
-          });
-          
-          // Generate a unique ID for this render
-          const id = `mermaid-fallback-${Date.now()}`;
-          
-          // Use async/await pattern instead of callback
-          try {
-            const { svg } = await mermaid.render(id, chart);
-            if (isMounted && ref.current) {
-              ref.current.innerHTML = svg;
-            }
-          } catch (renderError) {
-            console.error('Mermaid render error:', renderError);
-            if (isMounted && ref.current) {
-              ref.current.innerHTML = `<div class="p-4 text-red-600">Could not render diagram: ${renderError.message}</div>`;
-            }
-          }
-        } catch (err) {
-          console.error('Fallback mermaid render failed:', err);
-          if (isMounted && ref.current) {
-            ref.current.innerHTML = `<div class="p-4 text-red-600">Could not render diagram</div>`;
-          }
-        }
-      }, 500); // Increased delay
-      
-      return () => {
-        isMounted = false;
-        clearTimeout(timer);
-      };
-    }
-  }, [chart]);
-
-  return (
-    <div className="border border-gray-300 rounded-lg p-4 bg-white">
-      <div ref={ref} className="min-h-[200px] flex items-center justify-center">
-        <p className="text-gray-400">Loading diagram...</p>
-      </div>
-    </div>
-  );
-};
+import MermaidFallback from './MermaidFallback';
 
 export default function MermaidDiagram({ mermaidSyntax }) {
-  const container = useRef(null);
   const [error, setError] = useState(null);
   const [renderedSvg, setRenderedSvg] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [useFallback, setUseFallback] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  
+
   useEffect(() => {
-    // Enhanced checks for browser environment
-    if (typeof window === 'undefined' || typeof document === 'undefined') {
-      return;
-    }
-    
     let isMounted = true;
-    
-    // Wrap in an async function to handle dynamic import
-    const loadAndRender = async () => {
+
+    const renderDiagram = async () => {
+      if (!mermaidSyntax) {
+        setIsLoading(false);
+        return;
+      }
+      
+      // Reset state for re-renders
+      setIsLoading(true);
+      setError(null);
+      setRenderedSvg('');
+      setUseFallback(false);
+
       try {
-        setIsLoading(true);
-        setError(null);
-        
-        // Wait for DOM to be fully ready
-        if (document.readyState !== 'complete') {
-          await new Promise(resolve => {
-            const handleLoad = () => {
-              document.removeEventListener('DOMContentLoaded', handleLoad);
-              window.removeEventListener('load', handleLoad);
-              resolve();
-            };
-            
-            if (document.readyState === 'loading') {
-              document.addEventListener('DOMContentLoaded', handleLoad);
-            } else {
-              window.addEventListener('load', handleLoad);
-            }
-            
-            // Fallback timeout
-            setTimeout(handleLoad, 1000);
-          });
-        }
-        
-        // Additional delay to ensure React has finished rendering
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        if (!isMounted) return;
-        
-        // Dynamic import to avoid SSR issues
-        const mermaidModule = await import('mermaid');
-        const mermaid = mermaidModule.default;
-        
-        // Verify DOM is still available
-        if (typeof document === 'undefined') {
-          throw new Error('Document is not available');
-        }
-        
-        // Initialize with defensive settings
+        // Dynamically import mermaid
+        const mermaid = (await import('mermaid')).default;
+
         mermaid.initialize({
           startOnLoad: false,
           theme: 'default',
@@ -135,87 +39,68 @@ export default function MermaidDiagram({ mermaidSyntax }) {
             layoutDirection: 'TB',
             minEntityWidth: 100,
             minEntityHeight: 75,
-            entityPadding: 15
+            entityPadding: 15,
           },
-          fontSize: 16
+          fontSize: 16,
         });
-        
-        // Unique ID to avoid conflicts
-        const id = `mermaid-diagram-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        
-        // Use modern async/await pattern
-        try {
-          const { svg } = await mermaid.render(id, mermaidSyntax);
-          if (isMounted) {
-            setRenderedSvg(svg);
-            setUseFallback(false);
-            setIsLoading(false);
-          }
-        } catch (renderError) {
-          console.error('Mermaid render error:', renderError);
-          if (isMounted) {
-            setError(`Error rendering diagram: ${renderError.message}`);
-            setUseFallback(true);
-            setIsLoading(false);
-          }
+
+        const id = `mermaid-diagram-${Date.now()}`;
+
+        // --- THE FIX ---
+        // Call `render` with only the ID and syntax.
+        // It returns a promise with the SVG string.
+        const { svg } = await mermaid.render(id, mermaidSyntax);
+
+        if (isMounted) {
+          setRenderedSvg(svg);
         }
       } catch (err) {
-        console.error('Mermaid loading error:', err);
+        console.error('Mermaid render error:', err);
         if (isMounted) {
-          setError(`Error loading diagram: ${err.message}`);
-          setUseFallback(true);
+          setError(`Error rendering diagram: ${err.message}`);
+          setUseFallback(true); // Use the fallback on error
+        }
+      } finally {
+        if (isMounted) {
           setIsLoading(false);
         }
       }
     };
-    
-    // Use requestIdleCallback if available, otherwise setTimeout
-    if (typeof window.requestIdleCallback === 'function') {
-      window.requestIdleCallback(loadAndRender);
-    } else {
-      setTimeout(loadAndRender, 100);
-    }
-    
+
+    renderDiagram();
+
     return () => {
       isMounted = false;
     };
-  }, [mermaidSyntax]);
+  }, [mermaidSyntax]); // Re-run the effect whenever the mermaid syntax changes
 
-  // Handle toggling full screen
-  const toggleFullScreen = () => {
+  const toggleFullScreen = (e) => {
+    // Prevent nested clicks from toggling multiple times
+    if (e) e.stopPropagation();
     setIsFullScreen(prev => !prev);
   };
 
-  // If we're using the fallback renderer
+  // Render Fallback Component on error
   if (useFallback) {
+    return <MermaidFallback chart={mermaidSyntax} />;
+  }
+  
+  // Render Loading State
+  if (isLoading) {
     return (
-      <div className={`mermaid-container w-full relative ${isFullScreen ? "fixed inset-0 z-50" : ""}`}>
-        <MermaidFallback chart={mermaidSyntax} />
-        
-        {isFullScreen && (
-          <button 
-            className="fixed top-4 right-4 z-50 bg-gray-800 text-white p-2 rounded-full shadow-lg hover:bg-gray-700"
-            onClick={() => setIsFullScreen(false)}
-            title="Exit Full Screen"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        )}
+      <div className="flex items-center justify-center p-4 border border-gray-300 rounded-lg bg-white" style={{ minHeight: '300px' }}>
+        <div className="flex items-center space-x-2">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-600"></div>
+          <p className="text-gray-400">Rendering diagram...</p>
+        </div>
       </div>
     );
   }
 
-  // If we have a rendered SVG, display it safely
+  // Render the successfully generated SVG
   if (renderedSvg) {
     return (
       <div className="mermaid-container w-full relative">
-        {error && (
-          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
-            <p>{error}</p>
-          </div>
-        )}
         <div 
           className={`border border-gray-300 rounded-lg p-4 bg-white overflow-auto cursor-pointer transition-all duration-300 ${
             isFullScreen 
@@ -226,14 +111,10 @@ export default function MermaidDiagram({ mermaidSyntax }) {
           dangerouslySetInnerHTML={{ __html: renderedSvg }}
           onClick={toggleFullScreen}
         />
-        
         {isFullScreen && (
           <button 
             className="fixed top-4 right-4 z-50 bg-gray-800 text-white p-2 rounded-full shadow-lg hover:bg-gray-700"
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleFullScreen();
-            }}
+            onClick={toggleFullScreen}
             title="Exit Full Screen"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -241,7 +122,6 @@ export default function MermaidDiagram({ mermaidSyntax }) {
             </svg>
           </button>
         )}
-        
         {!isFullScreen && (
           <div className="absolute bottom-2 right-2 bg-gray-800 bg-opacity-70 text-white text-xs px-2 py-1 rounded pointer-events-none">
             Click to expand
@@ -251,28 +131,5 @@ export default function MermaidDiagram({ mermaidSyntax }) {
     );
   }
 
-  // Loading or error state
-  return (
-    <div className="mermaid-container w-full">
-      {error && (
-        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
-          <p>{error}</p>
-        </div>
-      )}
-      <div 
-        ref={container} 
-        className="border border-gray-300 rounded-lg p-4 bg-white overflow-auto w-full max-w-full flex items-center justify-center"
-        style={{ minHeight: '300px' }}
-      >
-        {isLoading ? (
-          <div className="flex items-center space-x-2">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-600"></div>
-            <p className="text-gray-400">Rendering diagram...</p>
-          </div>
-        ) : (
-          <p className="text-gray-400">Failed to render diagram</p>
-        )}
-      </div>
-    </div>
-  );
+  return null; // or a placeholder for when there's no syntax
 }
