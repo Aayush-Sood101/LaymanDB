@@ -31,10 +31,35 @@ const PromptInputPanel = () => {
     setError('');
     
     try {
-      await generateSchema(prompt);
+      // Using a timeout to detect hanging requests
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => {
+          reject(new Error('The request is taking longer than expected. The server might be overloaded.'));
+        }, 30000); // 30 second client-side timeout
+      });
+      
+      // Race between actual request and timeout
+      await Promise.race([
+        generateSchema(prompt),
+        timeoutPromise
+      ]);
+      
       setPrompt('');
     } catch (err) {
-      setError(err.message || 'Failed to generate schema. Please try again.');
+      console.error('Schema generation error:', err);
+      
+      // Parse different error types for better user messages
+      let userMessage = err.message || 'Failed to generate schema. Please try again.';
+      
+      if (err.message?.includes('timed out') || err.message?.includes('longer than expected')) {
+        userMessage = 'The request timed out. Try again with a simpler prompt or check your server connection.';
+      } else if (err.message?.includes('network') || err.message?.includes('ECONNREFUSED') || err.message?.includes('ECONNRESET')) {
+        userMessage = 'Network error: Could not connect to the server. Make sure the backend is running.';
+      } else if (err.message?.includes('certificate')) {
+        userMessage = 'SSL certificate error with external API. This is a development environment issue.';
+      }
+      
+      setError(userMessage);
     } finally {
       setIsLoading(false);
     }

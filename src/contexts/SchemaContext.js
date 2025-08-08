@@ -174,17 +174,26 @@ export const SchemaProvider = ({ children }) => {
     dispatch({ type: ActionTypes.SET_LOADING, payload: true });
     
     try {
+      // Set a timeout for the fetch operation
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+      
       const response = await fetch('/api/schema/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ prompt }),
+        signal: controller.signal
       });
       
+      // Clear the timeout
+      clearTimeout(timeoutId);
+      
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to generate schema');
+        const errorData = await response.json();
+        console.error('API error response:', errorData);
+        throw new Error(errorData.error || errorData.message || 'Failed to generate schema');
       }
       
       const { schema } = await response.json();
@@ -225,6 +234,14 @@ export const SchemaProvider = ({ children }) => {
       
       return schema;
     } catch (error) {
+      console.error('Schema generation error:', error);
+      
+      // Handle AbortError (timeout)
+      if (error.name === 'AbortError') {
+        dispatch({ type: ActionTypes.SET_ERROR, payload: 'Request timed out. The server is taking too long to respond.' });
+        throw new Error('Request timed out. Please try again with a simpler prompt.');
+      }
+      
       dispatch({ type: ActionTypes.SET_ERROR, payload: error.message });
       throw error;
     }

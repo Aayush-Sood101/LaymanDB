@@ -587,7 +587,7 @@
 }
 
 .keyAttribute::before {
-  content: "泊";
+  /* content: "泊"; */
   position: absolute;
   top: -8px;
   left: -6px;
