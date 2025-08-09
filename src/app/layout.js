@@ -1,9 +1,9 @@
+// src/app/layout.js
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-// Import required css for React Flow
 import 'reactflow/dist/style.css';
-// Import the monkey patch to fix React Flow Object.keys error
 import '@/lib/reactFlowMonkeyPatch';
+import { NavbarComponent } from "@/components/Navbar"; // Import your Navbar
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,13 +27,7 @@ export const metadata = {
     description: "Create database schemas from natural language descriptions using AI",
     url: "https://database-creator.vercel.app",
     siteName: "Database Creator",
-    images: [
-      {
-        url: "/og-image.jpg",
-        width: 1200,
-        height: 630,
-      },
-    ],
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630 }],
     locale: "en_US",
     type: "website",
   },
@@ -55,10 +49,12 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased min-h-screen bg-background text-foreground`}
       >
-          <div className="relative flex min-h-screen flex-col bg-gradient-to-br from-slate-50 to-blue-50">
-            {/* Navbar and children will be client components */}
+        <div className="relative flex min-h-screen flex-col bg-gradient-to-br from-slate-50 to-blue-50">
+          <NavbarComponent /> {/* Always visible on all pages */}
+          <main className="flex-1 pt-[80px]"> {/* Padding so content isn't hidden behind fixed navbar */}
             {children}
-          </div>
+          </main>
+        </div>
       </body>
     </html>
   );
