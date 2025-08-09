@@ -46,7 +46,7 @@ export function NavbarComponent() {
     <Navbar
       // Apply dynamic classes based on the isScrolled state
       className={`
-        fixed top-4 left-0 right-0 z-50 transition-all duration-300 ease-in-out
+        fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out
         ${isScrolled ? "py-2" : "py-4"}
       `}
     >
