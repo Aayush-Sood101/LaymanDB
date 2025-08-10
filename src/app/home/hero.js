@@ -5,14 +5,16 @@ import { Spotlight } from "@/components/ui/spotlight";
 
 export function Hero() {
   return (
-    <section className="relative w-full min-h-screen bg-black overflow-hidden flex flex-col lg:flex-row items-center justify-center">
+    // --- RECTIFIED LINE ---
+    // I have removed the "min-h-screen" class from this line.
+    <section className="relative w-full bg-black overflow-hidden flex flex-col lg:flex-row items-center justify-center">
       {/* Spotlight background */}
       <Spotlight
         className="-top-40 left-0 md:left-40 md:-top-20"
         fill="white"
       />
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-16 lg:py-24 flex flex-col lg:flex-row items-center gap-12">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16 pt-16 pb-8 lg:pt-24 lg:pb-12 flex flex-col lg:flex-row items-center gap-12">
         {/* Left Content */}
         <div className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left">
           <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold leading-tight bg-clip-text text-transparent bg-gradient-to-b from-white to-neutral-400">
