@@ -7,16 +7,16 @@ import { useSchemaContext } from '@/contexts/SchemaContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/Dialog';
 import MermaidDiagram from './MermaidDiagram';
 
+// --- NOTE: All components in this file have been updated for a hardcoded dark theme. ---
+
 const SQLPreview = ({ sql, dialect }) => {
   return (
     <div className="mb-4">
-      <div className="bg-gray-800 rounded-t-lg px-4 py-2 text-white flex justify-between items-center">
+      <div className="bg-[#1F2937] rounded-t-lg px-4 py-2 text-[#FFFFFF] flex justify-between items-center">
         <span>SQL Script ({dialect.toUpperCase()})</span>
         <button
-          onClick={() => {
-            navigator.clipboard.writeText(sql);
-          }}
-          className="text-gray-300 hover:text-white p-1 rounded"
+          onClick={() => navigator.clipboard.writeText(sql)}
+          className="text-[#D1D5DB] hover:text-[#FFFFFF] p-1 rounded"
           title="Copy to clipboard"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -49,13 +49,11 @@ const SQLPreview = ({ sql, dialect }) => {
 const DocPreview = ({ documentation }) => {
   return (
     <div className="mb-4">
-      <div className="bg-gray-800 rounded-t-lg px-4 py-2 text-white flex justify-between items-center">
+      <div className="bg-[#1F2937] rounded-t-lg px-4 py-2 text-[#FFFFFF] flex justify-between items-center">
         <span>Documentation</span>
         <button
-          onClick={() => {
-            navigator.clipboard.writeText(documentation);
-          }}
-          className="text-gray-300 hover:text-white p-1 rounded"
+          onClick={() => navigator.clipboard.writeText(documentation)}
+          className="text-[#D1D5DB] hover:text-[#FFFFFF] p-1 rounded"
           title="Copy to clipboard"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -65,8 +63,8 @@ const DocPreview = ({ documentation }) => {
         </button>
       </div>
       
-      <div className="p-4 border border-gray-200 rounded-b-lg bg-white max-h-96 overflow-auto">
-        <div className="prose prose-sm max-w-none">
+      <div className="p-4 border-x border-b border-[#374151] rounded-b-lg bg-[#111827] max-h-96 overflow-auto">
+        <div className="prose prose-sm prose-invert max-w-none">
           {documentation}
         </div>
       </div>
@@ -78,10 +76,8 @@ const ExportDialog = () => {
   const { exportData, clearExportData } = useSchemaContext();
   const { isOpen, type, data, format } = exportData || {};
   
-  // Handle dialog open state
   const open = isOpen || false;
   
-  // Close the dialog and clear export data
   const handleClose = () => {
     clearExportData();
   };
@@ -113,12 +109,12 @@ const ExportDialog = () => {
             <img 
               src={`data:image/svg+xml;base64,${btoa(data)}`} 
               alt="ERD Diagram" 
-              className="max-w-full border border-gray-300 rounded-lg" 
+              className="max-w-full border border-[#374151] rounded-lg" 
             />
             <a 
               href={`data:image/svg+xml;base64,${btoa(data)}`}
               download={`schema-diagram.${format || 'svg'}`}
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="mt-4 px-4 py-2 bg-[#FFFFFF] text-[#000000] rounded-md hover:bg-[#E5E7EB]"
             >
               Download Diagram
             </a>
@@ -127,36 +123,29 @@ const ExportDialog = () => {
         
         {type === 'mermaid' && data && (
           <div className="flex flex-col">
-            <div className="mb-4 border border-gray-200 rounded-lg overflow-hidden">
-              <div className="bg-gray-800 px-4 py-2 text-white flex justify-between items-center">
+            <div className="mb-4 border border-[#374151] rounded-lg overflow-hidden">
+              <div className="bg-[#1F2937] px-4 py-2 text-[#FFFFFF] flex justify-between items-center">
                 <span>Mermaid ER Diagram</span>
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-300">Click diagram to view full screen</span>
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(data);
-                    }}
-                    className="text-gray-300 hover:text-white p-1 rounded"
-                    title="Copy to clipboard"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
-                      <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
-                    </svg>
-                  </button>
-                </div>
+                <button
+                  onClick={() => navigator.clipboard.writeText(data)}
+                  className="text-[#D1D5DB] hover:text-[#FFFFFF] p-1 rounded"
+                  title="Copy to clipboard"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                    <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                  </svg>
+                </button>
               </div>
-              <div className="bg-white">
+              <div className="bg-[#111827] p-2">
                 <MermaidDiagram mermaidSyntax={data} />
               </div>
             </div>
             
-            <div className="flex justify-between mt-4">
+            <div className="flex justify-between mt-4 w-full">
               <button
-                onClick={() => {
-                  navigator.clipboard.writeText(data);
-                }}
-                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 flex items-center"
+                onClick={() => navigator.clipboard.writeText(data)}
+                className="px-4 py-2 bg-[#374151] text-white rounded-md hover:bg-[#4B5563] flex items-center"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
@@ -168,7 +157,7 @@ const ExportDialog = () => {
               <a
                 href={`data:text/plain;charset=utf-8,${encodeURIComponent(data)}`}
                 download="schema-diagram.mmd"
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center"
+                className="px-4 py-2 bg-[#FFFFFF] text-[#000000] rounded-md hover:bg-[#E5E7EB] flex items-center"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
