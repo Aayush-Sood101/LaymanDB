@@ -10,14 +10,19 @@ import WorkspaceLayout from '@/components/WorkspaceLayout';
 
 export default function GeneratePage() {
   return (
-    <PageTemplate>
-      <SchemaProvider>
-        <WorkspaceLayout
-          tools={<PromptInputPanel />}
-          visualization={<SchemaVisualization />}
-        />
-        <ExportDialog />
-      </SchemaProvider>
-    </PageTemplate>
+    // --- RECTIFIED CODE ---
+    // This <main> tag acts as the new root for the page, setting a
+    // black background that covers the entire screen height.
+    <main className="bg-[#000000] min-h-screen">
+      <PageTemplate>
+        <SchemaProvider>
+          <WorkspaceLayout
+            tools={<PromptInputPanel />}
+            visualization={<SchemaVisualization />}
+          />
+          <ExportDialog />
+        </SchemaProvider>
+      </PageTemplate>
+    </main>
   );
 }

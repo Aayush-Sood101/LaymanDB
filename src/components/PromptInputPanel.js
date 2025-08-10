@@ -16,41 +16,31 @@ const PromptInputPanel = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [isFocused, setIsFocused] = useState(false);
-  
+
   const { generateSchema } = useSchemaContext();
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     if (!prompt.trim()) {
       setError('Please enter a description of your database');
       return;
     }
-    
     setIsLoading(true);
     setError('');
-    
     try {
-      // Using a timeout to detect hanging requests
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => {
           reject(new Error('The request is taking longer than expected. The server might be overloaded.'));
-        }, 90000); // 90 second client-side timeout
+        }, 90000);
       });
-      
-      // Race between actual request and timeout
       await Promise.race([
         generateSchema(prompt),
         timeoutPromise
       ]);
-      
       setPrompt('');
     } catch (err) {
       console.error('Schema generation error:', err);
-      
-      // Parse different error types for better user messages
       let userMessage = err.message || 'Failed to generate schema. Please try again.';
-      
       if (err.message?.includes('timed out') || err.message?.includes('longer than expected')) {
         userMessage = 'The request timed out. Try again with a simpler prompt or check your server connection.';
       } else if (err.message?.includes('network') || err.message?.includes('ECONNREFUSED') || err.message?.includes('ECONNRESET')) {
@@ -58,25 +48,24 @@ const PromptInputPanel = () => {
       } else if (err.message?.includes('certificate')) {
         userMessage = 'SSL certificate error with external API. This is a development environment issue.';
       }
-      
       setError(userMessage);
     } finally {
       setIsLoading(false);
     }
   };
-  
+
   return (
-    <Card className="w-full max-w-2xl mx-auto bg-white dark:bg-black border-2 border-gray-200 dark:border-gray-800 shadow-xl transition-all duration-300 hover:shadow-2xl">
-      <CardHeader className="space-y-1 pb-3 border-b border-gray-100 dark:border-gray-800">
+    <Card className="w-full max-w-2xl mx-auto bg-[#000000] border-2 border-[#1F2937] transition-all duration-300 shadow-lg shadow-black/20">
+      <CardHeader className="space-y-1 pb-3 border-b border-[#1F2937]">
         <div className="flex items-center space-x-3">
-          <div className="p-3 rounded-xl bg-black dark:bg-white transition-colors duration-300 shadow-lg">
-            <Database className="h-7 w-7 text-white dark:text-black" />
+          <div className="p-3 rounded-xl bg-[#FFFFFF] transition-colors duration-300 shadow-lg">
+            <Database className="h-7 w-7 text-[#000000]" />
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold text-black dark:text-white tracking-tight">
+            <CardTitle className="text-2xl font-bold text-[#FFFFFF] tracking-tight">
               Schema Generator
             </CardTitle>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 font-light tracking-wide">
+            <p className="text-sm text-[#9CA3AF] mt-1 font-light tracking-wide">
               Generate database schemas with AI
             </p>
           </div>
@@ -86,13 +75,13 @@ const PromptInputPanel = () => {
       <CardContent className="space-y-3 p-4 pt-2">
         <form onSubmit={handleSubmit} className="space-y-3">
           <div className="space-y-2">
-            <Label 
-              htmlFor="prompt" 
-              className="text-sm font-semibold text-gray-900 dark:text-gray-100 font-sans tracking-wide"
+            <Label
+              htmlFor="prompt"
+              className="text-sm font-semibold text-[#F3F4F6] font-sans tracking-wide"
             >
               Database Description
             </Label>
-            
+
             <div className="relative">
               <Textarea
                 id="prompt"
@@ -105,24 +94,24 @@ const PromptInputPanel = () => {
                 disabled={isLoading}
                 className={cn(
                   "min-h-[160px] max-h-[160px] resize-none overflow-y-auto transition-all duration-300",
-                  "bg-white dark:bg-black",
-                  "border-2 border-gray-200 dark:border-gray-800",
-                  "text-gray-900 dark:text-gray-100",
-                  "placeholder:text-gray-500 dark:placeholder:text-gray-400",
-                  "focus:border-black dark:focus:border-white",
-                  "focus:ring-2 focus:ring-black/10 dark:focus:ring-white/10",
-                  "hover:border-gray-400 dark:hover:border-gray-600",
+                  "bg-[#000000]",
+                  "border-2 border-[#1F2937]",
+                  "text-[#F3F4F6]",
+                  "placeholder:text-[#9CA3AF]",
+                  "focus:border-[#FFFFFF]",
+                  "focus:ring-2 focus:ring-white/10",
+                  "hover:border-[#4B5563]",
                   "disabled:opacity-50 disabled:cursor-not-allowed",
                   isFocused && "shadow-lg",
-                  error && "border-red-500 dark:border-red-400 focus:border-red-500 focus:ring-red-500/10"
+                  error && "border-red-400 focus:border-red-400 focus:ring-red-500/10"
                 )}
               />
             </div>
-            
+
             {error && (
-              <div className="flex items-center space-x-2 p-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-                <div className="w-2 h-2 rounded-full bg-red-500" />
-                <p className="text-sm text-red-700 dark:text-red-400">
+              <div className="flex items-center space-x-2 p-2 rounded-lg bg-red-900/20 border border-red-800">
+                <div className="w-2 h-2 rounded-full bg-red-400" />
+                <p className="text-sm text-[#F87171]">
                   {error}
                 </p>
               </div>
@@ -130,18 +119,18 @@ const PromptInputPanel = () => {
           </div>
 
           <div className="flex justify-center space-x-3 pt-3">
-            <Button 
-              type="button" 
+            <Button
+              type="button"
               variant="outline"
               size="lg"
               onClick={() => setPrompt('')}
               disabled={isLoading || !prompt}
               className={cn(
-                "border-2 border-gray-200 dark:border-gray-800",
-                "bg-white dark:bg-black",
-                "text-gray-700 dark:text-gray-300",
-                "hover:bg-gray-50 dark:hover:bg-gray-900",
-                "hover:border-gray-400 dark:hover:border-gray-600",
+                "border-2 border-[#1F2937]",
+                "bg-[#000000]",
+                "text-[#D1D5DB]",
+                "hover:bg-[#111827]",
+                "hover:border-[#4B5563]",
                 "transition-all duration-200",
                 "disabled:opacity-50",
                 "h-11 px-6"
@@ -150,15 +139,15 @@ const PromptInputPanel = () => {
               <Trash2 className="h-4 w-4 mr-2" />
               Clear
             </Button>
-            
+
             <Button
               type="submit"
               size="lg"
               disabled={isLoading || !prompt.trim()}
               className={cn(
-                "bg-black dark:bg-white",
-                "text-white dark:text-black",
-                "hover:bg-gray-800 dark:hover:bg-gray-200",
+                "bg-[#FFFFFF]",
+                "text-[#000000]",
+                "hover:bg-[#E5E7EB]",
                 "shadow-lg hover:shadow-xl",
                 "transition-all duration-200",
                 "disabled:opacity-50 disabled:cursor-not-allowed",

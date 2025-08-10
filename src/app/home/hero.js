@@ -33,8 +33,6 @@ export function Hero() {
             </button>
           </div>
         </div>
-
-        {/* Right Content — No box */}
         <div className="flex-1 w-full h-[300px] sm:h-[400px] lg:h-[500px] relative">
           <SplineScene
             scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"

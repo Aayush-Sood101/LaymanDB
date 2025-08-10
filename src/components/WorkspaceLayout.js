@@ -12,8 +12,9 @@ export default function WorkspaceLayout({ tools, visualization }) {
         </div>
         
         {/* Right column - Visualization */}
-        {/* The 'mt-6' class adds a 1.5rem margin to the top of this card */}
-        <div className="mt-6 lg:mt-0 lg:col-span-9 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden min-h-[70vh] lg:h-full">
+        {/* --- RECTIFIED LINE --- */}
+        {/* Changed background and border to hardcoded dark theme hex values. */}
+        <div className="mt-6 lg:mt-0 lg:col-span-9 bg-[#000000] rounded-xl shadow-sm border border-[#1F2937] overflow-hidden min-h-[70vh] lg:h-full">
           {visualization}
         </div>
       </div>
