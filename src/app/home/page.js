@@ -9,7 +9,7 @@ export default function HomePage() {
     // Set the black background on the main container
     <main className="bg-black text-white">
       <Hero />
-      <TextRevealSection text="LaymanDB will change the way you design and build. alkjfd adsldkfjads; lfjadslkdjf ladskjf lksdjf lsaj fladskjsl;fj alkasdj flksj" />
+      <TextRevealSection text="LaymanDB will change the way you design and build. " />
       
       {/* You can add more content here that will appear after the scroll animation */}
       <div className="h-screen flex items-center justify-center">
