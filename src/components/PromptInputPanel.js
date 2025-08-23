@@ -8,12 +8,13 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/componen
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useSchemaContext } from '@/contexts/SchemaContext';
-import { Pencil, Loader2, FileText, Trash2, Database } from 'lucide-react';
+import { Pencil, Loader2, FileText, Trash2, Database, Wand2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const PromptInputPanel = () => {
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isOptimizing, setIsOptimizing] = useState(false);
   const [error, setError] = useState('');
   const [isFocused, setIsFocused] = useState(false);
 
@@ -51,6 +52,37 @@ const PromptInputPanel = () => {
       setError(userMessage);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleOptimizePrompt = async () => {
+    if (!prompt.trim()) {
+      setError('Please enter a description to optimize');
+      return;
+    }
+    setIsOptimizing(true);
+    setError('');
+    try {
+      const response = await fetch('/api/schema/optimize-prompt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to optimize prompt');
+      }
+
+      const { optimizedPrompt } = await response.json();
+      setPrompt(optimizedPrompt);
+    } catch (err) {
+      console.error('Prompt optimization error:', err);
+      setError(`Optimization failed: ${err.message}`);
+    } finally {
+      setIsOptimizing(false);
     }
   };
 
@@ -118,13 +150,45 @@ const PromptInputPanel = () => {
             )}
           </div>
 
-          <div className="flex justify-center space-x-3 pt-3">
+          <div className="flex justify-center pt-3 pb-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              onClick={handleOptimizePrompt}
+              disabled={isLoading || isOptimizing || !prompt.trim()}
+              className={cn(
+                "border-2 border-[#1F2937]",
+                "bg-[#111827]",
+                "text-[#D1D5DB]",
+                "hover:bg-[#1F2937]",
+                "hover:border-[#4B5563]",
+                "transition-all duration-200",
+                "disabled:opacity-50",
+                "h-11 w-full max-w-sm"
+              )}
+            >
+              {isOptimizing ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Optimizing Prompt...
+                </>
+              ) : (
+                <>
+                  <Wand2 className="h-4 w-4 mr-2" />
+                  AI Fix - Improve My Prompt
+                </>
+              )}
+            </Button>
+          </div>
+
+          <div className="flex justify-center space-x-3 pt-2">
             <Button
               type="button"
               variant="outline"
               size="lg"
               onClick={() => setPrompt('')}
-              disabled={isLoading || !prompt}
+              disabled={isLoading || isOptimizing || !prompt}
               className={cn(
                 "border-2 border-[#1F2937]",
                 "bg-[#000000]",
@@ -143,7 +207,7 @@ const PromptInputPanel = () => {
             <Button
               type="submit"
               size="lg"
-              disabled={isLoading || !prompt.trim()}
+              disabled={isLoading || isOptimizing || !prompt.trim()}
               className={cn(
                 "bg-[#FFFFFF]",
                 "text-[#000000]",
