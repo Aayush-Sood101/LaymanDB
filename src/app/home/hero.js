@@ -2,8 +2,21 @@
 
 import { SplineScene } from "@/components/ui/splite";
 import { Spotlight } from "@/components/ui/spotlight";
+import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 export function Hero() {
+  const { isSignedIn } = useAuth();
+  const router = useRouter();
+
+  const handleGetStarted = () => {
+    if (isSignedIn) {
+      router.push("/generate");
+    } else {
+      router.push("/sign-up");
+    }
+  };
+
   return (
     // --- RECTIFIED LINE ---
     // I have removed the "min-h-screen" class from this line.
@@ -25,7 +38,10 @@ export function Hero() {
             enhance engagement, and elevate your design beyond the ordinary.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <button className="px-6 py-3 rounded-lg bg-white text-black font-medium hover:bg-neutral-200 transition-colors w-full sm:w-auto">
+            <button 
+              onClick={handleGetStarted}
+              className="px-6 py-3 rounded-lg bg-white text-black font-medium hover:bg-neutral-200 transition-colors w-full sm:w-auto"
+            >
               Get Started
             </button>
             <button className="px-6 py-3 rounded-lg border border-neutral-500 text-neutral-300 hover:bg-neutral-800 transition-colors w-full sm:w-auto">
