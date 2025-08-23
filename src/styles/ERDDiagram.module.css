@@ -910,30 +910,6 @@
   color: #1e293b;
 }
 
-.modeSwitcher {
-  display: flex;
-  border: 1px solid #e2e8f0;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.modeButton {
-  flex: 1;
-  padding: 4px 8px;
-  font-size: 11px;
-  background: #f8fafc;
-  border: none;
-  cursor: pointer;
-  color: #64748b;
-  transition: all 0.2s;
-}
-
-.activeMode {
-  background: #3b82f6;
-  color: white;
-  font-weight: 500;
-}
-
 .panelInfo {
   font-size: 12px;
   color: #475569;
@@ -941,13 +917,41 @@
   flex-direction: column;
   gap: 8px;
   margin-top: 12px;
-  padding: 12px;
+  padding: 0;
   background: #f8fafc;
   border-radius: 6px;
-  max-height: 700px;
-  overflow-y: auto;
-  overflow-x: hidden;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+.showInfo {
+  padding: 12px;
+  max-height: 400px;
+  opacity: 1;
+  overflow-y: auto;
+}
+
+.legendButton {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+.legendButton:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
 }
 
 .legendTitle {
@@ -1392,7 +1396,6 @@
   border-color: #475569;
 }
 .darkMode .panelTitle,
-.darkMode .legendTitle,
 .darkMode .legendSectionTitle {
   border-bottom-color: #475569;
   color: #f1f5f9;
@@ -1400,9 +1403,15 @@
 .darkMode .legendSectionTitle { background-color: #334155; }
 .darkMode .infoItem { color: #cbd5e1; }
 .darkMode .panelInfo { background-color: #0f172a; color: #cbd5e1; }
-.darkMode .modeSwitcher { border-color: #475569; }
-.darkMode .modeButton { background-color: #334155; color: #94a3b8; }
-.darkMode .activeMode { background: #60a5fa; color: #1e293b; }
+
+.darkMode .legendButton {
+  background-color: #3b82f6;
+  color: #f1f5f9;
+}
+
+.darkMode .legendButton:hover {
+  background-color: #2563eb;
+}
 
 /* Search Input */
 .darkMode .searchInput {

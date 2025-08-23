@@ -35,8 +35,8 @@ const ERDDiagram = ({
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
-  const [diagramMode, setDiagramMode] = useState('conceptual'); // 'conceptual' or 'logical'
-  const [showLegend, setShowLegend] = useState(false); // Toggle for legend visibility
+  const [diagramMode] = useState('conceptual'); // Default to conceptual mode without toggling
+  const [showLegend, setShowLegend] = useState(false); // Toggle for legend visibility/expansion
   
   const { updateTablePosition, addRelationship } = useSchemaContext();
   
@@ -416,25 +416,16 @@ const ERDDiagram = ({
           <div className={styles.panelContent}>
             <h4 className={styles.panelTitle}>ER Diagram Controls</h4>
             
-            {/* Mode switcher */}
-            <div className={styles.modeSwitcher}>
-              <button 
-                className={`${styles.modeButton} ${diagramMode === 'conceptual' ? styles.activeMode : ''}`}
-                onClick={() => setDiagramMode('conceptual')}
-              >
-                Conceptual
-              </button>
-              <button 
-                className={`${styles.modeButton} ${diagramMode === 'logical' ? styles.activeMode : ''}`}
-                onClick={() => setDiagramMode('logical')}
-              >
-                Logical
-              </button>
-            </div>
+            {/* Legend Button */}
+            <button 
+              className={styles.legendButton} 
+              onClick={() => setShowLegend(!showLegend)}
+            >
+              {showLegend ? 'Hide Legend' : 'Show Legend'}
+            </button>
             
             {/* Legend */}
-            <div className={styles.panelInfo}>
-              <div className={styles.legendTitle}>Legend</div>
+            <div className={`${styles.panelInfo} ${showLegend ? styles.showInfo : ''}`}>
               
               <div className={styles.legendSection}>
                 <h4 className={styles.legendSectionTitle}>Entity Types</h4>
