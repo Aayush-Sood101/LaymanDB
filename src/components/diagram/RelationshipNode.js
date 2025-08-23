@@ -72,7 +72,9 @@ const RelationshipNode = memo(({ data, selected }) => {
       {/* Relationship represented as a diamond */}
       <div className={`${styles.relationshipDiamond} ${getRelationshipStyleClass()}`}>
         {/* Display relationship name (verb phrase) prominently */}
-        <div className={styles.relationshipName}>{relationshipName}</div>
+        <div className={styles.relationshipName}>
+          {relationshipName.replace(/([A-Z])/g, ' $1').trim()}
+        </div>
         
         {/* Relationship cardinality as smaller text */}
         <div className={styles.relationshipType}>
@@ -84,6 +86,13 @@ const RelationshipNode = memo(({ data, selected }) => {
         {attributeCount > 0 && (
           <div className={styles.attributeCountBadge} title={`${attributeCount} attribute(s)`}>
             {attributeCount}
+          </div>
+        )}
+        
+        {/* Show description as a tooltip if available */}
+        {description && (
+          <div className={styles.relationshipTooltip} title={description}>
+            <span className={styles.tooltipIcon}>i</span>
           </div>
         )}
         

@@ -571,12 +571,63 @@ const createRelationshipNodes = (schema, nodes, edges) => {
     }
     
   // Create relationship node
+    // Extract a meaningful verb from the description if name is generic
+    let relationshipName = rel.name;
+    if (!relationshipName || ['relates', 'relates_to', 'has', 'belongs_to', 'associated_with'].includes(relationshipName.toLowerCase())) {
+      // Try to extract a meaningful name from the description
+      if (rel.description) {
+        const description = rel.description.toLowerCase();
+        
+        // Common patterns to extract verbs from descriptions
+        const verbPatterns = [
+          /can ([a-z]+) /i,                  // "can place", "can have"
+          /([a-z]+)s to /i,                  // "belongs to"
+          /is ([a-z]+)d? by/i,               // "is owned by", "is managed by"
+          /([a-z]+)s multiple/i,             // "contains multiple"
+          /([a-z]+)s many/i,                 // "has many"
+          /([a-z]+)s the/i,                  // "processes the"
+          /([a-z]+)s to/i                    // "relates to"
+        ];
+        
+        // Try each pattern to extract a verb
+        let extractedVerb = null;
+        for (const pattern of verbPatterns) {
+          const match = description.match(pattern);
+          if (match && match[1]) {
+            extractedVerb = match[1];
+            break;
+          }
+        }
+        
+        // If a verb was found, use it as the relationship name
+        if (extractedVerb && extractedVerb.length > 2) {
+          relationshipName = extractedVerb.charAt(0).toUpperCase() + extractedVerb.slice(1);
+        } else if (description.includes('belong')) {
+          relationshipName = 'BelongsTo';
+        } else if (description.includes('contain')) {
+          relationshipName = 'Contains';
+        } else if (description.includes('own')) {
+          relationshipName = 'Owns';
+        } else if (description.includes('place')) {
+          relationshipName = 'Places';
+        } else if (description.includes('manage')) {
+          relationshipName = 'Manages';
+        } else if (rel.type === 'MANY_TO_MANY') {
+          relationshipName = 'ParticipatesIn';
+        } else if (rel.type === 'ONE_TO_MANY') {
+          relationshipName = 'Has';
+        } else {
+          relationshipName = 'RelatesTo';
+        }
+      }
+    }
+
     const relationshipNode = {
       id: relationshipId,
       type: 'relationshipNode',
       position: finalPosition,
       data: {
-        relationshipName: rel.name || 'Relates',
+        relationshipName: relationshipName || 'Relates',
         // Don't pass attributes to the relationship node anymore as they will be separate nodes
         // Just keep count for badge display
         attributeCount: Array.isArray(rel.attributes) ? rel.attributes.length : 0,
