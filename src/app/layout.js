@@ -4,6 +4,7 @@ import "./globals.css";
 import 'reactflow/dist/style.css';
 import '@/lib/reactFlowMonkeyPatch';
 import { NavbarComponent } from "@/components/Navbar"; // Import your Navbar
+import { StackedCircularFooter } from "@/components/StackedCircularFooter"; // Import Footer
 import { ClerkProvider } from "@clerk/nextjs";
 
 const geistSans = Geist({
@@ -60,6 +61,7 @@ export default function RootLayout({ children }) {
             <main className="flex-1 pt-[80px] relative">
               {children}
             </main>
+            <StackedCircularFooter />
           </div>
         </body>
       </html>
