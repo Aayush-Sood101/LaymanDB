@@ -87,7 +87,40 @@ const SchemaVisualization = () => {
     setIsExporting(true);
     setExportingType('docs');
     try {
-      await generateDocumentation(currentSchema._id, format);
+      // Make direct API call instead of using context to avoid dialog
+      const response = await fetch('/api/export/documentation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ schemaId: currentSchema._id, format }),
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to generate documentation');
+      }
+      
+      const { documentation } = await response.json();
+      
+      // Create a blob from the documentation text
+      const blob = new Blob([documentation], { type: 'text/markdown' });
+      
+      // Create a URL for the blob
+      const url = URL.createObjectURL(blob);
+      
+      // Create a temporary anchor element
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${currentSchema.name.replace(/\s+/g, '-').toLowerCase()}-documentation.md`;
+      
+      // Trigger the download
+      document.body.appendChild(a);
+      a.click();
+      
+      // Clean up
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Failed to generate documentation:', error);
     } finally {
@@ -256,7 +289,7 @@ const SchemaVisualization = () => {
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleGenerateDocumentation('markdown')} disabled={isExporting} className="cursor-pointer text-[#D1D5DB] hover:text-[#F3F4F6]">
                     <FileText className="w-4 h-4 mr-2" />
-                    <span>Documentation</span>
+                    <span>Download Documentation</span>
                     {isExporting && exportingType === 'docs' && (<Loader2 className="w-4 h-4 ml-auto animate-spin" />)}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
