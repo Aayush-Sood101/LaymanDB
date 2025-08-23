@@ -8,7 +8,7 @@ import emailjs from "@emailjs/browser";
  * Works with Vite, CRA, or Next.js (client component).
  *
  * Expected EmailJS template variables:
- *   {{user_name}}, {{user_email}}, {{subject}}, {{message}}
+ * {{user_name}}, {{user_email}}, {{subject}}, {{message}}
  * You can add more fields but ensure the `name` attributes match your template.
  *
  * Optional spam protection: there's a hidden honeypot field named `bot_field`.
@@ -49,10 +49,11 @@ export default function ContactForm() {
 
       await emailjs.sendForm(serviceId, templateId, formRef.current, { publicKey });
 
+      // ✨ CHANGED HERE
       setStatus({
         loading: false,
         ok: true,
-        msg: "Message sent! We'll get back to you soon.",
+        msg: "We will get back to you within 24 hours.",
       });
       formRef.current.reset();
     } catch (err) {
@@ -194,17 +195,19 @@ export default function ContactForm() {
                     </svg>
                     <span>Send Message</span>
                   </div>
-
               )}
             </button>
           </div>
 
           {status.msg && (
             <div className={`p-4 rounded-xl border ${
-              status.ok 
-                ? "bg-green-500/10 border-green-500/20 text-green-400" 
+              status.ok
+                ? "bg-green-500/10 border-green-500/20 text-green-400"
                 : "bg-red-500/10 border-red-500/20 text-red-400"
             }`}>
+              <p className="font-bold text-base">
+                {status.ok ? "Message Sent! ✅" : "An Error Occurred"}
+              </p>
               <p className="text-sm font-medium">{status.msg}</p>
             </div>
           )}
