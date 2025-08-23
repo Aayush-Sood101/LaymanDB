@@ -1,11 +1,13 @@
 "use client";
 
-import { BeamsBackground } from "@/components/ui/beams-background";
+// CHANGED: Import the static background component you created
+import { BeamsBackgroundStatic as BeamsBackground } from "@/components/ui/beams-background-static"; 
 import { motion } from "framer-motion";
 import ContactForm from "./ContactForm"; // Your existing form component
 
 export default function ContactPage() {
   return (
+    // CHANGED: Using the static background component
     <BeamsBackground>
       <motion.div
         initial={{ opacity: 0.0, y: 40 }}
@@ -19,7 +21,8 @@ export default function ContactPage() {
       >
         <div className="container mx-auto py-16 px-4 md:px-6 max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
-            {/* Left Side: Contact Us Heading */}
+            
+            {/* Left Side: Contact Us Heading (All content is here) */}
             <div className="space-y-8 pr-0 lg:pr-12 max-w-xl pt-8">
               <motion.h1 
                 initial={{ opacity: 0, x: -20 }}
@@ -63,7 +66,7 @@ export default function ContactPage() {
               </motion.div>
             </div>
 
-            {/* Right Side: Contact Form */}
+            {/* Right Side: Contact Form (All content is here) */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -71,6 +74,7 @@ export default function ContactPage() {
             >
               <ContactForm />
             </motion.div>
+
           </div>
         </div>
       </motion.div>
