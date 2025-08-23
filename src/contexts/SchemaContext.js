@@ -223,13 +223,10 @@ export const SchemaProvider = ({ children }) => {
       dispatch({ type: ActionTypes.SET_SCHEMA, payload: schema });
       dispatch({ type: ActionTypes.SET_SESSION, payload: session });
       
-      // Set history
+      // Set history (empty array since we've removed history tracking from backend)
       dispatch({ 
         type: ActionTypes.SET_HISTORY, 
-        payload: session.history.map(item => ({
-          ...item,
-          isActive: item.schemaId === schema._id
-        }))
+        payload: []
       });
       
       return schema;
@@ -304,14 +301,8 @@ export const SchemaProvider = ({ children }) => {
       
       const { schema } = await response.json();
       
-      // Update history items to mark the current schema as active
-      const updatedHistory = state.schemaHistory.map(item => ({
-        ...item,
-        isActive: item.schemaId === schemaId
-      }));
-      
+      // Since we no longer have history tracking, just keep the current schema
       dispatch({ type: ActionTypes.SET_SCHEMA, payload: schema });
-      dispatch({ type: ActionTypes.SET_HISTORY, payload: updatedHistory });
       
       return schema;
     } catch (error) {
