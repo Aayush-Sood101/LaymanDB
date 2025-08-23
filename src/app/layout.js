@@ -40,22 +40,31 @@ export const metadata = {
   },
 };
 
+// src/app/layout.js
+
+// ... (imports and metadata are fine)
+
 export default function RootLayout({ children }) {
   return (
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <link rel="icon" href="/favicon.ico" />
+          {/* ... */}
         </head>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased min-h-screen bg-background text-foreground`}
+          className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-background text-foreground`}
         >
           <div className="relative flex min-h-screen flex-col bg-gradient-to-br from-slate-50 to-blue-50">
-            <NavbarComponent /> {/* Always visible on all pages */}
-            <main className="flex-1 pt-[80px]"> {/* Padding so content isn't hidden behind fixed navbar */}
+            <NavbarComponent />
+            
+            {/* BEFORE: <main className="flex-1 pt-[80px]">
+            */}
+
+            {/* AFTER: Add the "relative" class */}
+            <main className="flex-1 pt-[80px] relative">
               {children}
             </main>
+
           </div>
         </body>
       </html>
