@@ -11,8 +11,13 @@ import {
   MobileNavMenu,
 } from "@/components/ui/resizable-navbar";
 import { useState, useEffect } from "react";
+import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { LinkButton } from "@/components/ui/link-button";
 
 export function NavbarComponent() {
+  const router = useRouter();
   const navItems = [
     { name: "Features", link: "#features" },
     { name: "Pricing", link: "#pricing" },
@@ -55,8 +60,14 @@ export function NavbarComponent() {
         <NavbarLogo />
         <NavItems items={navItems} />
         <div className="flex items-center gap-4">
-          <NavbarButton variant="secondary">Login</NavbarButton>
-          <NavbarButton variant="primary">Book a call</NavbarButton>
+          <SignedOut>
+            <LinkButton href="/sign-in" variant="secondary">Sign In</LinkButton>
+            <LinkButton href="/sign-up" variant="primary">Sign Up</LinkButton>
+          </SignedOut>
+          <SignedIn>
+            <LinkButton href="/generate" variant="primary">Go to Workspace</LinkButton>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
         </div>
       </NavBody>
 
@@ -85,20 +96,37 @@ export function NavbarComponent() {
             </a>
           ))}
           <div className="flex w-full flex-col gap-4">
-            <NavbarButton
-              onClick={() => setIsMobileMenuOpen(false)}
-              variant="secondary"
-              className="w-full"
-            >
-              Login
-            </NavbarButton>
-            <NavbarButton
-              onClick={() => setIsMobileMenuOpen(false)}
-              variant="primary"
-              className="w-full"
-            >
-              Book a call
-            </NavbarButton>
+            <SignedOut>
+              <LinkButton 
+                href="/sign-in" 
+                variant="secondary"
+                className="w-full"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Sign In
+              </LinkButton>
+              <LinkButton 
+                href="/sign-up" 
+                variant="primary"
+                className="w-full"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Sign Up
+              </LinkButton>
+            </SignedOut>
+            <SignedIn>
+              <LinkButton 
+                href="/generate" 
+                variant="primary"
+                className="w-full"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Go to Workspace
+              </LinkButton>
+              <div className="mt-4 flex justify-center">
+                <UserButton afterSignOutUrl="/" />
+              </div>
+            </SignedIn>
           </div>
         </MobileNavMenu>
       </MobileNav>
