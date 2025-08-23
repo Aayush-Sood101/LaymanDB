@@ -87,7 +87,7 @@ const PromptInputPanel = () => {
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto bg-[#000000] border-2 border-[#1F2937] transition-all duration-300 shadow-lg shadow-black/20">
+    <Card className="w-full h-auto max-w-xs sm:max-w-sm mx-auto bg-[#000000] border-2 border-[#1F2937] transition-all duration-300 shadow-lg shadow-black/20">
       <CardHeader className="space-y-1 pb-3 border-b border-[#1F2937]">
         <div className="flex items-center space-x-3">
           <div className="p-3 rounded-xl bg-[#FFFFFF] transition-colors duration-300 shadow-lg">
@@ -118,14 +118,14 @@ const PromptInputPanel = () => {
               <Textarea
                 id="prompt"
                 placeholder="Describe your database entities, relationships, and requirements in detail..."
-                rows={6}
+                rows={5}
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 disabled={isLoading}
                 className={cn(
-                  "min-h-[160px] max-h-[160px] resize-none overflow-y-auto transition-all duration-300",
+                  "min-h-[120px] max-h-[250px] resize-none overflow-y-auto transition-all duration-300",
                   "bg-[#000000]",
                   "border-2 border-[#1F2937]",
                   "text-[#F3F4F6]",
@@ -165,7 +165,7 @@ const PromptInputPanel = () => {
                 "hover:border-[#4B5563]",
                 "transition-all duration-200",
                 "disabled:opacity-50",
-                "h-11 w-full max-w-sm"
+                "h-11 w-full max-w-[95%]"
               )}
             >
               {isOptimizing ? (

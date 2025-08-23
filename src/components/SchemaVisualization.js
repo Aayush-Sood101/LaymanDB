@@ -151,7 +151,7 @@ const SchemaVisualization = () => {
   if (!currentSchema) {
     return (
       <div className="h-full flex flex-col">
-        <Card className="flex-1 border-2 border-dashed border-[#374151] bg-[#111827]/50">
+        <Card className="flex-1 border-2 border-dashed border-[#374151] bg-[#111827]/50 min-h-[400px] lg:min-h-[600px]">
           <CardContent className="flex items-center justify-center h-full p-12">
             <div className="text-center space-y-6 max-w-md">
               <div className="w-24 h-24 mx-auto rounded-full bg-[#1F2937] flex items-center justify-center">
@@ -181,7 +181,7 @@ const SchemaVisualization = () => {
   const relationshipCount = currentSchema.relationships?.length || 0;
 
   return (
-    <div className="h-full flex flex-col bg-[#030712] border-2 border-[#1F2937] shadow-xl overflow-hidden">
+    <div className="h-full flex flex-col bg-[#030712] border-2 border-[#1F2937] shadow-xl overflow-hidden min-h-[400px] lg:min-h-[600px]">
       {/* Compact Header */}
       <div className="border-b border-[#1F2937] bg-[#111827]/50 p-4">
         <div className="flex items-center justify-between">
@@ -305,7 +305,7 @@ const SchemaVisualization = () => {
       </div>
 
       {/* Maximized Diagram Container */}
-      <div className="flex-1 overflow-hidden bg-[#111827]/30 relative">
+      <div className="flex-1 overflow-hidden bg-[#111827]/30 relative h-[calc(100%-64px)] min-h-[300px]">
         <ERDDiagram
           schema={currentSchema}
           onNodeDragStop={(nodeId, position) => {

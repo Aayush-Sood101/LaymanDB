@@ -475,6 +475,7 @@ const ERDDiagram = ({
       style={{ 
         width: '100%', 
         height: '100%',
+        minHeight: '300px', 
         backgroundColor: darkMode ? '#0f172a' : '#ffffff'
       }}
     >
