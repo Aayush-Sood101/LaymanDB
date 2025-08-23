@@ -1,0 +1,150 @@
+"use client";
+
+import * as React from "react";
+import Link from "next/link";
+import { useAnimate } from "framer-motion";
+import { cn } from "@/lib/utils"; 
+import { Button } from "@/components/ui/button"; 
+import { Particles } from "@/components/ui/highlighter"; 
+
+// A simple SVG icon for the center
+const DIcons = {
+  Designali: (props) => ( // MODIFIED: Removed TypeScript type annotation
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 6v12M6 12h12" />
+    </svg>
+  ),
+};
+
+export const Connect = () => {
+  const [scope, animate] = useAnimate();
+
+  // Animation sequence for the pointer
+  React.useEffect(() => {
+    const animationSequence = async () => {
+      // This loop makes the animation repeat indefinitely
+      while (true) {
+        await animate([
+          [
+            "#pointer",
+            { left: 200, top: 60 },
+            { duration: 0.5, ease: "easeInOut" },
+          ],
+          ["#javascript", { opacity: 1 }, { duration: 0.3, at: "-0.5" }],
+          ["#javascript", { opacity: 0.4 }, { duration: 0.3, at: "+0.8" }],
+          [
+            "#pointer",
+            { left: 50, top: 102 },
+            { duration: 0.5, ease: "easeInOut", at: "+0.2" },
+          ],
+          ["#react-js", { opacity: 1 }, { duration: 0.3, at: "-0.5" }],
+          ["#react-js", { opacity: 0.4 }, { duration: 0.3, at: "+0.8" }],
+          [
+            "#pointer",
+            { left: 224, top: 170 },
+            { duration: 0.5, ease: "easeInOut", at: "+0.2" },
+          ],
+          ["#typescript", { opacity: 1 }, { duration: 0.3, at: "-0.5" }],
+          ["#typescript", { opacity: 0.4 }, { duration: 0.3, at: "+0.8" }],
+          [
+            "#pointer",
+            { left: 88, top: 198 },
+            { duration: 0.5, ease: "easeInOut", at: "+0.2" },
+          ],
+          ["#next-js", { opacity: 1 }, { duration: 0.3, at: "-0.5" }],
+          ["#next-js", { opacity: 0.4 }, { duration: 0.3, at: "+0.8" }],
+        ]);
+      }
+    };
+    animationSequence();
+  }, [animate]);
+
+  return (
+    <section className="relative mx-auto w-full max-w-7xl px-4 py-24 sm:py-32">
+      <div className="relative">
+        <Particles
+          className="absolute inset-0 -z-10"
+          quantity={300}
+          color={"#555555"}
+          vy={-0.2}
+        />
+        <h2 className="text-center text-3xl font-bold md:text-5xl">
+          Connect With Us
+        </h2>
+
+        <div className="mt-20 grid grid-cols-1 items-center gap-y-16 lg:grid-cols-2 lg:gap-x-24">
+          {/* Left side: Animation */}
+          <div
+            className="relative mx-auto h-[300px] w-[320px] lg:mx-0 lg:justify-self-start"
+            ref={scope}
+          >
+            <DIcons.Designali className="absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 text-white" />
+            <div
+              id="next-js"
+              className="absolute bottom-12 left-14 rounded-full border border-slate-700 bg-slate-900/50 px-3 py-2 text-sm text-white opacity-40 backdrop-blur-sm transition-opacity duration-300 hover:opacity-100"
+            >
+              Database Design
+            </div>
+            <div
+              id="react-js"
+              className="absolute left-2 top-20 rounded-full border border-slate-700 bg-slate-900/50 px-3 py-2 text-sm text-white opacity-40 backdrop-blur-sm transition-opacity duration-300 hover:opacity-100"
+            >
+              Schema Generation
+            </div>
+            <div
+              id="typescript"
+              className="absolute bottom-20 right-1 rounded-full border border-slate-700 bg-slate-900/50 px-3 py-2 text-sm text-white opacity-40 backdrop-blur-sm transition-opacity duration-300 hover:opacity-100"
+            >
+              SQL Export
+            </div>
+            <div
+              id="javascript"
+              className="absolute right-12 top-10 rounded-full border border-slate-700 bg-slate-900/50 px-3 py-2 text-sm text-white opacity-40 backdrop-blur-sm transition-opacity duration-300 hover:opacity-100"
+            >
+              Documentation
+            </div>
+            <div id="pointer" className="absolute" style={{ left: 200, top: 60 }}>
+              <svg
+                width="18"
+                height="20"
+                viewBox="0 0 12 13"
+                className="fill-blue-500"
+                stroke="white"
+                strokeWidth="1"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M12 5.50676L0 0L2.83818 13L6.30623 7.86537L12 5.50676V5.50676Z"
+                />
+              </svg>
+              <span className="bg-blue-500 relative -top-1 left-3 rounded-full px-3 py-1.5 text-sm font-medium text-white">
+                LaymanDB
+              </span>
+            </div>
+          </div>
+
+          {/* Right side: Text and Button */}
+          <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
+            <h3 className="text-3xl font-bold text-white md:text-4xl">
+              Have Questions About LaymanDB?
+            </h3>
+            <p className="mt-4 max-w-lg text-slate-300">
+              Our team is ready to help you with any questions you have about
+              database design, schema generation, or using LaymanDB.
+            </p>
+            <div className="mt-8">
+              <Link href="/contact-us">
+                <Button className="px-8 py-4 text-lg">Contact Us</Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Connect;
