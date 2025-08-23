@@ -173,6 +173,11 @@ export const generateERDiagramElements = (schema, mode = 'conceptual') => {
 const determineEntityType = (table, schema) => {
   if (!table || !schema) return 'strong';
   
+  // If the entity is explicitly marked as weak, return 'weak'
+  if (table.isWeakEntity === true) {
+    return 'weak';
+  }
+  
   const tableName = table.name;
   const relationships = Array.isArray(schema.relationships) ? schema.relationships : [];
   
@@ -192,7 +197,7 @@ const determineEntityType = (table, schema) => {
 const hasIdentifyingRelationship = (tableName, relationships) => {
   return relationships.some(rel => 
     rel.targetTable === tableName && 
-    (rel.isIdentifying === true || rel.identifying === true)
+    (rel.isIdentifying === true)
   );
 };
 
@@ -570,7 +575,7 @@ const createRelationshipNodes = (schema, nodes, edges) => {
         // Don't pass attributes to the relationship node anymore as they will be separate nodes
         // Just keep count for badge display
         attributeCount: Array.isArray(rel.attributes) ? rel.attributes.length : 0,
-        isIdentifying: rel.isIdentifying || rel.identifying || false,
+        isIdentifying: rel.isIdentifying === true,
         description: rel.description || '',
         assumptionsMade: rel.assumptionsMade || [],
         isDraggable: true, // Ensure data includes draggability flag
@@ -601,7 +606,7 @@ const createRelationshipNodes = (schema, nodes, edges) => {
         targetParticipation: 'partial',
         label: '', // Remove relationship name from the edge
         relationshipType: rel.type || '',
-        isIdentifying: rel.isIdentifying || rel.identifying || false,
+        isIdentifying: rel.isIdentifying === true,
         // Add support for exact cardinality ranges
         cardinalityRange: rel.cardinality?.split('-')[0] || null
       }
@@ -619,7 +624,7 @@ const createRelationshipNodes = (schema, nodes, edges) => {
         targetCardinality: rel.targetCardinality || getCardinalityNotation(rel.type, 'target'),
         sourceParticipation: 'partial',
         relationshipType: rel.type || '',
-        isIdentifying: rel.isIdentifying || rel.identifying || false,
+        isIdentifying: rel.isIdentifying === true,
         targetParticipation: rel.targetParticipation || 'partial', // Get from schema or default to partial
         label: '', // Remove relationship name from the edge
         // Add support for exact cardinality ranges
@@ -701,7 +706,7 @@ const createLogicalEdges = (schema, edges) => {
         targetParticipation: rel.targetParticipation || 'partial', // Get from schema or default to partial
         label: rel.name || '',
         relationshipType: rel.type || '',
-        isIdentifying: rel.isIdentifying || rel.identifying || false
+        isIdentifying: rel.isIdentifying === true
       },
       style: {
         // We'll use classes for styling now instead of inline styles

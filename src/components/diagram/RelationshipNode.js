@@ -77,6 +77,7 @@ const RelationshipNode = memo(({ data, selected }) => {
         {/* Relationship cardinality as smaller text */}
         <div className={styles.relationshipType}>
           {cardinality ? cardinality : formatRelationshipType(type)}
+          {isIdentifying && <span className={styles.identifyingLabel}> (ID)</span>}
         </div>
         
         {/* Show attribute count badge if there are attributes */}

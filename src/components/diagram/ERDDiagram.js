@@ -440,12 +440,12 @@ const ERDDiagram = ({
                 <h4 className={styles.legendSectionTitle}>Entity Types</h4>
                 <div className={styles.infoItem}>
                   <div className={styles.entitySymbol}></div>
-                  <span>Strong Entity</span>
+                  <span>Strong Entity (Independent existence)</span>
                 </div>
                 
                 <div className={styles.infoItem}>
                   <div className={`${styles.entitySymbol} ${styles.weakEntitySymbol}`}></div>
-                  <span>Weak Entity</span>
+                  <span>Weak Entity (Depends on owner/strong entity for identification)</span>
                 </div>
                 
                 <div className={styles.infoItem}>
@@ -454,7 +454,7 @@ const ERDDiagram = ({
                 </div>
               </div>
                 
-              <div className={styles.legendSection}>
+                <div className={styles.legendSection}>
                 <h4 className={styles.legendSectionTitle}>Relationship Types</h4>
                 <div className={styles.infoItem}>
                   <div className={styles.relationshipSymbol}></div>
@@ -463,10 +463,8 @@ const ERDDiagram = ({
                 
                 <div className={styles.infoItem}>
                   <div className={`${styles.relationshipSymbol} ${styles.identifyingRelationshipSymbol}`}></div>
-                  <span>Identifying Relationship</span>
-                </div>
-                
-                <div className={styles.infoItem}>
+                  <span>Identifying Relationship (Links weak entity to its owner)</span>
+                </div>                <div className={styles.infoItem}>
                   <div className={`${styles.relationshipSymbol} ${styles.oneToManyRelationshipSymbol}`}></div>
                   <span>One-to-Many (1:N)</span>
                 </div>
@@ -534,7 +532,7 @@ const ERDDiagram = ({
                 
                 <div className={styles.infoItem}>
                   <div className={styles.identifyingEdgeLine}></div>
-                  <span>Identifying Edge (PK dependency)</span>
+                  <span>Identifying Edge (Shows dependency between weak entity and its owner)</span>
                 </div>
                 
                 <div className={styles.infoItem}>

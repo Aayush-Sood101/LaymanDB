@@ -50,6 +50,36 @@
   border: 2px dashed #f59e0b; /* Orange dashed border */
   background-color: #fffbeb; /* Light orange background */
   box-shadow: 0 4px 8px rgba(245, 158, 11, 0.2);
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.weakEntityWrapper::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border: 1px dashed #f59e0b;
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.weakEntityWrapper:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(245, 158, 11, 0.3);
+}
+
+.weakEntityWrapper::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: repeating-linear-gradient(to right, #f59e0b 0px, #f59e0b 10px, transparent 10px, transparent 20px);
 }
 
 .lookupTableWrapper {
@@ -118,6 +148,24 @@
   border-radius: 50%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-left: 4px;
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  z-index: 1;
+  font-weight: bold;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(245, 158, 11, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+  }
 }
 
 .lookupTableIndicator {
@@ -307,20 +355,44 @@
 .identifyingRelationship {
   border: 3px double #f59e0b;
   background: linear-gradient(135deg, #ffffff 70%, rgba(245, 158, 11, 0.1) 100%);
+  position: relative;
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.identifyingRelationship:hover {
+  transform: rotate(45deg) scale(1.08);
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
 }
 
 .identifyingRelationship::before {
   content: "ID";
+  position: absolute;
+  top: -10px;
+  right: -10px;
   color: white;
   background-color: #f59e0b;
   border-radius: 50%;
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.identifyingLabel {
+  color: #f59e0b;
+  font-weight: bold;
+  margin-left: 4px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  display: inline-block;
+  padding: 1px 4px;
+  background-color: rgba(245, 158, 11, 0.1);
+  border-radius: 3px;
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .manyToManyRelationship {
@@ -738,7 +810,12 @@
 .oneToOneEdge { stroke: #8b5cf6; }
 .oneToManyEdge { stroke: #3b82f6; }
 .manyToManyEdge { stroke: #10b981; }
-.identifyingEdge { stroke: #f59e0b; }
+.identifyingEdge {
+  stroke: #f59e0b;
+  stroke-width: 3;
+  stroke-dasharray: 0;
+  filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.4));
+}
 
 .totalParticipation {
   stroke-width: 3;
@@ -1172,7 +1249,19 @@
 
 /* Entity Borders */
 .darkMode .strongEntityWrapper { border-color: #60a5fa; }
-.darkMode .weakEntityWrapper { border-color: #fcd34d; }
+.darkMode .weakEntityWrapper { 
+  border-color: #fcd34d; 
+  background: linear-gradient(to bottom, #1e293b, rgba(252, 211, 77, 0.1));
+  box-shadow: 0 4px 12px rgba(252, 211, 77, 0.2);
+}
+.darkMode .weakEntityWrapper::before {
+  border-color: #fcd34d;
+  opacity: 0.6;
+}
+.darkMode .weakEntityWrapper:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(252, 211, 77, 0.3);
+}
 .darkMode .lookupTableWrapper { border-color: #38bdf8; }
 
 /* Entity Headers */
@@ -1182,7 +1271,27 @@
 .darkMode .lookupTableWrapper .entityHeader { background: #1e293b; color: #38bdf8; }
 
 /* Indicators */
-.darkMode .weakEntityIndicator { background-color: #fcd34d; color: #1e293b; }
+.darkMode .weakEntityIndicator { 
+  background-color: #fcd34d; 
+  color: #1e293b;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.darkMode .weakEntityIndicator {
+  animation: darkPulse 2s infinite;
+}
+
+@keyframes darkPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(252, 211, 77, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(252, 211, 77, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(252, 211, 77, 0);
+  }
+}
 .darkMode .lookupTableIndicator { background-color: #38bdf8; color: #1e293b; }
 
 /* Relationship Diamond */
@@ -1192,11 +1301,30 @@
 }
 .darkMode .relationshipName { color: #f1f5f9; background-color: rgba(30, 41, 59, 0.8); border-color: #a78bfa; }
 .darkMode .relationshipType { color: #a78bfa; background-color: rgba(71, 85, 105, 0.5); }
+.darkMode .identifyingLabel {
+  color: #fcd34d;
+  background-color: rgba(252, 211, 77, 0.15);
+  border-color: rgba(252, 211, 77, 0.4);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
 .darkMode .relationshipDescription { color: #94a3b8; }
 .darkMode .relationshipAssumptions { background-color: #1e293b; color: #94a3b8; }
 
 /* Relationship Types Colors */
-.darkMode .identifyingRelationship { border-color: #fcd34d; }
+.darkMode .identifyingRelationship { 
+  border-color: #fcd34d; 
+  background: linear-gradient(135deg, #334155 70%, rgba(252, 211, 77, 0.2) 100%);
+  box-shadow: 0 0 15px rgba(252, 211, 77, 0.25);
+}
+.darkMode .identifyingRelationship:hover {
+  transform: rotate(45deg) scale(1.08);
+  box-shadow: 0 0 20px rgba(252, 211, 77, 0.35);
+}
+.darkMode .identifyingRelationship::before {
+  background-color: #fcd34d;
+  color: #1e293b;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
 .darkMode .manyToManyRelationship { border-color: #34d399; }
 .darkMode .oneToManyRelationship { border-color: #60a5fa; }
 .darkMode .oneToOneRelationship { border-color: #22d3ee; }
@@ -1228,7 +1356,11 @@
 .darkMode .oneToManyEdge { stroke: #60a5fa; }
 .darkMode .oneToOneEdge { stroke: #a78bfa; }
 .darkMode .manyToManyEdge { stroke: #34d399; }
-.darkMode .identifyingEdge { stroke: #fcd34d; }
+.darkMode .identifyingEdge { 
+  stroke: #fcd34d; 
+  stroke-width: 3;
+  filter: drop-shadow(0 0 3px rgba(252, 211, 77, 0.4));
+}
 .darkMode .cardinalityText { fill: #f1f5f9; }
 .darkMode .erEdgePath:hover { filter: drop-shadow(0 0 4px rgba(96, 165, 250, 0.6)); }
 
