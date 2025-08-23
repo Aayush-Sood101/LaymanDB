@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import { cn } from "@/lib/utils";
 import { IconMenu2, IconX } from "@tabler/icons-react";
 import {
@@ -8,7 +8,7 @@ import {
   useMotionValueEvent,
 } from "motion/react";
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 
 
 export const Navbar = ({
@@ -82,6 +82,33 @@ export const NavItems = ({
   onItemClick
 }) => {
   const [hovered, setHovered] = useState(null);
+  const [mounted, setMounted] = useState(false);
+  
+  // Set mounted to true on client-side only
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // If not mounted yet, render placeholders to avoid hydration mismatch
+  if (!mounted) {
+    return (
+      <div className={cn(
+        "absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-2 text-sm font-medium text-zinc-600 transition duration-200 hover:text-zinc-800 lg:flex lg:space-x-2",
+        className
+      )}>
+        {items.map((item, idx) => (
+          <a
+            className="relative px-4 py-2 text-neutral-600 dark:text-neutral-300"
+            key={`link-${idx}`}
+            href={item.link}
+            suppressHydrationWarning
+          >
+            <span className="relative z-20">{item.name}</span>
+          </a>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -96,7 +123,9 @@ export const NavItems = ({
           onClick={onItemClick}
           className="relative px-4 py-2 text-neutral-600 dark:text-neutral-300"
           key={`link-${idx}`}
-          href={item.link}>
+          href={item.link}
+          suppressHydrationWarning
+        >
           {hovered === idx && (
             <motion.div
               layoutId="hovered"
@@ -192,14 +221,14 @@ export const MobileNavToggle = ({
 export const NavbarLogo = () => {
   return (
     <a
-      href="#"
+      href="/home"
       className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black">
       <img
         src="https://assets.aceternity.com/logo-dark.png"
         alt="logo"
         width={30}
         height={30} />
-      <span className="font-medium text-black dark:text-white">Startup</span>
+      <span className="font-medium text-black dark:text-white">LaymanDB</span>
     </a>
   );
 };

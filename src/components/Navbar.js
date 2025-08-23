@@ -19,9 +19,9 @@ import { LinkButton } from "@/components/ui/link-button";
 export function NavbarComponent() {
   const router = useRouter();
   const navItems = [
-    { name: "Features", link: "#features" },
-    { name: "Pricing", link: "#pricing" },
-    { name: "Contact", link: "#contact" },
+    { name: "Home", link: "/home" },
+    { name: "Features", link: "/features" },
+    { name: "Contact Us", link: "/contact-us" },
   ];
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -29,6 +29,9 @@ export function NavbarComponent() {
 
   // Effect to handle scroll detection
   useEffect(() => {
+    // Only run on the client side
+    if (typeof window === 'undefined') return;
+    
     const handleScroll = () => {
       // Set isScrolled to true if user scrolls more than 10px
       if (window.scrollY > 10) {
@@ -54,6 +57,7 @@ export function NavbarComponent() {
         fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out
         ${isScrolled ? "py-2" : "py-4"}
       `}
+      suppressHydrationWarning
     >
       {/* --- Desktop Navigation --- */}
       <NavBody>

@@ -40,7 +40,7 @@ export function FeatureCard() {
   ];
   return (
     // Increased height to h-[45rem] to give the larger cards more room
-    <DraggableCardContainer className="relative flex h-[45rem] w-full items-center justify-center overflow-clip">
+    <DraggableCardContainer id="features" className="relative flex h-[45rem] w-full items-center justify-center overflow-clip">
       <p
         className="absolute z-0 mx-auto max-w-sm text-center text-xl font-black text-neutral-400 md:text-3xl dark:text-neutral-800"
       >

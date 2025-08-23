@@ -11,7 +11,9 @@ export default function HomePage() {
     <main className="bg-black text-white">
       <Hero />
       <TextRevealSection text="LaymanDB will change the way you design and build. " />
-      <FeatureCard />
+      <section id="features">
+        <FeatureCard />
+      </section>
       {/* You can add more content here that will appear after the scroll animation */}
       <div className="h-screen flex items-center justify-center">
           <p className="text-3xl">More content follows here.</p>

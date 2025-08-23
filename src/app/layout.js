@@ -49,22 +49,17 @@ export default function RootLayout({ children }) {
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <head>
-          {/* ... */}
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
         </head>
         <body
           className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-background text-foreground`}
+          suppressHydrationWarning
         >
           <div className="relative flex min-h-screen flex-col bg-gradient-to-br from-slate-50 to-blue-50">
             <NavbarComponent />
-            
-            {/* BEFORE: <main className="flex-1 pt-[80px]">
-            */}
-
-            {/* AFTER: Add the "relative" class */}
             <main className="flex-1 pt-[80px] relative">
               {children}
             </main>
-
           </div>
         </body>
       </html>
