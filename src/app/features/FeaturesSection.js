@@ -142,9 +142,6 @@ const FeatureContent = () => (
       <p className="mb-8 text-xl text-neutral-600 md:text-2xl">
         Experience the difference that thoughtful design and robust engineering can make. It's not just a tool; it's an extension of your creativity and productivity.
       </p>
-      <button className="w-full rounded bg-neutral-900 px-9 py-4 text-xl text-white transition-colors hover:bg-neutral-700 md:w-fit">
-        Learn more <FiArrowUpRight className="inline" />
-      </button>
     </div>
   </div>
 );

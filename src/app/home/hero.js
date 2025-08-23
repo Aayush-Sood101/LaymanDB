@@ -44,7 +44,12 @@ export function Hero() {
             >
               Get Started
             </button>
-            <button className="px-6 py-3 rounded-lg border border-neutral-500 text-neutral-300 hover:bg-neutral-800 transition-colors w-full sm:w-auto">
+            {/* --- MODIFIED LINE --- */}
+            {/* Added an onClick handler to navigate to the /features page */}
+            <button 
+              onClick={() => router.push('/features')}
+              className="px-6 py-3 rounded-lg border border-neutral-500 text-neutral-300 hover:bg-neutral-800 transition-colors w-full sm:w-auto"
+            >
               Learn More
             </button>
           </div>
