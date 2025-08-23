@@ -63,13 +63,24 @@ export function NavbarComponent() {
       <NavBody>
         <NavbarLogo />
         <NavItems items={navItems} />
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 relative z-10">
           <SignedOut>
             <LinkButton href="/sign-in" variant="secondary">Sign In</LinkButton>
             <LinkButton href="/sign-up" variant="primary">Sign Up</LinkButton>
           </SignedOut>
           <SignedIn>
-            <UserButton afterSignOutUrl="/home" />
+            <div className="flex items-center gap-4 relative z-10">
+              {/* Professional Workspace Button */}
+              <Link 
+                href="/generate"
+                className="relative z-20 inline-flex items-center px-4 py-2 text-sm font-medium text-neutral-900 dark:text-neutral-100 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-md shadow-sm hover:bg-neutral-50 dark:hover:bg-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600 transition-colors duration-200 cursor-pointer"
+              >
+                Workspace
+              </Link>
+              <div className="relative z-20">
+                <UserButton afterSignOutUrl="/home" />
+              </div>
+            </div>
           </SignedIn>
         </div>
       </NavBody>
@@ -93,17 +104,17 @@ export function NavbarComponent() {
               key={`mobile-link-${idx}`}
               href={item.link}
               onClick={() => setIsMobileMenuOpen(false)}
-              className="relative text-neutral-600 dark:text-neutral-300"
+              className="relative text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
             >
-              <span className="block">{item.name}</span>
+              <span className="block py-2">{item.name}</span>
             </a>
           ))}
-          <div className="flex w-full flex-col gap-4">
+          <div className="flex w-full flex-col gap-4 mt-6 pt-6 border-t border-neutral-200 dark:border-neutral-700 relative z-10">
             <SignedOut>
               <LinkButton 
                 href="/sign-in" 
                 variant="secondary"
-                className="w-full"
+                className="w-full relative z-20"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Sign In
@@ -111,22 +122,22 @@ export function NavbarComponent() {
               <LinkButton 
                 href="/sign-up" 
                 variant="primary"
-                className="w-full"
+                className="w-full relative z-20"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Sign Up
               </LinkButton>
             </SignedOut>
             <SignedIn>
-              <LinkButton 
-                href="/generate" 
-                variant="primary"
-                className="w-full"
+              {/* Professional Mobile Workspace Button */}
+              <Link
+                href="/generate"
                 onClick={() => setIsMobileMenuOpen(false)}
+                className="relative z-20 inline-flex items-center justify-center w-full px-4 py-2.5 text-sm font-medium text-neutral-900 dark:text-neutral-100 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-md shadow-sm hover:bg-neutral-50 dark:hover:bg-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600 transition-colors duration-200 cursor-pointer"
               >
                 Go to Workspace
-              </LinkButton>
-              <div className="mt-4 flex justify-center">
+              </Link>
+              <div className="mt-4 flex justify-center relative z-20">
                 <UserButton afterSignOutUrl="/" />
               </div>
             </SignedIn>
