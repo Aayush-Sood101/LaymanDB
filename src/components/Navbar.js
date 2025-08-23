@@ -65,8 +65,7 @@ export function NavbarComponent() {
             <LinkButton href="/sign-up" variant="primary">Sign Up</LinkButton>
           </SignedOut>
           <SignedIn>
-            <LinkButton href="/generate" variant="primary">Go to Workspace</LinkButton>
-            <UserButton afterSignOutUrl="/" />
+            <UserButton afterSignOutUrl="/home" />
           </SignedIn>
         </div>
       </NavBody>
