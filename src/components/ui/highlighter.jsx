@@ -80,7 +80,7 @@ export const HighlightGroup = ({ children, className = "", refresh = false }) =>
   };
 
   return (
-    <div className={className} ref={containerRef}>
+    <div className={`group ${className}`} ref={containerRef}>
       {children}
     </div>
   );
@@ -94,13 +94,12 @@ export const HighlighterItem = ({ children, className = "" }) => {
         relative overflow-hidden p-px 
         before:pointer-events-none before:absolute before:-left-48 before:-top-48 before:z-30 
         before:h-96 before:w-96 before:translate-x-[var(--mouse-x)] before:translate-y-[var(--mouse-y)] 
-        before:rounded-full
-        before:opacity-0 before:blur-[100px] 
-        before:transition-opacity before:duration-500 group-hover:before:opacity-20 
-        dark:before:bg-white/50 ${className}
-        
-        {/* --- MODIFIED: Changed highlight color to a dull white (slate-400). --- */}
-        before:bg-slate-400
+        before:rounded-full before:bg-slate-300/70 before:opacity-0 before:blur-[100px] 
+        before:transition-opacity before:duration-500 group-hover:before:opacity-20
+        after:pointer-events-none after:absolute after:inset-0 after:z-10 
+        after:rounded-3xl after:border after:border-slate-300/20 after:opacity-0 after:transition-opacity 
+        after:duration-500 group-hover:after:opacity-100
+        ${className}
       `}
     >
       {children}

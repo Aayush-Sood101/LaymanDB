@@ -6,10 +6,10 @@ import { useAnimate } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 // Assuming all highlighter components are in the same file
-import {
-  Particles,
-  HighlightGroup,
-  HighlighterItem,
+import { 
+    Particles, 
+    HighlightGroup, 
+    HighlighterItem 
 } from "@/components/ui/highlighter";
 
 // A simple SVG icon for the center
@@ -58,18 +58,17 @@ export const Connect = () => {
           vy={-0.2}
         />
         
-        {/* Changed p-8 to px-8 py-16 for more vertical padding */}
-        <HighlighterItem className="rounded-3xl px-8 py-16 border border-slate-700/40 shadow-lg">
-          <div className="space-y-16"> {/* Reduced vertical spacing for a tighter look */}
+        <HighlighterItem className="rounded-3xl p-6">
+          <div className="space-y-20">
             {/* Title */}
             <h2 className="text-center text-3xl font-bold md:text-5xl">
               Connect With Us
             </h2>
 
             {/* Content Grid */}
-            <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16"> {/* Adjusted gaps */}
+            <div className="grid grid-cols-1 items-center gap-y-16 lg:grid-cols-2 lg:gap-x-24">
               {/* Left side: Animation */}
-              <div className="lg:justify-self-center border border-slate-700/40 p-6 rounded-2xl"> {/* Removed background, added border */}
+              <div className="lg:justify-self-start">
                 <div
                   className="relative mx-auto h-[300px] w-[320px] lg:mx-0"
                   ref={scope}
@@ -123,7 +122,7 @@ export const Connect = () => {
               </div>
 
               {/* Right side: Text and Button */}
-              <div className="border border-slate-700/40 p-8 rounded-2xl"> {/* Removed background, added border and more padding */}
+              <div className="lg:items-start lg:text-left">
                 <div className="flex flex-col items-center text-center">
                   <h3 className="text-3xl font-bold text-white md:text-4xl">
                     Have Questions About LaymanDB?
