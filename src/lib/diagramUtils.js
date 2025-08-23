@@ -25,6 +25,11 @@ export const generateERDiagramElements = (schema, mode = 'conceptual') => {
   // Extract tables/entities and their positions
   const tables = Array.isArray(schema.tables) ? schema.tables : [];
   
+  if (tables.length === 0) {
+    console.warn('No tables found in schema');
+    return { nodes: [], edges: [] };
+  }
+  
   // Initialize entities array if not present
   if (!Array.isArray(schema.entities)) {
     schema.entities = tables.map(table => ({

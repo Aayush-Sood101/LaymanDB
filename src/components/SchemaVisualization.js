@@ -48,7 +48,12 @@ const SchemaVisualization = () => {
 
   useEffect(() => {
     if (currentSchema && currentSchema._id !== prevSchemaIdRef.current) {
-      console.log('Schema changed, updating diagram');
+      console.log('Schema changed, updating diagram', {
+        id: currentSchema._id,
+        tables: currentSchema.tables?.length || 0,
+        entities: currentSchema.entities?.length || 0,
+        relationships: currentSchema.relationships?.length || 0
+      });
       prevSchemaIdRef.current = currentSchema._id;
       setDiagramKey(Date.now());
     }
@@ -304,8 +309,18 @@ const SchemaVisualization = () => {
         <ERDDiagram
           schema={currentSchema}
           onNodeDragStop={(nodeId, position) => {
-            const entityName = nodeId.startsWith('entity-') ? nodeId.replace('entity-', '') : nodeId;
-            updateTablePosition(entityName, position);
+            // The table update needs to use the same format as the ERDDiagram component
+            const parts = nodeId.split('-');
+            const nodeType = parts[0];
+            const nodeName = nodeId.startsWith('entity-') ? nodeId.replace('entity-', '') : 
+                             nodeId.substring(nodeId.indexOf('-') + 1);
+            
+            updateTablePosition({
+              id: nodeId,
+              name: nodeName,
+              type: nodeType,
+              position: position
+            });
           }}
           onConnect={(params) => {
             if (params.source.startsWith('entity-') && params.target.startsWith('entity-')) {

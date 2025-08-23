@@ -1,13 +1,94 @@
-/* Styles for the ERD Diagram */
-
+/* Diagram Container */
 .diagramContainer {
   width: 100%;
   height: 100%;
-  background: linear-gradient(to bottom right, #f0f9ff, #e0f2fe);
-  border-radius: 0.5rem;
+  background-color: #ffffff;
+  position: relative;
+  transition: all 0.3s ease;
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
-  transition: background 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.darkMode.diagramContainer {
+  background-color: #0f172a !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* Ensure dark mode is applied correctly to ReactFlow */
+.reactFlow.dark {
+  background-color: #0f172a !important;
+}
+
+/* ReactFlow Container */
+.reactFlow {
+  height: 100%;
+  width: 100%;
+  border-radius: 8px;
+}
+
+/* Custom Background Patterns */
+.reactFlow :global(.react-flow__background) {
+  transition: all 0.3s ease;
+}
+
+.reactFlow :global(.react-flow__controls) {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* Add subtle animation to the background */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Styles for the export buttons */
+.exportButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.exportButton {
+  background: #059669;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+.exportButton:hover {
+  background: #047857;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Dark mode styles for export buttons */
+.darkMode .exportButton {
+  background: #059669;
+  color: #f1f5f9;
+}
+
+.darkMode .exportButton:hover {
+  background: #047857;
 }
 
 /* EntityNode Styles */
@@ -37,7 +118,7 @@
 }
 
 .strongEntityWrapper::before {
-  content: '';
+  content: '🔑';
   position: absolute;
   top: 0;
   left: 0;
@@ -55,7 +136,7 @@
 }
 
 .weakEntityWrapper::before {
-  content: '';
+  content: '🔑';
   position: absolute;
   top: -4px;
   left: -4px;
@@ -73,7 +154,7 @@
 }
 
 .weakEntityWrapper::after {
-  content: '';
+  content: '🔑';
   position: absolute;
   bottom: 0;
   left: 0;
@@ -659,7 +740,7 @@
 }
 
 .keyAttribute::before {
-  /* content: "泊"; */
+  content: "🔑";
   position: absolute;
   top: -8px;
   left: -6px;
@@ -681,7 +762,7 @@
 }
 
 .foreignKeyAttribute::before {
-  content: "迫";
+  content: "🔗";
   position: absolute;
   top: -8px;
   left: -6px;
@@ -1194,10 +1275,63 @@
   box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5);
 }
 
-/* MiniMap & Controls */
-.miniMap {
-  border-radius: 0.25rem;
+/* ReactFlow Controls */
+.diagramContainer :global(.react-flow__controls) {
+  border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+.darkMode :global(.react-flow__controls) {
+  border-color: #334155;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.diagramContainer :global(.react-flow__controls-button) {
+  border-bottom: 1px solid #e2e8f0;
+  background: white;
+  color: #64748b;
+  transition: all 0.2s ease;
+}
+
+.darkMode :global(.react-flow__controls-button) {
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+  color: #94a3b8;
+}
+
+.diagramContainer :global(.react-flow__controls-button:hover) {
+  background: #f1f5f9;
+}
+
+.darkMode :global(.react-flow__controls-button:hover) {
+  background: #334155;
+}
+
+.diagramContainer :global(.react-flow__controls-button svg) {
+  fill: currentColor;
+}
+
+/* Connection Line Styling */
+.diagramContainer :global(.react-flow__connection-path) {
+  stroke: #3b82f6;
+  stroke-width: 2;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.darkMode :global(.react-flow__connection-path) {
+  stroke: #60a5fa;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
+}
+
+/* Node Selection Styling */
+.diagramContainer :global(.react-flow__node.selected) {
+  filter: drop-shadow(0 0 8px rgba(249, 115, 22, 0.5));
+}
+
+.darkMode :global(.react-flow__node.selected) {
+  filter: drop-shadow(0 0 8px rgba(249, 115, 22, 0.7));
 }
 
 /* Animations */

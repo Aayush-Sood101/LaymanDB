@@ -26,6 +26,7 @@
     "clsx": "^2.1.1",
     "d3": "^7.9.0",
     "framer-motion": "^12.23.12",
+    "html-to-image": "^1.11.13",
     "lucide-react": "^0.288.0",
     "mermaid": "^11.9.0",
     "motion": "^12.23.12",

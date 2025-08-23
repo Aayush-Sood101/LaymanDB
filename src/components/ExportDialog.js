@@ -106,13 +106,22 @@ const ExportDialog = () => {
         
         {type === 'erd' && data && (
           <div className="flex flex-col items-center">
-            <img 
-              src={`data:image/svg+xml;base64,${btoa(data)}`} 
-              alt="ERD Diagram" 
-              className="max-w-full border border-[#374151] rounded-lg" 
-            />
+            {/* Display the diagram based on format */}
+            <div className="max-w-full border border-[#374151] rounded-lg overflow-hidden">
+              <img 
+                src={data}
+                alt="ERD Diagram" 
+                className="max-w-full" 
+                onError={(e) => {
+                  console.error('Error loading diagram image');
+                  e.target.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iNjAwIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMTExODI3Ii8+PHRleHQgeD0iNDAwIiB5PSIzMDAiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiNmZmZmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkVycm9yIGxvYWRpbmcgZGlhZ3JhbTwvdGV4dD48L3N2Zz4=';
+                }}
+              />
+            </div>
+            
+            {/* Download button */}
             <a 
-              href={`data:image/svg+xml;base64,${btoa(data)}`}
+              href={data}
               download={`schema-diagram.${format || 'svg'}`}
               className="mt-4 px-4 py-2 bg-[#FFFFFF] text-[#000000] rounded-md hover:bg-[#E5E7EB]"
             >

@@ -102,6 +102,22 @@
   height: 100%;
 }
 
+.react-flow {
+  background-color: #f0f7ff !important; /* Light blue background for light mode */
+}
+
+.dark .react-flow, 
+html.dark .react-flow, 
+body.dark .react-flow,
+.darkMode .react-flow,
+[data-theme="dark"] .react-flow,
+.dark .react-flow__renderer,
+.dark .react-flow__pane,
+.darkMode .react-flow__renderer,
+.darkMode .react-flow__pane {
+  background-color: #0f172a !important; /* Darker background for dark mode */
+}
+
 .diagram-flow .react-flow__node {
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
