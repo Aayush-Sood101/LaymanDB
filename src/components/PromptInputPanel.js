@@ -8,8 +8,40 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/componen
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useSchemaContext } from '@/contexts/SchemaContext';
-import { Pencil, Loader2, FileText, Trash2, Database, Wand2 } from 'lucide-react';
+import { Pencil, Loader2, FileText, Trash2, Database, Wand2, BookOpen, ChevronDown, Plus, Save } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Input from '@/components/ui/Input';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+// Example prompts from sample-inputs.md
+const EXAMPLE_PROMPTS = [
+  {
+    title: "E-commerce Database",
+    prompt: "Create a database for an e-commerce platform with products, categories, customers, and orders. Products have attributes like name, price, description, and inventory count. Products belong to multiple categories. Customers can place multiple orders. Each order contains multiple products with quantities. Orders have status, date, and payment information."
+  },
+  {
+    title: "Blog/CMS",
+    prompt: "Design a schema for a blog platform where users can write and publish articles. Articles have a title, content, publication date, and status (draft or published). Users can have roles (admin, editor, author, reader). Articles can have multiple tags and belong to categories. Readers can leave comments on articles. Track article view counts and user engagement metrics."
+  },
+  {
+    title: "Hospital Management",
+    prompt: "Create a database for a hospital with departments, doctors, patients, and appointments. Doctors belong to specific departments and have specializations. Patients can have multiple medical records, prescriptions, and appointments. Each appointment links a patient with a doctor at a specific time and date. Prescriptions include medications with dosage instructions. Medical records include diagnoses, treatments, and test results."
+  },
+  {
+    title: "School/University System",
+    prompt: "Design a database for a university with students, professors, courses, and departments. Students enroll in multiple courses each semester. Professors belong to departments and teach specific courses. Each course has a schedule, location, and credit hours. Track student attendance, assignments, and grades. Departments offer specific degree programs with required courses."
+  },
+  {
+    title: "Inventory Management",
+    prompt: "Create a database for inventory management across multiple warehouses. Products have categories, suppliers, cost, and selling prices. Track product quantities across different warehouse locations. Record inventory movements (receipts, transfers, adjustments, sales). Suppliers provide multiple products with varying lead times and minimum order quantities. Include purchase orders with status tracking from order to delivery."
+  }
+];
 
 const PromptInputPanel = () => {
   const [prompt, setPrompt] = useState('');
@@ -17,8 +49,28 @@ const PromptInputPanel = () => {
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [error, setError] = useState('');
   const [isFocused, setIsFocused] = useState(false);
-
+  const [customExamples, setCustomExamples] = useState([]);
+  const [showAddExample, setShowAddExample] = useState(false);
+  const [newExampleTitle, setNewExampleTitle] = useState('');
+  
   const { generateSchema } = useSchemaContext();
+  
+  const handleExampleSelect = (examplePrompt) => {
+    setPrompt(examplePrompt);
+    setError('');
+  };
+  
+  const handleAddCustomExample = () => {
+    if (prompt.trim() && newExampleTitle.trim()) {
+      const newExample = {
+        title: newExampleTitle,
+        prompt: prompt
+      };
+      setCustomExamples([...customExamples, newExample]);
+      setNewExampleTitle('');
+      setShowAddExample(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -149,8 +201,119 @@ const PromptInputPanel = () => {
               </div>
             )}
           </div>
+          
+          {showAddExample && (
+            <div className="space-y-2 p-3 rounded-md bg-[#111827] border border-[#1F2937]">
+              <Label
+                htmlFor="exampleTitle"
+                className="text-sm font-medium text-[#F3F4F6]"
+              >
+                Name your example prompt
+              </Label>
+              <Input
+                id="exampleTitle"
+                placeholder="Give your prompt a descriptive name..."
+                value={newExampleTitle}
+                onChange={(e) => setNewExampleTitle(e.target.value)}
+                className={cn(
+                  "bg-[#000000]",
+                  "border-2 border-[#1F2937]",
+                  "text-[#F3F4F6]",
+                  "placeholder:text-[#9CA3AF]",
+                  "focus:border-[#FFFFFF]",
+                  "h-9"
+                )}
+              />
+              <div className="flex justify-end pt-2 space-x-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAddExample(false)}
+                  className={cn(
+                    "border border-[#1F2937]",
+                    "bg-[#000000]",
+                    "text-[#D1D5DB]",
+                    "hover:bg-[#111827]",
+                    "h-8 px-3"
+                  )}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={handleAddCustomExample}
+                  disabled={!prompt.trim() || !newExampleTitle.trim()}
+                  className={cn(
+                    "bg-[#3B82F6]",
+                    "text-white",
+                    "hover:bg-[#2563EB]",
+                    "h-8 px-3"
+                  )}
+                >
+                  <Save className="h-3.5 w-3.5 mr-1.5" />
+                  Save Example
+                </Button>
+              </div>
+            </div>
+          )}
+          
+          <div className="flex justify-center pt-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={isLoading || isOptimizing}
+                  className={cn(
+                    "border-2 border-[#1F2937]",
+                    "bg-[#000000]",
+                    "text-[#D1D5DB]",
+                    "hover:bg-[#111827]",
+                    "hover:border-[#4B5563]",
+                    "transition-all duration-200",
+                    "disabled:opacity-50",
+                    "h-9 px-3"
+                  )}
+                >
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  Use Example Prompt
+                  <ChevronDown className="h-4 w-4 ml-2" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-[#0F1629] border-2 border-[#1F2937] text-[#D1D5DB] p-1 w-64">
+                {EXAMPLE_PROMPTS.map((example, index) => (
+                  <DropdownMenuItem 
+                    key={index}
+                    onClick={() => handleExampleSelect(example.prompt)}
+                    className="cursor-pointer hover:bg-[#1F2937] focus:bg-[#1F2937] py-2 px-3 rounded-md"
+                  >
+                    {example.title}
+                  </DropdownMenuItem>
+                ))}
+                
+                {customExamples.length > 0 && (
+                  <>
+                    <DropdownMenuSeparator className="my-2 bg-[#2D3748]" />
+                    {customExamples.map((example, index) => (
+                      <DropdownMenuItem 
+                        key={`custom-${index}`}
+                        onClick={() => handleExampleSelect(example.prompt)}
+                        className="cursor-pointer hover:bg-[#1F2937] focus:bg-[#1F2937] py-2 px-3 rounded-md"
+                      >
+                        {example.title} (Custom)
+                      </DropdownMenuItem>
+                    ))}
+                  </>
+                )}
+                
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
 
-          <div className="flex justify-center pt-3 pb-2">
+          <div className="flex justify-center pt-2 pb-2">
             <Button
               type="button"
               variant="outline"
