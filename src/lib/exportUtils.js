@@ -18,6 +18,46 @@ export const processSvgForExport = (svgData) => {
       return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgData)}`;
     }
     
+    // If it's already a data URL, check if we need to fix edge colors
+    if (svgData.includes('react-flow__edge')) {
+      // Create a temporary DOM element to parse the SVG
+      const parser = new DOMParser();
+      const svgDoc = parser.parseFromString(
+        decodeURIComponent(svgData.split(',')[1]), 
+        'image/svg+xml'
+      );
+      
+      // Find all edge paths that might be missing colors
+      const edgePaths = svgDoc.querySelectorAll('.react-flow__edge path');
+      edgePaths.forEach(path => {
+        // If the path doesn't have a stroke, set it based on class
+        if (!path.hasAttribute('stroke') || path.getAttribute('stroke') === 'none') {
+          // Look for specific classes to determine color
+          const classes = path.getAttribute('class') || '';
+          
+          if (classes.includes('identifyingEdge')) {
+            path.setAttribute('stroke', '#f59e0b');
+          } else if (classes.includes('oneToOneEdge')) {
+            path.setAttribute('stroke', '#8b5cf6');
+          } else if (classes.includes('manyToManyEdge')) {
+            path.setAttribute('stroke', '#10b981');
+          } else if (classes.includes('oneToManyEdge')) {
+            path.setAttribute('stroke', '#3b82f6');
+          } else {
+            path.setAttribute('stroke', '#3b82f6'); // Default blue
+          }
+          
+          // Ensure fill is none for paths
+          path.setAttribute('fill', 'none');
+        }
+      });
+      
+      // Convert back to a string and return as data URL
+      const serializer = new XMLSerializer();
+      const fixedSvgString = serializer.serializeToString(svgDoc);
+      return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(fixedSvgString)}`;
+    }
+    
     // If it's already a data URL, return as is
     return svgData;
   } catch (error) {

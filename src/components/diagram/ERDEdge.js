@@ -113,15 +113,44 @@ const ERDEdge = ({
     strokeDasharray: targetParticipation === 'total' ? 'none' : '4, 3',
   });
 
+  // Get the appropriate stroke color based on relationship type
+  const getStrokeColor = () => {
+    if (isIdentifying) return '#f59e0b';  // Amber for identifying relationships
+    
+    switch(relationshipType) {
+      case "MANY_TO_MANY":
+        return '#10b981';  // Emerald for many-to-many
+      case "ONE_TO_MANY":
+      case "MANY_TO_ONE": 
+        return '#3b82f6';  // Blue for one-to-many
+      case "ONE_TO_ONE":
+        return '#8b5cf6';  // Violet for one-to-one
+      default:
+        return '#3b82f6';  // Default blue
+    }
+  };
+
+  // Edge styles with explicit colors for better export
+  const sourceEdgeStyle = {
+    ...style,
+    ...getSourceParticipationStyle(),
+    stroke: getStrokeColor(),
+    fill: 'none',
+  };
+
+  const targetEdgeStyle = {
+    ...style,
+    ...getTargetParticipationStyle(),
+    stroke: getStrokeColor(),
+    fill: 'none',
+  };
+
   return (
     <>
       {/* Source side path - for participation display on source side */}
       <path
         id={`${id}-source`}
-        style={{
-          ...style,
-          ...getSourceParticipationStyle()
-        }}
+        style={sourceEdgeStyle}
         className={`${styles.erEdgePath} ${getEdgeClass()} ${getSourceParticipationClass()}`}
         d={edgePath}
         strokeDasharray={getSourceParticipationStyle().strokeDasharray === 'none' ? "0 50% 100%" : "0 50% 100%, " + getSourceParticipationStyle().strokeDasharray}
@@ -132,10 +161,7 @@ const ERDEdge = ({
       {/* Target side path - for participation display on target side */}
       <path
         id={`${id}-target`}
-        style={{
-          ...style,
-          ...getTargetParticipationStyle()
-        }}
+        style={targetEdgeStyle}
         className={`${styles.erEdgePath} ${getEdgeClass()} ${getTargetParticipationClass()}`}
         d={edgePath}
         strokeDasharray={getTargetParticipationStyle().strokeDasharray === 'none' ? "50% 50%" : "50% 50%, " + getTargetParticipationStyle().strokeDasharray}

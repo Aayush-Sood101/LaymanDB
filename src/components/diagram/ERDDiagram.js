@@ -58,6 +58,32 @@ const ERDDiagram = ({
       
       reactFlowInstance.fitView({ padding: 0.2 });
       
+      // Apply explicit color styles to edges for export
+      const edgePaths = flowNode.querySelectorAll('.react-flow__edge path');
+      edgePaths.forEach(path => {
+        // Get the edge type from classes
+        const isIdentifying = path.classList.contains(styles.identifyingEdge);
+        const isOneToOne = path.classList.contains(styles.oneToOneEdge);
+        const isManyToMany = path.classList.contains(styles.manyToManyEdge);
+        const isOneToMany = path.classList.contains(styles.oneToManyEdge);
+        
+        // Apply explicit stroke color based on edge type
+        if (isIdentifying) {
+          path.setAttribute('stroke', '#f59e0b');
+        } else if (isOneToOne) {
+          path.setAttribute('stroke', '#8b5cf6');
+        } else if (isManyToMany) {
+          path.setAttribute('stroke', '#10b981');
+        } else if (isOneToMany) {
+          path.setAttribute('stroke', '#3b82f6');
+        } else {
+          path.setAttribute('stroke', '#3b82f6'); // Default blue
+        }
+        
+        // Set fill to none explicitly for paths
+        path.setAttribute('fill', 'none');
+      });
+      
       const fallbackSvg = `
         <svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">
           <rect width="100%" height="100%" fill="${darkMode ? '#1a1a1a' : '#f8f9fa'}"/>
@@ -74,7 +100,14 @@ const ERDDiagram = ({
           width: flowNode.offsetWidth || 800,
           height: flowNode.offsetHeight || 600,
           filter: (node) => !node.classList?.contains(styles.exportButton),
-          timeout: 3000
+          timeout: 5000,
+          style: {
+            '.react-flow__edge path': {
+              strokeWidth: '2px',
+              stroke: 'currentColor',
+              fill: 'none'
+            }
+          }
         });
         
         return processSvgForExport(svgData);
@@ -86,7 +119,7 @@ const ERDDiagram = ({
       console.error('Error exporting diagram as SVG:', error);
       return 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iNjAwIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIi8+PHRleHQgeD0iNDAwIiB5PSIzMDAiIGZvbnQtc2l6ZT0iMjQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkVycm9yIGdlbmVyYXRpbmcgZGlhZ3JhbTwvdGV4dD48L3N2Zz4=';
     }
-  }, [reactFlowInstance, darkMode, schema]);
+  }, [reactFlowInstance, darkMode, schema, styles]);
   
   // Function to export the diagram as a PNG
   const exportAsPng = useCallback(async () => {
@@ -104,6 +137,32 @@ const ERDDiagram = ({
       
       reactFlowInstance.fitView({ padding: 0.2 });
       
+      // Apply explicit color styles to edges for export
+      const edgePaths = flowNode.querySelectorAll('.react-flow__edge path');
+      edgePaths.forEach(path => {
+        // Get the edge type from classes
+        const isIdentifying = path.classList.contains(styles.identifyingEdge);
+        const isOneToOne = path.classList.contains(styles.oneToOneEdge);
+        const isManyToMany = path.classList.contains(styles.manyToManyEdge);
+        const isOneToMany = path.classList.contains(styles.oneToManyEdge);
+        
+        // Apply explicit stroke color based on edge type
+        if (isIdentifying) {
+          path.setAttribute('stroke', '#f59e0b');
+        } else if (isOneToOne) {
+          path.setAttribute('stroke', '#8b5cf6');
+        } else if (isManyToMany) {
+          path.setAttribute('stroke', '#10b981');
+        } else if (isOneToMany) {
+          path.setAttribute('stroke', '#3b82f6');
+        } else {
+          path.setAttribute('stroke', '#3b82f6'); // Default blue
+        }
+        
+        // Set fill to none explicitly for paths
+        path.setAttribute('fill', 'none');
+      });
+      
       try {
         const pngData = await toPng(flowNode, {
           quality: 1,
@@ -111,7 +170,14 @@ const ERDDiagram = ({
           width: flowNode.offsetWidth || 800,
           height: flowNode.offsetHeight || 600,
           filter: (node) => !node.classList?.contains(styles.exportButton),
-          timeout: 3000
+          timeout: 5000,
+          style: {
+            '.react-flow__edge path': {
+              strokeWidth: '2px',
+              stroke: 'currentColor',
+              fill: 'none'
+            }
+          }
         });
         
         return processPngForExport(pngData);
@@ -123,7 +189,7 @@ const ERDDiagram = ({
       console.error('Error exporting diagram as PNG:', error);
       return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
     }
-  }, [reactFlowInstance, darkMode]);
+  }, [reactFlowInstance, darkMode, styles]);
   
   // Expose the export functions to the SchemaContext via window object
   useEffect(() => {
