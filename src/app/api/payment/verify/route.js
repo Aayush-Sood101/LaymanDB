@@ -16,6 +16,20 @@ export async function POST(req) {
       credits
     } = await req.json();
 
+    // Validate required fields
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !userId) {
+      console.error("Missing required payment verification fields", { 
+        hasOrderId: !!razorpay_order_id,
+        hasPaymentId: !!razorpay_payment_id,
+        hasSignature: !!razorpay_signature,
+        hasUserId: !!userId
+      });
+      return NextResponse.json({ 
+        success: false, 
+        message: "Missing required payment information" 
+      }, { status: 400 });
+    }
+
     // Verify the payment signature
     const sign = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSign = crypto

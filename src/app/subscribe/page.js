@@ -35,6 +35,7 @@ export default function SubscribePage() {
   const handlePayment = async (plan) => {
     try {
       setLoading(true);
+      setError(null);
       
       // 1. Create order from backend
       const res = await fetch("/api/payment", {
@@ -44,15 +45,15 @@ export default function SubscribePage() {
       });
       
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Failed to create payment");
+        const errorData = await res.json().catch(() => ({ error: "Failed to create payment" }));
+        throw new Error(errorData.error || `Failed to create payment (${res.status})`);
       }
       
       const order = await res.json();
 
       // 2. Razorpay Checkout options
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,  // This will be available to the client
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "", // Ensure this is accessible
         amount: order.amount,
         currency: order.currency,
         name: "LaymanDB",
@@ -99,11 +100,17 @@ export default function SubscribePage() {
       };
 
       // Make sure Razorpay is loaded from the global script
-      if (!window.Razorpay) {
-        throw new Error("Razorpay script not loaded. Please refresh the page.");
+      if (typeof window.Razorpay === 'undefined') {
+        console.error("Razorpay script not loaded");
+        throw new Error("Payment system is not available right now. Please refresh the page and try again.");
       }
       
       const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', function(response) {
+        console.error("Payment failed:", response.error);
+        setError(`Payment failed: ${response.error.description || response.error.reason || 'Unknown error'}`);
+        setLoading(false);
+      });
       rzp.open();
     } catch (err) {
       setError(err.message);
