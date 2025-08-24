@@ -3,47 +3,54 @@ import React, { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { FiArrowUpRight } from "react-icons/fi";
 
+// --- 1. IMAGE URLS UPDATED TO LOCAL PATHS ---
 const FEATURES = [
   {
     id: 1,
     subheading: "Design",
     heading: "Unparalleled Aesthetics.",
-    imgUrl:
-      "https://images.unsplash.com/photo-1533134486753-c833f0ed4866?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%33",
+    imgUrl: "/images/features-1.png", // Example local path
     content: {
       title: "Built for the future.",
       description:
         "Our product is meticulously crafted to blend form and function, providing a seamless user experience that feels both powerful and natural.",
-      
     },
   },
   {
     id: 2,
     subheading: "Performance",
     heading: "Engineered for Speed.",
-    imgUrl:
-      "https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?q=80&w=2574&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%33",
+    imgUrl: "/images/features-3.png", // Example local path
     content: {
       title: "Lightning-fast operations.",
       description:
         "Experience the difference that robust engineering can make. It's not just a tool; it's an extension of your productivity, optimized for peak performance.",
-      
     },
   },
   {
     id: 3,
     subheading: "Simplicity",
     heading: "Intuitively Yours.",
-    imgUrl:
-      "https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?q=80&w=2671&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%33",
+    imgUrl: "/images/features-2.png", // Example local path
     content: {
       title: "Effortless to master.",
       description:
         "We've obsessed over every detail to ensure the interface is clean and the workflow is intuitive, enabling you to focus on what truly matters.",
-      
+    },
+  },
+  {
+    id: 4,
+    subheading: "Collaboration",
+    heading: "Designed for Teams.",
+    imgUrl: "/images/features-4.png", // Example local path
+    content: {
+      title: "Work together, seamlessly.",
+      description:
+        "Share your database designs, get feedback, and iterate faster with built-in collaboration tools that keep everyone on the same page.",
     },
   },
 ];
+// --- END OF CHANGES ---
 
 const FeaturesSection = () => {
   return (
@@ -72,7 +79,6 @@ const TextParallaxContent = ({ imgUrl, subheading, heading, children }) => {
   });
 
   return (
-    // CHANGE: Reduced height from 300vh to 200vh to shorten the scroll duration
     <section ref={targetRef} className="relative h-[200vh]">
       <div className="sticky top-0 flex h-screen items-center overflow-hidden">
         <motion.div
