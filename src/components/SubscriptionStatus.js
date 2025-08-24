@@ -1,126 +1,112 @@
+// src/components/SubscriptionStatus.js
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useUser } from "@clerk/nextjs";
+import { CreditCard, Zap } from "lucide-react";
 
-export default function SubscriptionStatus() {
-  const { isSignedIn } = useUser();
-  const [status, setStatus] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    if (isSignedIn) {
-      fetchSubscriptionStatus();
-    } else {
-      setLoading(false);
-    }
-  }, [isSignedIn]);
-
-  const fetchSubscriptionStatus = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch("/api/user/status");
-      if (!response.ok) throw new Error("Failed to fetch subscription status");
-      const data = await response.json();
-      setStatus(data);
-      setLoading(false);
-    } catch (err) {
-      setError(err.message);
-      setLoading(false);
-    }
-  };
-
-  if (!isSignedIn || loading) {
+export default function SubscriptionStatus({ status }) {
+  // If no status is provided, the component renders nothing.
+  if (!status) {
     return null;
   }
 
-  if (error) {
-    return (
-      <div className="rounded-md bg-red-50 p-4 mb-4">
-        <div className="flex">
-          <div className="ml-3">
-            <p className="text-sm font-medium text-red-800">
-              Could not load subscription status
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
-      <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
+    <div className="rounded-2xl border border-neutral-800 bg-neutral-950/50 overflow-hidden mb-6 shadow-lg">
+      <div className="px-6 py-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-neutral-800">
         <div>
-          <h3 className="text-lg leading-6 font-medium text-gray-900">
-            Subscription Status
+          <h3 className="text-lg font-semibold text-white flex items-center">
+            <CreditCard className="w-5 h-5 mr-2 text-neutral-400" />
+            Account Status
           </h3>
-          <p className="mt-1 max-w-2xl text-sm text-gray-500">
-            Your current usage and plan details
+          <p className="mt-1 text-sm text-neutral-400">
+            Your current usage and plan details.
           </p>
         </div>
+        
         <Link
-          href="/subscribe"
-          className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+          href="/pricing"
+          className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-md hover:opacity-90 transition-opacity duration-200"
         >
-          Upgrade
+          Upgrade Plan
         </Link>
       </div>
 
-      {status && (
-        <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
-          <dl className="sm:divide-y sm:divide-gray-200">
-            <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Current Plan</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                {status.subscriptionPlan}
-              </dd>
-            </div>
-            {!status.isPro && (
-              <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">Free Trials</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  {status.freeTrialCount} / {status.freeTrialLimit} used
-                  {status.freeTrialCount >= status.freeTrialLimit && (
-                    <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-yellow-100 text-yellow-800">
-                      Exhausted
-                    </span>
-                  )}
-                </dd>
-              </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6">
+        {/* Current Plan */}
+        <div className="bg-neutral-900 p-4 rounded-lg border border-neutral-800">
+          <div className="text-sm font-medium text-neutral-500 mb-2">Current Plan</div>
+          <div className="text-xl font-semibold text-white">
+            {status.subscriptionPlan}
+          </div>
+          <div className="mt-2">
+            {status.isPro ? (
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-300">
+                Premium
+              </span>
+            ) : (
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-neutral-800 text-neutral-300">
+                Free
+              </span>
             )}
-            {status.isPro && (
-              <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt className="text-sm font-medium text-gray-500">Remaining Credits</dt>
-                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  {status.paidSchemaCredits}
-                  {status.paidSchemaCredits <= 10 && (
-                    <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-yellow-100 text-yellow-800">
-                      Low
-                    </span>
-                  )}
-                </dd>
+          </div>
+        </div>
+
+        {/* Free Trials or Credits */}
+        <div className="bg-neutral-900 p-4 rounded-lg border border-neutral-800">
+          {!status.isPro ? (
+            <>
+              <div className="text-sm font-medium text-neutral-500 mb-2">Free Trials</div>
+              <div className="flex items-end">
+                <span className="text-xl font-semibold text-white">{status.freeTrialCount}</span>
+                <span className="text-sm text-neutral-500 ml-1.5">/ {status.freeTrialLimit} used</span>
               </div>
-            )}
-            <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Status</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                {status.isPro ? (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-green-100 text-green-800">
-                    Premium User
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-gray-100 text-gray-800">
-                    Free User
+              <div className="mt-3 w-full bg-neutral-800 rounded-full h-2 overflow-hidden">
+                <div 
+                  className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full"
+                  style={{ width: `${(status.freeTrialCount / status.freeTrialLimit) * 100}%` }}
+                ></div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="text-sm font-medium text-neutral-500 mb-2">Remaining Credits</div>
+              <div className="text-xl font-semibold text-white flex items-center">
+                {status.paidSchemaCredits}
+                <Zap className="w-4 h-4 ml-1.5 text-neutral-400" />
+              </div>
+               <div className="mt-2">
+                {status.paidSchemaCredits <= 10 && (
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-900/30 text-yellow-300">
+                    Low Balance
                   </span>
                 )}
-              </dd>
-            </div>
-          </dl>
+              </div>
+            </>
+          )}
         </div>
-      )}
+
+        {/* Usage Status */}
+        <div className="bg-neutral-900 p-4 rounded-lg border border-neutral-800">
+          <div className="text-sm font-medium text-neutral-500 mb-2">Usage Status</div>
+          {!status.isPro && status.freeTrialCount >= status.freeTrialLimit ? (
+            <div className="text-base font-medium text-red-400">
+              Free trials exhausted
+            </div>
+          ) : (
+            <div className="text-base font-medium text-green-400">
+              Active
+            </div>
+          )}
+          <div className="mt-2">
+            <Link 
+              href="/pricing" 
+              className="text-sm font-medium text-neutral-300 hover:text-white transition-colors duration-200"
+            >
+              View available plans →
+            </Link>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { AlertCircle } from "lucide-react";
 
 export default function PaywallNotice({ freeTrialCount, freeTrialLimit }) {
   const [isOpen, setIsOpen] = useState(true);
@@ -11,37 +12,26 @@ export default function PaywallNotice({ freeTrialCount, freeTrialLimit }) {
   }
 
   return (
-    <div className="rounded-md bg-indigo-50 p-4 mb-6">
-      <div className="flex">
-        <div className="flex-shrink-0">
-          <svg
-            className="h-5 w-5 text-indigo-400"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              fillRule="evenodd"
-              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9a1 1 0 00-1-1z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </div>
-        <div className="ml-3 flex-1 md:flex md:justify-between">
-          <p className="text-sm text-indigo-700">
+    <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden mb-6 shadow-sm">
+      <div className="p-5 flex items-start">
+        <AlertCircle className="h-5 w-5 text-zinc-700 dark:text-zinc-300 mt-0.5 mr-3 flex-shrink-0" />
+        <div className="flex-1">
+          <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">
+            Free trials exhausted
+          </h3>
+          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
             You've used all your free trials. Upgrade now to continue generating schemas.
           </p>
-          <div className="mt-3 flex md:mt-0 md:ml-6">
+          <div className="mt-3 flex space-x-4">
             <Link
-              href="/subscribe"
-              className="text-sm font-medium text-indigo-700 hover:text-indigo-600 whitespace-nowrap"
+              href="/pricing"
+              className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-zinc-900 dark:bg-white dark:text-zinc-900 border border-zinc-800 dark:border-zinc-200 rounded-md shadow-sm hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors duration-200"
             >
-              Upgrade <span aria-hidden="true">&rarr;</span>
+              Upgrade Plan
             </Link>
             <button
               type="button"
-              className="ml-3 text-sm font-medium text-indigo-700 hover:text-indigo-600"
+              className="text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors duration-200"
               onClick={() => setIsOpen(false)}
             >
               Dismiss
