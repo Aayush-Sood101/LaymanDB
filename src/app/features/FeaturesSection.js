@@ -14,7 +14,7 @@ const FEATURES = [
       title: "Built for the future.",
       description:
         "Our product is meticulously crafted to blend form and function, providing a seamless user experience that feels both powerful and natural.",
-      linkText: "Learn more about our design",
+      
     },
   },
   {
@@ -27,7 +27,7 @@ const FEATURES = [
       title: "Lightning-fast operations.",
       description:
         "Experience the difference that robust engineering can make. It's not just a tool; it's an extension of your productivity, optimized for peak performance.",
-      linkText: "Discover performance metrics",
+      
     },
   },
   {
@@ -40,7 +40,7 @@ const FEATURES = [
       title: "Effortless to master.",
       description:
         "We've obsessed over every detail to ensure the interface is clean and the workflow is intuitive, enabling you to focus on what truly matters.",
-      linkText: "Explore the user interface",
+      
     },
   },
 ];
@@ -135,7 +135,7 @@ const OverlayCopy = ({ subheading, heading, scrollYProgress }) => {
   );
 };
 
-const FeatureContent = ({ title, description, linkText }) => {
+const FeatureContent = ({ title, description }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -154,13 +154,6 @@ const FeatureContent = ({ title, description, linkText }) => {
         <p className="mb-8 text-xl text-neutral-300 md:text-2xl">
           {description}
         </p>
-        <a
-          href="#"
-          className="group inline-flex items-center gap-2 text-lg text-white hover:text-neutral-300 transition-colors"
-        >
-          <span>{linkText}</span>
-          <FiArrowUpRight className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-        </a>
       </div>
     </motion.div>
   );
