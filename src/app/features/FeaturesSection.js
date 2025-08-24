@@ -3,50 +3,50 @@ import React, { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { FiArrowUpRight } from "react-icons/fi";
 
-// --- 1. IMAGE URLS UPDATED TO LOCAL PATHS ---
+// --- UPDATED FEATURES ARRAY ---
 const FEATURES = [
   {
     id: 1,
-    subheading: "Design",
-    heading: "Unparalleled Aesthetics.",
-    imgUrl: "/images/features-1.png", // Example local path
+    subheading: "Visualization",
+    heading: "Clarity in Complexity.",
+    imgUrl: "/images/features-1.png", // Corresponds to ERD Diagram
     content: {
-      title: "Built for the future.",
+      title: "Textbook-Quality ERDs.",
       description:
-        "Our product is meticulously crafted to blend form and function, providing a seamless user experience that feels both powerful and natural.",
+        "Instantly generate high-fidelity, interactive Entity-Relationship Diagrams. Understand your database structure at a glance and manipulate it in real-time.",
     },
   },
   {
     id: 2,
-    subheading: "Performance",
-    heading: "Engineered for Speed.",
-    imgUrl: "/images/features-3.png", // Example local path
+    subheading: "Integration",
+    heading: "Design That Flows.",
+    imgUrl: "/images/features-3.png", // Corresponds to Mermaid Diagram
     content: {
-      title: "Lightning-fast operations.",
+      title: "Code-Based Visuals.",
       description:
-        "Experience the difference that robust engineering can make. It's not just a tool; it's an extension of your productivity, optimized for peak performance.",
+        "Export your schema as clean Mermaid code. Perfect for embedding in markdown, wikis, or version control for clear, maintainable diagrams that live with your code.",
     },
   },
   {
     id: 3,
-    subheading: "Simplicity",
-    heading: "Intuitively Yours.",
-    imgUrl: "/images/features-2.png", // Example local path
+    subheading: "Implementation",
+    heading: "Ready for Production.",
+    imgUrl: "/images/features-2.png", // Corresponds to SQL Export
     content: {
-      title: "Effortless to master.",
+      title: "Multi-Dialect SQL.",
       description:
-        "We've obsessed over every detail to ensure the interface is clean and the workflow is intuitive, enabling you to focus on what truly matters.",
+        "Generate optimized SQL for multiple database systems like PostgreSQL, MySQL, and more. Go from concept to a deployable schema without writing a single line of code.",
     },
   },
   {
     id: 4,
-    subheading: "Collaboration",
-    heading: "Designed for Teams.",
-    imgUrl: "/images/features-4.png", // Example local path
+    subheading: "Documentation",
+    heading: "Your Schema, Explained.",
+    imgUrl: "/images/features-4.png", // Corresponds to Intelligent Documentation
     content: {
-      title: "Work together, seamlessly.",
+      title: "Context-Aware Docs.",
       description:
-        "Share your database designs, get feedback, and iterate faster with built-in collaboration tools that keep everyone on the same page.",
+        "Automatically create comprehensive documentation that links your original ideas to the final schema. Ensure every stakeholder understands the design, from intent to implementation.",
     },
   },
 ];
