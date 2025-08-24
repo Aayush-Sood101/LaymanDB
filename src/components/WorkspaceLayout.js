@@ -1,25 +1,58 @@
 // src/components/WorkspaceLayout.js
 "use client";
 
+import { useState, useEffect } from 'react';
 import SubscriptionStatus from './SubscriptionStatus';
 import PaywallNotice from './PaywallNotice';
 import { useSchemaContext } from '../contexts/SchemaContext';
+import { useSubscriptionLoader } from '../contexts/SubscriptionLoaderContext';
+import { Loader2 } from 'lucide-react';
 
 export default function WorkspaceLayout({ tools, visualization }) {
   const { subscriptionStatus } = useSchemaContext();
+  const { subscriptionData, isLoading } = useSubscriptionLoader();
+  const [isReady, setIsReady] = useState(false);
+  
+  // Wait for both SchemaContext and SubscriptionLoader to be ready
+  useEffect(() => {
+    if (!isLoading && (subscriptionStatus || subscriptionData)) {
+      // Add a slight delay for smoother transitions
+      const timer = setTimeout(() => {
+        setIsReady(true);
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    } else {
+      setIsReady(false);
+    }
+  }, [isLoading, subscriptionStatus, subscriptionData]);
+  
+  if (!isReady) {
+    return (
+      <div className="w-full px-3 pt-24 pb-4 sm:px-6 flex items-center justify-center min-h-[70vh]">
+        <div className="flex flex-col items-center">
+          <Loader2 className="h-10 w-10 text-white/30 animate-spin mb-4" />
+          <p className="text-white/70 text-lg">Loading workspace data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Use the data from either source, preferring SchemaContext as it may have been updated
+  const status = subscriptionStatus || subscriptionData;
 
   return (
     // Added pt-24 to create space below the fixed navbar
     <div className="w-full px-3 pt-24 pb-4 sm:px-6">
       {/* Subscription status section */}
       <div className="mb-8">
-        {subscriptionStatus && (
+        {status && (
           <>
             {/* Pass status directly to the component to avoid a second API call */}
-            <SubscriptionStatus status={subscriptionStatus} />
+            <SubscriptionStatus status={status} />
             <PaywallNotice 
-              freeTrialCount={subscriptionStatus.freeTrialCount} 
-              freeTrialLimit={subscriptionStatus.freeTrialLimit}
+              freeTrialCount={status.freeTrialCount} 
+              freeTrialLimit={status.freeTrialLimit}
             />
           </>
         )}

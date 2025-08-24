@@ -10,6 +10,7 @@ import PageTemplate from '@/components/PageTemplate';
 import WorkspaceLayout from '@/components/WorkspaceLayout';
 import RouteProtection from '@/components/RouteProtection';
 import { PaymentDependentPage } from '@/lib/paymentUtils';
+import { SubscriptionLoaderProvider } from '@/contexts/SubscriptionLoaderContext';
 import { Loader2 } from 'lucide-react';
 
 export default function GeneratePage() {
@@ -59,13 +60,15 @@ export default function GeneratePage() {
               </div>
             </div>
           }>
-            <SchemaProvider>
-              <WorkspaceLayout
-                tools={<PromptInputPanel />}
-                visualization={<SchemaVisualization />}
-              />
-              <ExportDialog />
-            </SchemaProvider>
+            <SubscriptionLoaderProvider>
+              <SchemaProvider>
+                <WorkspaceLayout
+                  tools={<PromptInputPanel />}
+                  visualization={<SchemaVisualization />}
+                />
+                <ExportDialog />
+              </SchemaProvider>
+            </SubscriptionLoaderProvider>
           </PaymentDependentPage>
         </PageTemplate>
       </main>

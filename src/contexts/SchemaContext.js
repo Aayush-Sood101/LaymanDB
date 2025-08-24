@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import { useSubscriptionLoader } from './SubscriptionLoaderContext';
 
 // Initial state
 const initialState = {
@@ -181,14 +182,30 @@ const SchemaContext = createContext();
 // Context provider
 export const SchemaProvider = ({ children }) => {
   const [state, dispatch] = useReducer(schemaReducer, initialState);
+  const { subscriptionData, isLoading: isSubscriptionLoading } = useSubscriptionLoader();
   
-  // Load subscription status on mount
+  // Use subscription data from the SubscriptionLoaderContext
   useEffect(() => {
-    fetchSubscriptionStatus();
-  }, []);
+    if (subscriptionData && !isSubscriptionLoading) {
+      dispatch({ 
+        type: ActionTypes.SET_SUBSCRIPTION_STATUS, 
+        payload: subscriptionData 
+      });
+    }
+  }, [subscriptionData, isSubscriptionLoading]);
   
-  // Fetch user subscription status
+  // Fetch user subscription status (this is now a fallback since we use the SubscriptionLoaderContext)
   const fetchSubscriptionStatus = async () => {
+    // If we already have subscription data from the context, use that instead
+    if (subscriptionData && !isSubscriptionLoading) {
+      dispatch({ 
+        type: ActionTypes.SET_SUBSCRIPTION_STATUS, 
+        payload: subscriptionData 
+      });
+      return subscriptionData;
+    }
+    
+    // Otherwise, fetch it directly (this is a fallback)
     dispatch({ type: ActionTypes.SET_SUBSCRIPTION_LOADING, payload: true });
     
     try {
@@ -217,8 +234,13 @@ export const SchemaProvider = ({ children }) => {
     dispatch({ type: ActionTypes.SET_LOADING, payload: true });
     
     try {
-      // Check subscription status first
-      const subscriptionStatus = await fetchSubscriptionStatus();
+      // Use subscription data from the context if available
+      let subscriptionStatus = subscriptionData;
+      
+      // If not available, fetch it
+      if (!subscriptionStatus) {
+        subscriptionStatus = await fetchSubscriptionStatus();
+      }
       
       if (!subscriptionStatus) {
         throw new Error('Could not verify subscription status');
