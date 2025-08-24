@@ -6,7 +6,9 @@ import '@/lib/reactFlowMonkeyPatch';
 import { NavbarComponent } from "@/components/Navbar"; // Import your Navbar
 import { StackedCircularFooter } from "@/components/StackedCircularFooter"; // Import Footer
 import { ClerkProvider } from "@clerk/nextjs";
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next"; // 1. Import SpeedInsights
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -41,10 +43,6 @@ export const metadata = {
   },
 };
 
-// src/app/layout.js
-
-// ... (imports and metadata are fine)
-
 export default function RootLayout({ children }) {
   return (
     <ClerkProvider>
@@ -63,6 +61,9 @@ export default function RootLayout({ children }) {
             </main>
             <StackedCircularFooter />
           </div>
+          
+          <Analytics />
+          <SpeedInsights /> 
         </body>
       </html>
     </ClerkProvider>
