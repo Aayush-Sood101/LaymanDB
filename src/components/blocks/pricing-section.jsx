@@ -9,6 +9,25 @@ import { Check, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import PageTemplate from "../../components/PageTemplate";
 
+// Function to dynamically load Razorpay script
+const loadRazorpay = () => {
+  return new Promise((resolve) => {
+    if (window.Razorpay) {
+      resolve();
+      return;
+    }
+    
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve();
+    script.onerror = () => {
+      console.error("Failed to load Razorpay");
+      resolve(); // Resolve anyway to prevent blocking
+    };
+    document.body.appendChild(script);
+  });
+};
+
 // A reusable component for pricing cards to keep the main component cleaner
 const PricingCard = ({ plan, loading, handlePayment }) => {
   const { name, price, description, features, isPopular } = plan;
@@ -122,9 +141,12 @@ export default function PricingPage() {
       }
 
       const order = await res.json();
+      
+      // Ensure Razorpay is loaded
+      await loadRazorpay();
 
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || window.RAZORPAY_KEY_ID || "",
         amount: order.amount,
         currency: order.currency,
         name: "LaymanDB",
@@ -157,7 +179,7 @@ export default function PricingPage() {
           email: user?.primaryEmailAddress?.emailAddress || "",
         },
         theme: {
-          color: "#4F46E5",
+          color: "#18181B", // Updated to match the zinc-900 color
         },
         modal: {
           ondismiss: function () {
@@ -169,7 +191,7 @@ export default function PricingPage() {
 
       if (typeof window.Razorpay === "undefined") {
         throw new Error(
-          "Payment system is not available. Please refresh and try again."
+          "Payment system could not be initialized. Please try again or contact support."
         );
       }
 
@@ -193,7 +215,7 @@ export default function PricingPage() {
     {
       id: "basic",
       name: "Basic",
-      price: 30,
+      price: 50,
       description: "For individuals and small projects getting started.",
       features: [
         "100 schema generations",
@@ -205,7 +227,7 @@ export default function PricingPage() {
     {
       id: "premium",
       name: "Premium",
-      price: 50,
+      price: 80,
       description: "Ideal for professional developers and teams.",
       features: [
         "200 schema generations",

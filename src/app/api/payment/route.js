@@ -42,11 +42,11 @@ export async function POST(req) {
     let credits = 0;
 
     if (plan === "basic") {
-      amount = 30;
+      amount = 50;
       planName = "Basic Plan";
       credits = 100;
     } else if (plan === "premium") {
-      amount = 50;
+      amount = 80;
       planName = "Premium Plan";
       credits = 200;
     } else {
@@ -54,8 +54,13 @@ export async function POST(req) {
     }
 
     if (!Razorpay) {
-      console.error("Razorpay initialization failed - server-side only module");
-      return NextResponse.json({ error: "Payment system initialization failed" }, { status: 500 });
+      try {
+        // Attempt dynamic import in case the module is available
+        Razorpay = require("razorpay");
+      } catch (error) {
+        console.error("Razorpay module import error:", error);
+        return NextResponse.json({ error: "Payment system initialization failed" }, { status: 500 });
+      }
     }
     
     // Initialize Razorpay with environment variable validation

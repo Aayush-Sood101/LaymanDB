@@ -59,7 +59,7 @@ export async function POST(req) {
         paymentId: razorpay_payment_id,
         orderId: razorpay_order_id,
         plan: plan,
-        amount: plan === "Basic Plan" ? 30 : 50,
+        amount: plan === "Basic Plan" ? 50 : 80,
         credits: parseInt(credits),
         date: new Date().toISOString()
       });

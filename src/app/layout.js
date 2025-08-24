@@ -50,6 +50,11 @@ export default function RootLayout({ children }) {
         <head>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+          <script dangerouslySetInnerHTML={{
+            __html: `
+              window.RAZORPAY_KEY_ID = "${process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || ''}";
+            `
+          }} />
         </head>
         <body
           className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-background text-foreground`}
