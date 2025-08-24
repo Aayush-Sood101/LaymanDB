@@ -17,7 +17,7 @@ export default function FeaturesHero() {
         className="absolute inset-0 w-full h-full opacity-60"
         colors={["#000000", "#ffffff", "#06b6d4", "#f97316"]}
         speed={0.2}
-        wireframe={true}
+        wireframe="true"
         style={{ backgroundColor: "transparent" }}
       />
 
