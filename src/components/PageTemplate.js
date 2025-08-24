@@ -1,16 +1,7 @@
 // src/components/PageTemplate.js
-import { NavbarComponent } from './Navbar'; // Adjust path if needed
 
 export default function PageTemplate({ children }) {
-  return (
-    <div>
-      {/* This 'main' tag wraps your page content.
-        The 'pt-24' (padding-top: 6rem) pushes the content down,
-        creating space for the fixed navbar above it.
-      */}
-      <main className="pt-24"> 
-        {children}
-      </main>
-    </div>
-  );
+  // This component now just acts as a simple wrapper.
+  // The Navbar, main tag, and padding are all handled by your root layout.js.
+  return <>{children}</>;
 }
