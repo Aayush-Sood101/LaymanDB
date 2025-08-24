@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import PageTemplate from "../../../components/PageTemplate";
+import { CheckCircle2 } from "lucide-react"; // Using a consistent icon from lucide-react
 
 export default function PaymentSuccessPage() {
   const router = useRouter();
@@ -25,51 +26,41 @@ export default function PaymentSuccessPage() {
   }, [router]);
 
   return (
-    <PageTemplate title="Payment Successful">
-      <div className="bg-white min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <PageTemplate>
+      <div className="bg-black text-white min-h-[80vh] flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8 text-center">
-          <div>
-            <svg
-              className="mx-auto h-12 w-12 text-green-500"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-            <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+
+          <div className="flex flex-col items-center gap-6">
+            <CheckCircle2 className="h-16 w-16 text-green-400" />
+            <h1 className="text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-neutral-400 pb-2">
               Payment Successful!
-            </h2>
-            <p className="mt-2 text-sm text-gray-600">
-              Thank you for subscribing to LaymanDB. Your account has been updated with additional schema generation credits.
+            </h1>
+            <p className="max-w-sm text-base text-neutral-400">
+              Thank you for your purchase. Your account has been updated with additional credits.
             </p>
           </div>
-          <div className="mt-8">
-            <p className="text-sm text-gray-500">
-              Redirecting you to schema generation page in {countdown} seconds...
+
+          <div className="pt-4">
+            <p className="text-sm text-neutral-500">
+              Redirecting you to the workspace in {countdown} seconds...
             </p>
           </div>
-          <div className="mt-5 flex justify-center space-x-4">
+
+          <div className="pt-2 flex justify-center items-center gap-4">
             <Link
               href="/generate"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="inline-flex items-center justify-center px-6 py-3 text-sm font-semibold text-white bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-md hover:opacity-90 transition-opacity duration-200"
             >
-              Start Generating Schema
+              Go to Workspace
             </Link>
             <Link
-              href="/"
-              className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              href="/home"
+              className="inline-flex items-center justify-center px-6 py-3 text-sm font-semibold text-neutral-200 bg-neutral-800/50 border border-neutral-700 rounded-lg hover:bg-neutral-800 transition-colors"
             >
               Go to Home
             </Link>
           </div>
+
         </div>
       </div>
     </PageTemplate>
