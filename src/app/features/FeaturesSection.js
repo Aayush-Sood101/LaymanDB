@@ -72,8 +72,8 @@ const TextParallaxContent = ({ imgUrl, subheading, heading, children }) => {
   });
 
   return (
-    // Set a margin top on the first section to create space from the navbar
-    <section ref={targetRef} className="relative h-[300vh]">
+    // CHANGE: Reduced height from 300vh to 200vh to shorten the scroll duration
+    <section ref={targetRef} className="relative h-[200vh]">
       <div className="sticky top-0 flex h-screen items-center overflow-hidden">
         <motion.div
           style={{ paddingLeft: IMG_PADDING, paddingRight: IMG_PADDING }}
@@ -87,7 +87,6 @@ const TextParallaxContent = ({ imgUrl, subheading, heading, children }) => {
           />
         </motion.div>
       </div>
-      {/* The FeatureContent is now positioned at the bottom of the 300vh container */}
       <div className="absolute bottom-0 left-0 w-full">{children}</div>
     </section>
   );
@@ -124,7 +123,6 @@ const OverlayCopy = ({ subheading, heading, scrollYProgress }) => {
   return (
     <motion.div
       style={{ y, opacity }}
-      // CHANGE: Added z-10 to ensure this text layer is on top of the image
       className="absolute inset-0 z-10 flex flex-col items-center justify-center"
     >
       <p className="mb-2 text-center text-xl font-semibold text-neutral-300 md:mb-4 md:text-3xl">
@@ -138,7 +136,6 @@ const OverlayCopy = ({ subheading, heading, scrollYProgress }) => {
 };
 
 const FeatureContent = ({ title, description, linkText }) => {
-  // CHANGE: Wrapped the content in a motion.div for a subtle fade-in animation
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -157,8 +154,13 @@ const FeatureContent = ({ title, description, linkText }) => {
         <p className="mb-8 text-xl text-neutral-300 md:text-2xl">
           {description}
         </p>
-        {/* CHANGE: Added the missing link element that was in the FEATURES data */}
-        
+        <a
+          href="#"
+          className="group inline-flex items-center gap-2 text-lg text-white hover:text-neutral-300 transition-colors"
+        >
+          <span>{linkText}</span>
+          <FiArrowUpRight className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+        </a>
       </div>
     </motion.div>
   );
