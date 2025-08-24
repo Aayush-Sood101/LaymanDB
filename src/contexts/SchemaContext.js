@@ -10,6 +10,9 @@ const initialState = {
   exportData: null,
   isLoading: false,
   error: null,
+  subscriptionStatus: null,
+  isSubscriptionLoading: false,
+  subscriptionError: null,
 };
 
 // Action types
@@ -22,6 +25,9 @@ const ActionTypes = {
   SET_EXPORT_DATA: 'SET_EXPORT_DATA',
   CLEAR_EXPORT_DATA: 'CLEAR_EXPORT_DATA',
   UPDATE_TABLE_POSITION: 'UPDATE_TABLE_POSITION',
+  SET_SUBSCRIPTION_STATUS: 'SET_SUBSCRIPTION_STATUS',
+  SET_SUBSCRIPTION_LOADING: 'SET_SUBSCRIPTION_LOADING',
+  SET_SUBSCRIPTION_ERROR: 'SET_SUBSCRIPTION_ERROR',
 };
 
 // Reducer
@@ -54,6 +60,15 @@ const schemaReducer = (state, action) => {
       
     case ActionTypes.CLEAR_EXPORT_DATA:
       return { ...state, exportData: null };
+      
+    case ActionTypes.SET_SUBSCRIPTION_STATUS:
+      return { ...state, subscriptionStatus: action.payload, isSubscriptionLoading: false };
+      
+    case ActionTypes.SET_SUBSCRIPTION_LOADING:
+      return { ...state, isSubscriptionLoading: action.payload };
+      
+    case ActionTypes.SET_SUBSCRIPTION_ERROR:
+      return { ...state, subscriptionError: action.payload, isSubscriptionLoading: false };
       
     case ActionTypes.UPDATE_TABLE_POSITION:
       if (!state.currentSchema) return state;
@@ -167,6 +182,34 @@ const SchemaContext = createContext();
 export const SchemaProvider = ({ children }) => {
   const [state, dispatch] = useReducer(schemaReducer, initialState);
   
+  // Load subscription status on mount
+  useEffect(() => {
+    fetchSubscriptionStatus();
+  }, []);
+  
+  // Fetch user subscription status
+  const fetchSubscriptionStatus = async () => {
+    dispatch({ type: ActionTypes.SET_SUBSCRIPTION_LOADING, payload: true });
+    
+    try {
+      const response = await fetch('/api/user/status');
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to fetch subscription status');
+      }
+      
+      const status = await response.json();
+      dispatch({ type: ActionTypes.SET_SUBSCRIPTION_STATUS, payload: status });
+      
+      return status;
+    } catch (error) {
+      console.error('Subscription status error:', error);
+      dispatch({ type: ActionTypes.SET_SUBSCRIPTION_ERROR, payload: error.message });
+      return null;
+    }
+  };
+  
   // API functions
   
   // Generate schema from natural language prompt
@@ -174,6 +217,36 @@ export const SchemaProvider = ({ children }) => {
     dispatch({ type: ActionTypes.SET_LOADING, payload: true });
     
     try {
+      // Check subscription status first
+      const subscriptionStatus = await fetchSubscriptionStatus();
+      
+      if (!subscriptionStatus) {
+        throw new Error('Could not verify subscription status');
+      }
+      
+      // Provide free access for existing users without proper metadata
+      // If the subscriptionStatus lacks key properties, consider it a legacy user
+      const isLegacyUser = !('freeTrialCount' in subscriptionStatus) || 
+                           !('isPro' in subscriptionStatus) ||
+                           !('paidSchemaCredits' in subscriptionStatus);
+                           
+      if (isLegacyUser) {
+        console.log('Legacy user detected, providing free access');
+        // Continue without checking limits for legacy users
+      }
+      // Only check limits if not a legacy user
+      else {
+        // If user has no free trials left and is not a pro user, redirect to subscribe page
+        if (subscriptionStatus.freeTrialCount >= subscriptionStatus.freeTrialLimit && !subscriptionStatus.isPro) {
+          throw new Error('You have used all your free trials. Please upgrade to continue.');
+        }
+        
+        // If user is a pro user but has no credits left, redirect to subscribe page
+        if (subscriptionStatus.isPro && subscriptionStatus.paidSchemaCredits <= 0) {
+          throw new Error('You have used all your credits. Please purchase more to continue.');
+        }
+      }
+      
       // Set a timeout for the fetch operation
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 90000); // 90 second timeout
@@ -542,6 +615,7 @@ export const SchemaProvider = ({ children }) => {
     generateDocumentation,
     generateMermaidERD,
     clearExportData,
+    fetchSubscriptionStatus,
   };
   
   return (

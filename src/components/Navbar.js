@@ -70,6 +70,13 @@ export function NavbarComponent() {
           </SignedOut>
           <SignedIn>
             <div className="flex items-center gap-4 relative z-10">
+              {/* Subscription Button */}
+              <Link 
+                href="/subscribe"
+                className="relative z-20 inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 transition-colors duration-200 cursor-pointer"
+              >
+                Subscription
+              </Link>
               {/* Professional Workspace Button */}
               <Link 
                 href="/generate"
@@ -131,9 +138,16 @@ export function NavbarComponent() {
             <SignedIn>
               {/* Professional Mobile Workspace Button */}
               <Link
+                href="/subscribe"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="relative z-20 inline-flex items-center justify-center w-full px-4 py-2.5 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 transition-colors duration-200 cursor-pointer"
+              >
+                Subscription
+              </Link>
+              <Link
                 href="/generate"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="relative z-20 inline-flex items-center justify-center w-full px-4 py-2.5 text-sm font-medium text-neutral-900 dark:text-neutral-100 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-md shadow-sm hover:bg-neutral-50 dark:hover:bg-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600 transition-colors duration-200 cursor-pointer"
+                className="relative z-20 inline-flex items-center justify-center w-full px-4 py-2.5 text-sm font-medium text-neutral-900 dark:text-neutral-100 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-md shadow-sm hover:bg-neutral-50 dark:hover:bg-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600 transition-colors duration-200 cursor-pointer mt-2"
               >
                 Go to Workspace
               </Link>

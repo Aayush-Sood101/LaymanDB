@@ -45,10 +45,11 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}>
       <html lang="en" suppressHydrationWarning>
         <head>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
         </head>
         <body
           className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-background text-foreground`}
