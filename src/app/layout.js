@@ -6,7 +6,7 @@ import '@/lib/reactFlowMonkeyPatch';
 import { NavbarComponent } from "@/components/Navbar"; // Import your Navbar
 import { StackedCircularFooter } from "@/components/StackedCircularFooter"; // Import Footer
 import { ClerkProvider } from "@clerk/nextjs";
-
+import { Analytics } from "@vercel/analytics/next"
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
