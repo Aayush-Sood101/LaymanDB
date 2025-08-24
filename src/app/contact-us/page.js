@@ -61,7 +61,7 @@ export default function ContactPage() {
               >
                 {/* ✨ CHANGED: Added hover effects to contact info */}
                 <a
-                  href="mailto:laymandb@gmail.com"
+                  href="mailto:aayushsoodhp@gmail.com"
                   className="flex items-center space-x-4 group"
                 >
                   <div className="bg-white/10 p-3 rounded-full backdrop-blur-sm transition-transform duration-300 group-hover:scale-110 group-hover:bg-white/20">
@@ -80,7 +80,7 @@ export default function ContactPage() {
                     </svg>
                   </div>
                   <span className="text-lg font-medium transition-colors duration-300 group-hover:text-white">
-                    laymandb@gmail.com
+                    aayushsoodhp@gmail.com
                   </span>
                 </a>
                 <a href="tel:+919882715895" className="flex items-center space-x-4 group">
