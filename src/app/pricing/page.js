@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Check, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import PageTemplate from "../../components/PageTemplate";
+import { PaymentDependentPage } from "../../lib/paymentUtils";
 
 // Function to dynamically load Razorpay script
 const loadRazorpay = () => {
@@ -268,10 +269,11 @@ export default function PricingPage() {
 
   return (
     <PageTemplate>
-      <section className="bg-black text-white py-20 sm:py-28 px-4">
-        <div 
-          className="absolute inset-0 h-full w-full bg-neutral-950 bg-[radial-gradient(#1f1f1f_1px,transparent_1px)] [background-size:32px_32px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)] -z-10">
-        </div>
+      <PaymentDependentPage>
+        <section className="bg-black text-white py-20 sm:py-28 px-4">
+          <div 
+            className="absolute inset-0 h-full w-full bg-neutral-950 bg-[radial-gradient(#1f1f1f_1px,transparent_1px)] [background-size:32px_32px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)] -z-10">
+          </div>
         <div className="max-w-6xl mx-auto">
           {/* --- HEADER --- */}
           <div className="text-center mb-16">
@@ -345,6 +347,7 @@ export default function PricingPage() {
           </div>
         </div>
       </section>
+      </PaymentDependentPage>
     </PageTemplate>
   );
 }

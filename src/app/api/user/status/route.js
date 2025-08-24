@@ -38,7 +38,8 @@ export async function GET(req) {
       isPro: privateMetadata.isPro || false,
       paidSchemaCredits: privateMetadata.paidSchemaCredits || 0,
       subscriptionPlan: privateMetadata.subscriptionPlan || "Free",
-      hasFreeTrialsLeft: (privateMetadata.freeTrialCount || 0) < 10
+      hasFreeTrialsLeft: (privateMetadata.freeTrialCount || 0) < 10,
+      lastUpdated: new Date().toISOString() // Add timestamp to help with caching
     };
     
     return NextResponse.json(subscriptionStatus);

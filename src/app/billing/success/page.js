@@ -4,26 +4,116 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import PageTemplate from "../../../components/PageTemplate";
-import { CheckCircle2 } from "lucide-react"; // Using a consistent icon from lucide-react
+import { CheckCircle2, XCircle } from "lucide-react"; // Using a consistent icon from lucide-react
+import { useSchemaContext } from "@/contexts/SchemaContext";
 
 export default function PaymentSuccessPage() {
   const router = useRouter();
   const [countdown, setCountdown] = useState(5);
+  const [verifyingPayment, setVerifyingPayment] = useState(true);
+  const [verificationSuccess, setVerificationSuccess] = useState(null);
+  const { fetchSubscriptionStatus } = useSchemaContext();
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          router.push("/generate"); // Redirect to schema generation page
-          return 0;
+    // Verify that the payment was actually successful by checking user status
+    async function verifyPaymentSuccess() {
+      try {
+        setVerifyingPayment(true);
+        
+        // Fetch the latest subscription status to confirm it was updated
+        const status = await fetchSubscriptionStatus();
+        
+        // If we got a status back and it shows the user has credits, consider it successful
+        if (status && (status.isPro || status.paidSchemaCredits > 0)) {
+          setVerificationSuccess(true);
+        } else {
+          // If the status doesn't show credits, the payment might not have been properly applied
+          setVerificationSuccess(false);
+          console.error("Payment verification failed: Subscription status doesn't show credits");
         }
-        return prev - 1;
-      });
-    }, 1000);
+      } catch (error) {
+        console.error("Error verifying payment success:", error);
+        setVerificationSuccess(false);
+      } finally {
+        setVerifyingPayment(false);
+      }
+    }
+    
+    verifyPaymentSuccess();
+  }, [fetchSubscriptionStatus]);
 
-    return () => clearInterval(timer);
-  }, [router]);
+  useEffect(() => {
+    // Only start countdown if verification was successful
+    if (verificationSuccess === true) {
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            router.push("/generate"); // Redirect to schema generation page
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [router, verificationSuccess]);
+
+  if (verifyingPayment) {
+    return (
+      <PageTemplate>
+        <div className="bg-black text-white min-h-[80vh] flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-md w-full space-y-8 text-center">
+            <div className="flex flex-col items-center gap-6">
+              <div className="w-16 h-16 rounded-full border-4 border-neutral-800 border-t-blue-500 animate-spin"></div>
+              <h1 className="text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-neutral-400 pb-2">
+                Verifying Payment
+              </h1>
+              <p className="max-w-sm text-base text-neutral-400">
+                Please wait while we confirm your payment and update your account...
+              </p>
+            </div>
+          </div>
+        </div>
+      </PageTemplate>
+    );
+  }
+
+  if (verificationSuccess === false) {
+    return (
+      <PageTemplate>
+        <div className="bg-black text-white min-h-[80vh] flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-md w-full space-y-8 text-center">
+            <div className="flex flex-col items-center gap-6">
+              <XCircle className="h-16 w-16 text-red-500" />
+              <h1 className="text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-neutral-400 pb-2">
+                Payment Issue
+              </h1>
+              <p className="max-w-sm text-base text-neutral-400">
+                We received your payment, but there was an issue updating your account. Please contact support if your credits don't appear soon.
+              </p>
+            </div>
+
+            <div className="pt-6 flex justify-center items-center gap-4">
+              <Link
+                href="/generate"
+                className="inline-flex items-center justify-center px-6 py-3 text-sm font-semibold text-white bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-md hover:opacity-90 transition-opacity duration-200"
+              >
+                Go to Workspace
+              </Link>
+              <button
+                onClick={() => window.location.reload()}
+                className="inline-flex items-center justify-center px-6 py-3 text-sm font-semibold text-neutral-200 bg-neutral-800/50 border border-neutral-700 rounded-lg hover:bg-neutral-800 transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        </div>
+      </PageTemplate>
+    );
+  }
 
   return (
     <PageTemplate>
