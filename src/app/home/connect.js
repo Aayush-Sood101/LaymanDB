@@ -79,13 +79,13 @@ export const Connect = () => {
                     id="next-js"
                     className="absolute bottom-12 left-14 rounded-full border border-slate-700 bg-slate-900/50 px-3 py-2 text-sm text-white opacity-40 backdrop-blur-sm transition-opacity duration-300 hover:opacity-100"
                   >
-                    Database Design
+                    Documentation
                   </div>
                   <div
                     id="react-js"
                     className="absolute left-2 top-20 rounded-full border border-slate-700 bg-slate-900/50 px-3 py-2 text-sm text-white opacity-40 backdrop-blur-sm transition-opacity duration-300 hover:opacity-100"
                   >
-                    Schema Generation
+                    Mermaid Diagrams
                   </div>
                   <div
                     id="typescript"
@@ -97,7 +97,7 @@ export const Connect = () => {
                     id="javascript"
                     className="absolute right-12 top-10 rounded-full border border-slate-700 bg-slate-900/50 px-3 py-2 text-sm text-white opacity-40 backdrop-blur-sm transition-opacity duration-300 hover:opacity-100"
                   >
-                    Documentation
+                    ER Diagrams
                   </div>
                   <div id="pointer" className="absolute" style={{ left: 200, top: 60 }}>
                     <svg

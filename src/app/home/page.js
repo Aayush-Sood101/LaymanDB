@@ -10,7 +10,7 @@ export default function HomePage() {
     // Set the black background on the main container
     <main className="min-h-screen bg-black text-white">
       <Hero />
-      <TextRevealSection text="LaymanDB will change the way you design and build. " />
+      <TextRevealSection text="LaymanDB changes the way you design and build. " />
       <section id="features" className="py-12">
         <FeatureCard />
       </section>

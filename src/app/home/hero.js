@@ -31,11 +31,10 @@ export function Hero() {
         {/* Left Content */}
         <div className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left">
           <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold leading-tight bg-clip-text text-transparent bg-gradient-to-b from-white to-neutral-400">
-            Interactive 3D Experiences
+            Articulate Your Architecture
           </h1>
           <p className="mt-6 text-base sm:text-lg md:text-xl text-neutral-300 max-w-xl">
-            Bring your UI to life with immersive 3D scenes that capture attention,
-            enhance engagement, and elevate your design beyond the ordinary.
+            Describe your requirements in plain English. LaymanDB generates professional schemas, interactive diagrams, and implementation-ready SQL for your next project.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
             <button 
