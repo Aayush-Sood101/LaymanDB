@@ -1,7 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
 import emailjs from "@emailjs/browser";
-// ✨ CHANGED: Added framer-motion for animated status messages
 import { AnimatePresence, motion } from "framer-motion";
 
 export default function ContactForm() {
@@ -20,6 +19,15 @@ export default function ContactForm() {
 
     setStatus({ loading: true, ok: null, msg: "" });
 
+    // ✨ REWORKED: Create a params object to include the submission date and time.
+    const templateParams = {
+      user_name: formData.get("user_name"),
+      user_email: formData.get("user_email"),
+      subject: formData.get("subject"),
+      message: formData.get("message"),
+      time: new Date().toLocaleString(), // Captures the user's local date and time
+    };
+
     try {
       const serviceId =
         import.meta?.env?.VITE_EMAILJS_SERVICE_ID ||
@@ -31,14 +39,16 @@ export default function ContactForm() {
         import.meta?.env?.VITE_EMAILJS_PUBLIC_KEY ||
         process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
 
-      await emailjs.sendForm(serviceId, templateId, formRef.current, {
+      // ✨ REWORKED: Using emailjs.send to pass our custom templateParams object.
+      await emailjs.send(serviceId, templateId, templateParams, {
         publicKey,
       });
 
       setStatus({
         loading: false,
         ok: true,
-        msg: "We will get back to you within 24 hours.",
+        // ✨ REWORKED: Updated success message.
+        msg: "Thanks for your message! We will get back to you within 24-48 hours.",
       });
       formRef.current.reset();
     } catch (err) {
@@ -52,14 +62,14 @@ export default function ContactForm() {
   };
 
   return (
-    // ✨ CHANGED: Enhanced the glassmorphism effect
     <div className="shadow-2xl border border-white/10 bg-black/20 backdrop-blur-lg rounded-2xl overflow-hidden">
       <div className="space-y-2 text-center pb-8 pt-8 px-6 md:px-8">
+        {/* ✨ REWORKED: Updated text for branding */}
         <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
-          Get in Touch
+          Get In Touch
         </h2>
         <p className="text-base md:text-lg text-gray-300 font-medium">
-          Fill out the form below and we'll get back to you as soon as possible.
+          Have a question or feedback? We'd love to hear from you.
         </p>
       </div>
 
@@ -101,7 +111,6 @@ export default function ContactForm() {
                   name="user_name"
                   type="text"
                   required
-                  // ✨ CHANGED: Added smoother transitions and improved focus styles
                   className="w-full pl-11 py-3 bg-white/5 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
                   placeholder="Your name"
                 />
@@ -154,7 +163,8 @@ export default function ContactForm() {
               type="text"
               required
               className="w-full py-3 px-4 bg-white/5 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
-              placeholder="What's this about?"
+              // ✨ REWORKED: Updated placeholder text for better context.
+              placeholder="e.g., Feature Request, Question"
             />
           </div>
 
@@ -179,7 +189,6 @@ export default function ContactForm() {
             <button
               type="submit"
               disabled={status.loading}
-              // ✨ CHANGED: Added interactive scaling effect on hover/press
               className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-100 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
             >
               {status.loading ? (
@@ -209,7 +218,6 @@ export default function ContactForm() {
             </button>
           </div>
 
-          {/* ✨ CHANGED: Wrapped status message in AnimatePresence for smooth transitions */}
           <AnimatePresence>
             {status.msg && (
               <motion.div
@@ -222,7 +230,6 @@ export default function ContactForm() {
                     : "bg-red-500/10 border-red-500/30 text-red-400"
                 }`}
               >
-                {/* ✨ CHANGED: Added success/error icons */}
                 {status.ok ? (
                   <svg
                     className="h-6 w-6 flex-shrink-0"
@@ -265,8 +272,9 @@ export default function ContactForm() {
       </div>
 
       <div className="flex flex-col space-y-2 text-center text-sm text-gray-400 border-t border-white/10 pt-6 pb-8 px-8 mt-8">
+        {/* ✨ REWORKED: Updated privacy text */}
         <p className="text-base font-medium">
-          We respect your privacy and will never share your information.
+          Your privacy is important to us. We will never share your information.
         </p>
       </div>
     </div>
