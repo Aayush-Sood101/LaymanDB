@@ -11,20 +11,20 @@ export default function PaymentCancelPage() {
   const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
-    const timer = setInterval(() => {
+    const timer = setTimeout(() => {
       setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
+        const newCount = prev - 1;
+        if (newCount <= 0) {
           // Redirecting to the updated pricing page path
           router.push("/pricing"); 
           return 0;
         }
-        return prev - 1;
+        return newCount;
       });
     }, 1000);
 
-    return () => clearInterval(timer);
-  }, [router]);
+    return () => clearTimeout(timer);
+  }, [countdown, router]);
 
   return (
     <PageTemplate>
