@@ -244,12 +244,12 @@ const PricingWithSubscription = () => {
 
       const rzp = new window.Razorpay(options);
       rzp.on("payment.failed", function (response) {
-        console.error("Payment failed:", response.error);
-        setError(
-          `Payment failed: ${
-            response.error.description || response.error.reason || "Unknown error"
-          }`
-        );
+        console.error("Payment failed:", response);
+        // Safely access error properties with fallbacks
+        const errorObj = response && response.error ? response.error : {};
+        const errorMessage = errorObj.description || errorObj.reason || "Transaction failed. Please try again or contact support.";
+        
+        setError(`Payment failed: ${errorMessage}`);
         setLoadingPlan(null);
       });
       rzp.open();

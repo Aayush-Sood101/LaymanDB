@@ -2,34 +2,86 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import PageTemplate from "../../../components/PageTemplate";
-import { CheckCircle2, XCircle } from "lucide-react"; // Using a consistent icon from lucide-react
-import { SchemaProvider, useSchemaContext } from "@/contexts/SchemaContext";
-import { SubscriptionLoaderProvider } from "@/contexts/SubscriptionLoaderContext";
+import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 
-// Create a component that uses the context
-function PaymentSuccessContent() {
+// Self-contained component with no context dependencies
+export default function PaymentSuccessPage() {
   const router = useRouter();
+  const { isSignedIn, isLoaded: isUserLoaded } = useUser();
   const [countdown, setCountdown] = useState(5);
   const [verifyingPayment, setVerifyingPayment] = useState(true);
   const [verificationSuccess, setVerificationSuccess] = useState(null);
-  const { fetchSubscriptionStatus } = useSchemaContext();
-
+  const [verificationAttempted, setVerificationAttempted] = useState(false);
+  
+  // Local state for subscription data
+  const [subscriptionData, setSubscriptionData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  // Fetch subscription data directly
+  const fetchSubscriptionData = async () => {
+    if (!isSignedIn) {
+      setIsLoading(false);
+      return null;
+    }
+    
+    setIsLoading(true);
+    try {
+      // Use cache-busting to ensure we get fresh data
+      const cacheBuster = new Date().getTime();
+      const response = await fetch(`/api/user/status?t=${cacheBuster}`, {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to load subscription data');
+      }
+      
+      const data = await response.json();
+      setSubscriptionData(data);
+      return data;
+    } catch (err) {
+      console.error('Error loading subscription data:', err);
+      setError(err.message);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Initial data fetch
   useEffect(() => {
-    // Verify that the payment was actually successful by checking user status
+    if (isUserLoaded && isSignedIn) {
+      fetchSubscriptionData();
+    }
+  }, [isUserLoaded, isSignedIn]);
+  
+  // Verify payment success once we have subscription data
+  useEffect(() => {
+    if (!subscriptionData || verificationAttempted || isLoading) {
+      return;
+    }
+    
     async function verifyPaymentSuccess() {
       try {
         setVerifyingPayment(true);
+        setVerificationAttempted(true);
         
-        // Fetch the latest subscription status to confirm it was updated
-        const status = await fetchSubscriptionStatus();
+        // Refresh data once more to be sure
+        const freshData = await fetchSubscriptionData();
+        const dataToCheck = freshData || subscriptionData;
         
-        // If we got a status back and it shows the user has credits, consider it successful
-        if (status && (status.isPro || status.paidSchemaCredits > 0)) {
+        // Check if the user has credits
+        if (dataToCheck && (dataToCheck.isPro || dataToCheck.paidSchemaCredits > 0)) {
           setVerificationSuccess(true);
         } else {
-          // If the status doesn't show credits, the payment might not have been properly applied
           setVerificationSuccess(false);
           console.error("Payment verification failed: Subscription status doesn't show credits");
         }
@@ -42,26 +94,47 @@ function PaymentSuccessContent() {
     }
     
     verifyPaymentSuccess();
-  }, [fetchSubscriptionStatus]);
-
+  }, [subscriptionData, verificationAttempted, isLoading]);
+  
+  // Countdown timer
   useEffect(() => {
-    // Only start countdown if verification was successful
     if (verificationSuccess === true) {
-      const timer = setInterval(() => {
-        setCountdown((prev) => {
+      const timer = setTimeout(() => {
+        setCountdown(prev => {
           if (prev <= 1) {
-            clearInterval(timer);
-            router.push("/generate"); // Redirect to schema generation page
+            router.push("/generate");
             return 0;
           }
           return prev - 1;
         });
       }, 1000);
-
-      return () => clearInterval(timer);
+      
+      return () => clearTimeout(timer);
     }
-  }, [router, verificationSuccess]);
-
+  }, [verificationSuccess, router, countdown]);
+  
+  // Loading state
+  if (!isUserLoaded || isLoading) {
+    return (
+      <PageTemplate>
+        <div className="bg-black text-white min-h-[80vh] flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-md w-full space-y-8 text-center">
+            <div className="flex flex-col items-center gap-6">
+              <Loader2 className="w-16 h-16 text-blue-500 animate-spin" />
+              <h1 className="text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-neutral-400 pb-2">
+                Loading Your Data
+              </h1>
+              <p className="max-w-sm text-base text-neutral-400">
+                Please wait while we load your account information...
+              </p>
+            </div>
+          </div>
+        </div>
+      </PageTemplate>
+    );
+  }
+  
+  // Verifying payment
   if (verifyingPayment) {
     return (
       <PageTemplate>
@@ -81,7 +154,8 @@ function PaymentSuccessContent() {
       </PageTemplate>
     );
   }
-
+  
+  // Verification failed
   if (verificationSuccess === false) {
     return (
       <PageTemplate>
@@ -105,7 +179,10 @@ function PaymentSuccessContent() {
                 Go to Workspace
               </Link>
               <button
-                onClick={() => window.location.reload()}
+                onClick={() => {
+                  setVerificationAttempted(false);
+                  fetchSubscriptionData();
+                }}
                 className="inline-flex items-center justify-center px-6 py-3 text-sm font-semibold text-neutral-200 bg-neutral-800/50 border border-neutral-700 rounded-lg hover:bg-neutral-800 transition-colors"
               >
                 Try Again
@@ -116,12 +193,12 @@ function PaymentSuccessContent() {
       </PageTemplate>
     );
   }
-
+  
+  // Success
   return (
     <PageTemplate>
       <div className="bg-black text-white min-h-[80vh] flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8 text-center">
-
           <div className="flex flex-col items-center gap-6">
             <CheckCircle2 className="h-16 w-16 text-green-400" />
             <h1 className="text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-neutral-400 pb-2">
@@ -152,20 +229,8 @@ function PaymentSuccessContent() {
               Go to Home
             </Link>
           </div>
-
         </div>
       </div>
     </PageTemplate>
-  );
-}
-
-// Wrapper component that provides the context
-export default function PaymentSuccessPage() {
-  return (
-    <SubscriptionLoaderProvider>
-      <SchemaProvider>
-        <PaymentSuccessContent />
-      </SchemaProvider>
-    </SubscriptionLoaderProvider>
   );
 }

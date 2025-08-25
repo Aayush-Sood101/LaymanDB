@@ -197,11 +197,11 @@ export default function PricingPage() {
 
       const rzp = new window.Razorpay(options);
       rzp.on("payment.failed", function (response) {
-        setError(
-          `Payment failed: ${
-            response.error.description || response.error.reason || "Unknown error"
-          }`
-        );
+        // Safely access error properties with fallbacks
+        const errorObj = response && response.error ? response.error : {};
+        const errorMessage = errorObj.description || errorObj.reason || "Transaction failed. Please try again or contact support.";
+        
+        setError(`Payment failed: ${errorMessage}`);
         setLoading(false);
       });
       rzp.open();
