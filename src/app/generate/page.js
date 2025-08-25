@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useUser } from "@clerk/nextjs";
 import { SchemaProvider } from '@/contexts/SchemaContext';
 import PromptInputPanel from '@/components/PromptInputPanel';
 import SchemaVisualization from '@/components/SchemaVisualization';
@@ -10,22 +11,90 @@ import PageTemplate from '@/components/PageTemplate';
 import WorkspaceLayout from '@/components/WorkspaceLayout';
 import RouteProtection from '@/components/RouteProtection';
 import { PaymentDependentPage } from '@/lib/paymentUtils';
-import { SubscriptionLoaderProvider } from '@/contexts/SubscriptionLoaderContext';
 import { Loader2 } from 'lucide-react';
 
+/**
+ * This new component fetches and manages its own subscription data,
+ * eliminating the need for SubscriptionLoaderContext. It then passes
+ * the data down to its children as props.
+ */
+const SubscriptionAwareWorkspace = () => {
+  const { isSignedIn, isLoaded: isUserLoaded } = useUser();
+  const [subscriptionData, setSubscriptionData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  // Data fetching logic
+  useEffect(() => {
+    async function fetchSubscriptionData() {
+      if (!isUserLoaded) return;
+      if (!isSignedIn) {
+        setIsLoading(false);
+        return;
+      }
+      
+      setIsLoading(true);
+      try {
+        const cacheBuster = new Date().getTime();
+        const response = await fetch(`/api/user/status?t=${cacheBuster}`);
+        if (!response.ok) {
+          throw new Error('Failed to load subscription data for workspace');
+        }
+        const data = await response.json();
+        setSubscriptionData(data);
+      } catch (err) {
+        console.error('Error loading subscription data:', err);
+        setError(err.message);
+      } finally {
+        setTimeout(() => setIsLoading(false), 300);
+      }
+    }
+    fetchSubscriptionData();
+  }, [isSignedIn, isUserLoaded]);
+
+  // Render a loading state while fetching subscription info.
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh]">
+          <Loader2 className="h-10 w-10 text-blue-500 animate-spin mb-4" />
+          <p className="text-white text-lg">Loading user credits...</p>
+      </div>
+    );
+  }
+  
+  // Render an error state if fetching fails.
+  if (error) {
+     return (
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center text-white px-4">
+            <h3 className="text-xl font-semibold">Failed to Load Workspace</h3>
+            <p className="text-neutral-400 mt-2">Could not retrieve your subscription data. Please try refreshing the page.</p>
+            <p className="text-xs text-neutral-500 mt-4">Error: {error}</p>
+        </div>
+     );
+  }
+
+  // Once data is loaded, render the workspace.
+  return (
+    <SchemaProvider subscriptionData={subscriptionData}>
+      <WorkspaceLayout
+        subscriptionData={subscriptionData}
+        tools={<PromptInputPanel />}
+        visualization={<SchemaVisualization />}
+      />
+      <ExportDialog />
+    </SchemaProvider>
+  );
+};
+
+// The main page component is now much simpler.
 export default function GeneratePage() {
   const [isPageLoaded, setIsPageLoaded] = useState(false);
-  
-  // Add a slight delay to ensure smooth page transitions
+
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsPageLoaded(true);
-    }, 300);
-    
+    const timer = setTimeout(() => setIsPageLoaded(true), 300);
     return () => clearTimeout(timer);
   }, []);
   
-  // Show a loading state while the page is initializing
   if (!isPageLoaded) {
     return (
       <main className="bg-black min-h-screen flex items-center justify-center">
@@ -36,11 +105,9 @@ export default function GeneratePage() {
       </main>
     );
   }
-
+  
   return (
     <RouteProtection>
-      {/* This <main> tag acts as the new root for the page, setting a */}
-      {/* black background that covers the entire screen height with proper footer spacing */}
       <main className="bg-[#000000] min-h-screen pb-12 sm:pb-16" style={{ "--header-height": "6rem" }}>
         <PageTemplate>
           <PaymentDependentPage fallback={
@@ -48,8 +115,8 @@ export default function GeneratePage() {
               <div className="flex flex-col items-center justify-center bg-neutral-900/50 border border-neutral-800 rounded-xl p-8 mt-6 text-center">
                 <h2 className="text-2xl font-bold text-white mb-4">Schema Generation Unavailable</h2>
                 <p className="text-neutral-400 max-w-lg mb-6">
-                  The schema generation system is currently unavailable because the payment system could not be initialized.
-                  This is required to properly track your usage and credits.
+                  The schema generation system is unavailable because the payment system could not be initialized. 
+                  This is required to track your usage and credits.
                 </p>
                 <button 
                   onClick={() => window.location.reload()} 
@@ -60,15 +127,8 @@ export default function GeneratePage() {
               </div>
             </div>
           }>
-            <SubscriptionLoaderProvider>
-              <SchemaProvider>
-                <WorkspaceLayout
-                  tools={<PromptInputPanel />}
-                  visualization={<SchemaVisualization />}
-                />
-                <ExportDialog />
-              </SchemaProvider>
-            </SubscriptionLoaderProvider>
+            {/* The new self-contained component is used here */}
+            <SubscriptionAwareWorkspace />
           </PaymentDependentPage>
         </PageTemplate>
       </main>

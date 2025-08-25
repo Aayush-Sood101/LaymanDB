@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import PageTemplate from "../../../components/PageTemplate";
 import { CheckCircle2, XCircle } from "lucide-react"; // Using a consistent icon from lucide-react
-import { useSchemaContext } from "@/contexts/SchemaContext";
+import { SchemaProvider, useSchemaContext } from "@/contexts/SchemaContext";
+import { SubscriptionLoaderProvider } from "@/contexts/SubscriptionLoaderContext";
 
-export default function PaymentSuccessPage() {
+// Create a component that uses the context
+function PaymentSuccessContent() {
   const router = useRouter();
   const [countdown, setCountdown] = useState(5);
   const [verifyingPayment, setVerifyingPayment] = useState(true);
@@ -154,5 +156,16 @@ export default function PaymentSuccessPage() {
         </div>
       </div>
     </PageTemplate>
+  );
+}
+
+// Wrapper component that provides the context
+export default function PaymentSuccessPage() {
+  return (
+    <SubscriptionLoaderProvider>
+      <SchemaProvider>
+        <PaymentSuccessContent />
+      </SchemaProvider>
+    </SubscriptionLoaderProvider>
   );
 }

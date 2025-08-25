@@ -90,9 +90,11 @@ export function PaymentDependentPage({ children, fallback }) {
   if (isLoading) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center bg-black text-white">
-        <div className="w-12 h-12 rounded-full border-4 border-neutral-800 border-t-blue-500 animate-spin mb-4"></div>
-        <p className="text-lg font-medium text-neutral-300">Loading payment system...</p>
-        <p className="text-sm text-neutral-500 mt-2">This may take a moment</p>
+        <div className="p-8 bg-neutral-900 rounded-xl border border-neutral-800 shadow-2xl">
+          <div className="w-12 h-12 rounded-full border-4 border-neutral-800 border-t-blue-500 animate-spin mb-4 mx-auto"></div>
+          <p className="text-lg font-medium text-white">Loading payment system...</p>
+          <p className="text-sm text-neutral-500 mt-2">This may take a moment</p>
+        </div>
       </div>
     );
   }
@@ -129,8 +131,11 @@ export function PaymentDependentPage({ children, fallback }) {
   // Only render children when showContent is true
   return showContent ? children : (
     <div className="min-h-[60vh] flex flex-col items-center justify-center bg-black text-white">
-      <div className="w-12 h-12 rounded-full border-4 border-neutral-800 border-t-blue-500 animate-spin mb-4"></div>
-      <p className="text-lg font-medium text-neutral-300">Preparing workspace...</p>
+      <div className="p-8 bg-neutral-900 rounded-xl border border-neutral-800 shadow-2xl">
+        <div className="w-12 h-12 rounded-full border-4 border-neutral-800 border-t-blue-500 animate-spin mb-4 mx-auto"></div>
+        <p className="text-lg font-medium text-white">Preparing workspace...</p>
+        <p className="text-sm text-neutral-500 mt-2">Almost ready</p>
+      </div>
     </div>
   );
 }

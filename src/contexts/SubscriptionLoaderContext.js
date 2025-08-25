@@ -56,27 +56,35 @@ export function SubscriptionLoaderProvider({ children }) {
     fetchData();
   }, [isSignedIn, isUserLoaded]);
   
-  // If user data is not yet loaded, show a loading state
+  // If user data is not yet loaded, show the children with an overlay
   if (!isUserLoaded) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-black z-50">
-        <div className="flex flex-col items-center">
-          <Loader2 className="h-12 w-12 text-white/30 animate-spin mb-4" />
-          <p className="text-white/70 text-lg">Loading user data...</p>
+      <>
+        {children}
+        <div className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm z-50">
+          <div className="flex flex-col items-center p-8 bg-neutral-900 rounded-xl border border-neutral-800 shadow-2xl">
+            <Loader2 className="h-12 w-12 text-blue-500 animate-spin mb-4" />
+            <p className="text-white text-lg font-medium">Loading user data...</p>
+            <p className="text-neutral-400 text-sm mt-2">Please wait a moment</p>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
   
-  // If subscription data is loading, show a loading state
+  // If subscription data is loading, show the children with an overlay
   if (isLoading && isSignedIn) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-black z-50">
-        <div className="flex flex-col items-center">
-          <Loader2 className="h-12 w-12 text-white/30 animate-spin mb-4" />
-          <p className="text-white/70 text-lg">Loading subscription data...</p>
+      <>
+        {children}
+        <div className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm z-50">
+          <div className="flex flex-col items-center p-8 bg-neutral-900 rounded-xl border border-neutral-800 shadow-2xl">
+            <Loader2 className="h-12 w-12 text-blue-500 animate-spin mb-4" />
+            <p className="text-white text-lg font-medium">Loading subscription data...</p>
+            <p className="text-neutral-400 text-sm mt-2">Please wait a moment</p>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
   

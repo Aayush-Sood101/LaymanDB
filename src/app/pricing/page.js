@@ -7,7 +7,6 @@ import { Check, AlertCircle, Loader2 } from "lucide-react";
 import Link from "next/link";
 import PageTemplate from "../../components/PageTemplate";
 import { PaymentDependentPage } from "../../lib/paymentUtils";
-import { SubscriptionLoaderProvider, useSubscriptionLoader } from "../../contexts/SubscriptionLoaderContext";
 
 // Function to dynamically load Razorpay script
 const loadRazorpay = () => {
@@ -29,8 +28,9 @@ const loadRazorpay = () => {
 };
 
 // A reusable component for pricing cards with the new UI
-const PricingCard = ({ plan, loading, handlePayment }) => {
+const PricingCard = ({ plan, loadingPlan, handlePayment }) => {
   const { name, price, description, features, isPopular } = plan;
+  const isLoading = loadingPlan === plan.id;
 
   const cardBaseClasses = "relative flex flex-col h-full rounded-2xl overflow-hidden";
   const cardPopularWrapper = "p-[2px] bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500";
@@ -80,14 +80,23 @@ const PricingCard = ({ plan, loading, handlePayment }) => {
           <div className="mt-10">
             <button
               onClick={() => handlePayment(plan.id)}
-              disabled={loading}
+              disabled={isLoading || loadingPlan !== null}
               className={`w-full h-12 text-sm font-semibold rounded-lg transition-all duration-300 flex items-center justify-center relative overflow-hidden group ${
                 isPopular
                   ? "bg-gradient-to-br from-blue-500 to-purple-600 text-white hover:opacity-90"
                   : "bg-neutral-800 text-neutral-200 border border-neutral-700 hover:bg-neutral-700 hover:text-white"
-              } ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
+              } ${isLoading || loadingPlan !== null ? (isLoading ? "opacity-100" : "opacity-70 cursor-not-allowed") : ""}`}
             >
-              {loading ? "Processing..." : `Get ${name}`}
+              {isLoading ? (
+                <div className="flex items-center">
+                  <Loader2 className="animate-spin h-5 w-5 mr-2" />
+                  <span>Processing...</span>
+                </div>
+              ) : loadingPlan !== null ? (
+                "Please wait..."
+              ) : (
+                `Get ${name}`
+              )}
             </button>
           </div>
         </div>
@@ -96,19 +105,63 @@ const PricingCard = ({ plan, loading, handlePayment }) => {
   );
 };
 
-// This is the main content component that uses the subscription loader
-const PricingContent = () => {
-  const { user, isSignedIn } = useUser();
+// This component manages its own subscription data instead of using context
+const PricingWithSubscription = () => {
+  const { user, isSignedIn, isLoaded: isUserLoaded } = useUser();
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [loadingPlan, setLoadingPlan] = useState(null);
   const [error, setError] = useState(null);
   
-  // Get subscription data from the context
-  const { subscriptionData, isLoading } = useSubscriptionLoader();
+  // Local state for subscription data instead of context
+  const [subscriptionData, setSubscriptionData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Fetch subscription data directly in this component
+  useEffect(() => {
+    async function fetchSubscriptionData() {
+      if (!isUserLoaded) return;
+      
+      // If user is not signed in, we can skip loading subscription data
+      if (!isSignedIn) {
+        setIsLoading(false);
+        return;
+      }
+      
+      setIsLoading(true);
+      try {
+        // Use cache-busting to ensure we get fresh data
+        const cacheBuster = new Date().getTime();
+        const response = await fetch(`/api/user/status?t=${cacheBuster}`, {
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to load subscription data');
+        }
+        
+        const data = await response.json();
+        setSubscriptionData(data);
+      } catch (err) {
+        console.error('Error loading subscription data:', err);
+        setError(err.message);
+      } finally {
+        // Add a small delay to prevent flicker
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 300);
+      }
+    }
+    
+    fetchSubscriptionData();
+  }, [isSignedIn, isUserLoaded]);
 
   const handlePayment = async (plan) => {
     try {
-      setLoading(true);
+      setLoadingPlan(plan);
       setError(null);
 
       // 1. Create order from backend
@@ -171,7 +224,7 @@ const PricingContent = () => {
         },
         modal: {
           ondismiss: function () {
-            setLoading(false);
+            setLoadingPlan(null);
             router.push("/billing/cancel");
           },
         },
@@ -192,12 +245,12 @@ const PricingContent = () => {
             response.error.description || response.error.reason || "Unknown error"
           }`
         );
-        setLoading(false);
+        setLoadingPlan(null);
       });
       rzp.open();
     } catch (err) {
       setError(err.message);
-      setLoading(false);
+      setLoadingPlan(null);
     }
   };
 
@@ -233,8 +286,11 @@ const PricingContent = () => {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 bg-black text-white">
-        <Loader2 className="h-12 w-12 text-white/30 animate-spin mb-4" />
-        <p className="text-white/70 text-lg">Loading subscription data...</p>
+        <div className="p-8 bg-neutral-900 rounded-xl border border-neutral-800 shadow-2xl">
+          <Loader2 className="h-12 w-12 text-blue-500 animate-spin mb-4 mx-auto" />
+          <p className="text-white text-lg font-medium">Loading subscription data...</p>
+          <p className="text-neutral-400 text-sm mt-2">Please wait a moment</p>
+        </div>
       </div>
     );
   }
@@ -310,7 +366,7 @@ const PricingContent = () => {
             <PricingCard
               key={plan.id}
               plan={plan}
-              loading={loading}
+              loadingPlan={loadingPlan}
               handlePayment={handlePayment}
             />
           ))}
@@ -320,8 +376,8 @@ const PricingContent = () => {
   );
 };
 
-
-export default function PricingPage() {
+// Main page component - NO CONTEXT NEEDED NOW
+function PricingPage() {
   const { isSignedIn } = useUser();
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   
@@ -339,8 +395,11 @@ export default function PricingPage() {
     return (
       <PageTemplate>
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 bg-black text-white">
-          <Loader2 className="h-12 w-12 text-white/30 animate-spin mb-4" />
-          <p className="text-white/70 text-lg">Loading pricing data...</p>
+          <div className="p-8 bg-neutral-900 rounded-xl border border-neutral-800 shadow-2xl">
+            <Loader2 className="h-12 w-12 text-blue-500 animate-spin mb-4 mx-auto" />
+            <p className="text-white text-lg font-medium">Loading pricing data...</p>
+            <p className="text-neutral-400 text-sm mt-2">Please wait a moment</p>
+          </div>
         </div>
       </PageTemplate>
     );
@@ -368,6 +427,7 @@ export default function PricingPage() {
     );
   }
 
+  // NO MORE CONTEXT PROVIDER - COMPONENT MANAGES ITS OWN STATE
   return (
     <PageTemplate>
       <PaymentDependentPage fallback={
@@ -387,10 +447,11 @@ export default function PricingPage() {
           </div>
         </div>
       }>
-        <SubscriptionLoaderProvider>
-          <PricingContent />
-        </SubscriptionLoaderProvider>
+        <PricingWithSubscription />
       </PaymentDependentPage>
     </PageTemplate>
   );
 }
+
+// Export the page component
+export default PricingPage;

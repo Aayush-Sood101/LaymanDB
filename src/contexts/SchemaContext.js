@@ -1,9 +1,10 @@
 "use client";
 
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { useSubscriptionLoader } from './SubscriptionLoaderContext';
+// REMOVED: The import for useSubscriptionLoader is no longer needed.
+// import { useSubscriptionLoader } from './SubscriptionLoaderContext';
 
-// Initial state
+// Initial state (no changes needed here)
 const initialState = {
   currentSchema: null,
   currentSession: null,
@@ -16,7 +17,7 @@ const initialState = {
   subscriptionError: null,
 };
 
-// Action types
+// Action types (no changes needed here)
 const ActionTypes = {
   SET_LOADING: 'SET_LOADING',
   SET_ERROR: 'SET_ERROR',
@@ -31,7 +32,7 @@ const ActionTypes = {
   SET_SUBSCRIPTION_ERROR: 'SET_SUBSCRIPTION_ERROR',
 };
 
-// Reducer
+// Reducer (no changes needed here)
 const schemaReducer = (state, action) => {
   switch (action.type) {
     case ActionTypes.SET_LOADING:
@@ -176,28 +177,29 @@ const schemaReducer = (state, action) => {
   }
 };
 
+
 // Create context
 const SchemaContext = createContext();
 
 // Context provider
-export const SchemaProvider = ({ children }) => {
+// MODIFIED: Accepts `subscriptionData` as a prop instead of using a hook.
+export const SchemaProvider = ({ children, subscriptionData }) => {
   const [state, dispatch] = useReducer(schemaReducer, initialState);
-  const { subscriptionData, isLoading: isSubscriptionLoading } = useSubscriptionLoader();
   
-  // Use subscription data from the SubscriptionLoaderContext
+  // MODIFIED: This useEffect now syncs the subscription status from the prop.
   useEffect(() => {
-    if (subscriptionData && !isSubscriptionLoading) {
+    if (subscriptionData) {
       dispatch({ 
         type: ActionTypes.SET_SUBSCRIPTION_STATUS, 
         payload: subscriptionData 
       });
     }
-  }, [subscriptionData, isSubscriptionLoading]);
+  }, [subscriptionData]);
   
-  // Fetch user subscription status (this is now a fallback since we use the SubscriptionLoaderContext)
+  // This function now primarily uses the prop and has a direct fetch as a fallback.
   const fetchSubscriptionStatus = async () => {
-    // If we already have subscription data from the context, use that instead
-    if (subscriptionData && !isSubscriptionLoading) {
+    // MODIFIED: Check for the prop first.
+    if (subscriptionData) {
       dispatch({ 
         type: ActionTypes.SET_SUBSCRIPTION_STATUS, 
         payload: subscriptionData 
@@ -205,20 +207,16 @@ export const SchemaProvider = ({ children }) => {
       return subscriptionData;
     }
     
-    // Otherwise, fetch it directly (this is a fallback)
+    // Fallback direct fetch if the prop isn't available for some reason.
     dispatch({ type: ActionTypes.SET_SUBSCRIPTION_LOADING, payload: true });
-    
     try {
       const response = await fetch('/api/user/status');
-      
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message || 'Failed to fetch subscription status');
       }
-      
       const status = await response.json();
       dispatch({ type: ActionTypes.SET_SUBSCRIPTION_STATUS, payload: status });
-      
       return status;
     } catch (error) {
       console.error('Subscription status error:', error);
@@ -234,10 +232,10 @@ export const SchemaProvider = ({ children }) => {
     dispatch({ type: ActionTypes.SET_LOADING, payload: true });
     
     try {
-      // Use subscription data from the context if available
+      // MODIFIED: Use the subscriptionData from props as the primary source.
       let subscriptionStatus = subscriptionData;
       
-      // If not available, fetch it
+      // If not available via prop, fetch it.
       if (!subscriptionStatus) {
         subscriptionStatus = await fetchSubscriptionStatus();
       }
@@ -246,32 +244,24 @@ export const SchemaProvider = ({ children }) => {
         throw new Error('Could not verify subscription status');
       }
       
-      // Provide free access for existing users without proper metadata
-      // If the subscriptionStatus lacks key properties, consider it a legacy user
       const isLegacyUser = !('freeTrialCount' in subscriptionStatus) || 
-                           !('isPro' in subscriptionStatus) ||
-                           !('paidSchemaCredits' in subscriptionStatus);
-                           
+                            !('isPro' in subscriptionStatus) ||
+                            !('paidSchemaCredits' in subscriptionStatus);
+                            
       if (isLegacyUser) {
         console.log('Legacy user detected, providing free access');
-        // Continue without checking limits for legacy users
       }
-      // Only check limits if not a legacy user
       else {
-        // If user has no free trials left and is not a pro user, redirect to subscribe page
         if (subscriptionStatus.freeTrialCount >= subscriptionStatus.freeTrialLimit && !subscriptionStatus.isPro) {
           throw new Error('You have used all your free trials. Please upgrade to continue.');
         }
-        
-        // If user is a pro user but has no credits left, redirect to subscribe page
         if (subscriptionStatus.isPro && subscriptionStatus.paidSchemaCredits <= 0) {
           throw new Error('You have used all your credits. Please purchase more to continue.');
         }
       }
       
-      // Set a timeout for the fetch operation
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 90000); // 90 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 90000);
       
       const response = await fetch('/api/schema/generate', {
         method: 'POST',
@@ -282,7 +272,6 @@ export const SchemaProvider = ({ children }) => {
         signal: controller.signal
       });
       
-      // Clear the timeout
       clearTimeout(timeoutId);
       
       if (!response.ok) {
@@ -293,7 +282,6 @@ export const SchemaProvider = ({ children }) => {
       
       const { schema } = await response.json();
       
-      // Create a new session with this schema
       const sessionResponse = await fetch('/api/session/create', {
         method: 'POST',
         headers: {
@@ -314,11 +302,8 @@ export const SchemaProvider = ({ children }) => {
       
       const { session } = await sessionResponse.json();
       
-      // Set current schema and session
       dispatch({ type: ActionTypes.SET_SCHEMA, payload: schema });
       dispatch({ type: ActionTypes.SET_SESSION, payload: session });
-      
-      // Set history (empty array since we've removed history tracking from backend)
       dispatch({ 
         type: ActionTypes.SET_HISTORY, 
         payload: []
@@ -328,7 +313,6 @@ export const SchemaProvider = ({ children }) => {
     } catch (error) {
       console.error('Schema generation error:', error);
       
-      // Handle AbortError (timeout)
       if (error.name === 'AbortError') {
         dispatch({ type: ActionTypes.SET_ERROR, payload: 'Request timed out. The server is taking too long to respond.' });
         throw new Error('Request timed out. Please try again with a simpler prompt.');
@@ -345,9 +329,6 @@ export const SchemaProvider = ({ children }) => {
       type: ActionTypes.UPDATE_TABLE_POSITION, 
       payload: tableUpdate 
     });
-    
-    // In a real app, we'd persist this to the backend
-    // For now, we're just updating the local state
   };
   
   // Add relationship between tables
@@ -358,9 +339,6 @@ export const SchemaProvider = ({ children }) => {
       if (!state.currentSchema) {
         throw new Error('No active schema');
       }
-      
-      // In a real app, we'd call the backend API to update the relationship
-      // For now, let's just update the local state
       
       const updatedSchema = {
         ...state.currentSchema,
@@ -396,7 +374,6 @@ export const SchemaProvider = ({ children }) => {
       
       const { schema } = await response.json();
       
-      // Since we no longer have history tracking, just keep the current schema
       dispatch({ type: ActionTypes.SET_SCHEMA, payload: schema });
       
       return schema;
@@ -447,101 +424,61 @@ export const SchemaProvider = ({ children }) => {
     dispatch({ type: ActionTypes.SET_LOADING, payload: true });
     
     try {
-      // Check if the format is supported
       if (!['svg', 'png'].includes(format.toLowerCase())) {
         throw new Error(`Unsupported format: ${format}. Supported formats are 'svg' and 'png'.`);
       }
       
-      // Get the export functions from the window object
       if (!window.exportERDDiagram) {
         console.error('ERD diagram export functions not available');
-        
-        // Instead of throwing an error, let's provide a fallback
         const fallbackData = `data:image/${format};base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><text x="400" y="300" text-anchor="middle">Diagram not available</text></svg>')}`;
-        
         dispatch({ 
           type: ActionTypes.SET_EXPORT_DATA, 
-          payload: { 
-            type: 'erd', 
-            data: fallbackData,
-            format: format
-          } 
+          payload: { type: 'erd', data: fallbackData, format: format } 
         });
-        
         return fallbackData;
       }
       
-      // Get the diagram data based on the format with timeout
       let diagramData;
-      const exportTimeout = 5000; // 5 seconds timeout
+      const exportTimeout = 5000;
       
       try {
         const exportPromise = format.toLowerCase() === 'svg' 
           ? window.exportERDDiagram.exportAsSvg() 
           : window.exportERDDiagram.exportAsPng();
-          
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Export timed out')), exportTimeout)
-        );
-        
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Export timed out')), exportTimeout));
         diagramData = await Promise.race([exportPromise, timeoutPromise]);
       } catch (exportError) {
         console.error('Error during diagram export:', exportError);
-        
-        // Provide a fallback for failed exports
         const fallbackData = `data:image/${format};base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><text x="400" y="300" text-anchor="middle">Export failed</text></svg>')}`;
-        
         dispatch({ 
           type: ActionTypes.SET_EXPORT_DATA, 
-          payload: { 
-            type: 'erd', 
-            data: fallbackData,
-            format: format
-          } 
+          payload: { type: 'erd', data: fallbackData, format: format } 
         });
-        
         return fallbackData;
       }
       
       if (!diagramData) {
         console.error(`Failed to export diagram as ${format}, null data received`);
-        
-        // Provide a fallback for null data
         const fallbackData = `data:image/${format};base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><text x="400" y="300" text-anchor="middle">No diagram data</text></svg>')}`;
-        
         dispatch({ 
           type: ActionTypes.SET_EXPORT_DATA, 
-          payload: { 
-            type: 'erd', 
-            data: fallbackData,
-            format: format
-          } 
+          payload: { type: 'erd', data: fallbackData, format: format } 
         });
-        
         return fallbackData;
       }
       
-      // Skip sending to backend for now as it's causing issues
-      // Just use the data directly
       dispatch({ 
         type: ActionTypes.SET_EXPORT_DATA, 
-        payload: { 
-          type: 'erd', 
-          data: diagramData,
-          format: format
-        } 
+        payload: { type: 'erd', data: diagramData, format: format } 
       });
       
       return diagramData;
     } catch (error) {
       console.error('Error exporting ERD:', error);
       dispatch({ type: ActionTypes.SET_ERROR, payload: error.message });
-      
-      // Even on error, close the loading indicator
       dispatch({ type: ActionTypes.SET_LOADING, payload: false });
       throw error;
     } finally {
-      // Make sure loading state is always reset
       dispatch({ type: ActionTypes.SET_LOADING, payload: false });
     }
   };
@@ -553,9 +490,7 @@ export const SchemaProvider = ({ children }) => {
     try {
       const response = await fetch('/api/export/documentation', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ schemaId, format }),
       });
       
@@ -568,11 +503,7 @@ export const SchemaProvider = ({ children }) => {
       
       dispatch({ 
         type: ActionTypes.SET_EXPORT_DATA, 
-        payload: { 
-          type: 'documentation', 
-          data: documentation,
-          format: format
-        } 
+        payload: { type: 'documentation', data: documentation, format: format } 
       });
       
       return documentation;
@@ -589,9 +520,7 @@ export const SchemaProvider = ({ children }) => {
     try {
       const response = await fetch('/api/export/mermaid', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ schemaId }),
       });
       
@@ -604,11 +533,7 @@ export const SchemaProvider = ({ children }) => {
       
       dispatch({ 
         type: ActionTypes.SET_EXPORT_DATA, 
-        payload: { 
-          type: 'mermaid', 
-          data: mermaidSyntax,
-          format: 'mermaid'
-        } 
+        payload: { type: 'mermaid', data: mermaidSyntax, format: 'mermaid' } 
       });
       
       return mermaidSyntax;
