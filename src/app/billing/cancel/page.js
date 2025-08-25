@@ -9,22 +9,36 @@ import { AlertTriangle } from "lucide-react"; // Using a more consistent icon
 export default function PaymentCancelPage() {
   const router = useRouter();
   const [countdown, setCountdown] = useState(5);
-
+  const [shouldRedirect, setShouldRedirect] = useState(false);
+  
+  // Effect for countdown
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setCountdown((prev) => {
-        const newCount = prev - 1;
-        if (newCount <= 0) {
-          // Redirecting to the updated pricing page path
-          router.push("/pricing"); 
-          return 0;
-        }
-        return newCount;
-      });
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [countdown, router]);
+    let timer;
+    
+    if (countdown > 0) {
+      timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+    } else {
+      setShouldRedirect(true);
+    }
+    
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [countdown]);
+  
+  // Separate effect for redirection
+  useEffect(() => {
+    if (shouldRedirect) {
+      // Use setTimeout to ensure this happens after render is complete
+      const redirectTimer = setTimeout(() => {
+        router.push("/pricing");
+      }, 100);
+      
+      return () => clearTimeout(redirectTimer);
+    }
+  }, [shouldRedirect, router]);
 
   return (
     <PageTemplate>
