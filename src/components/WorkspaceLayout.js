@@ -5,14 +5,10 @@ import SubscriptionStatus from './SubscriptionStatus';
 import PaywallNotice from './PaywallNotice';
 import { useSchemaContext } from '../contexts/SchemaContext';
 
-// The component now accepts `subscriptionData` as a prop and no longer uses the problematic hook.
 export default function WorkspaceLayout({ tools, visualization, subscriptionData }) {
   const { subscriptionStatus } = useSchemaContext();
-
-  // We use the data from the context, but fall back to the direct prop if needed.
   const status = subscriptionStatus || subscriptionData;
 
-  // If the status data isn't ready yet, show a simple loading message.
   if (!status) {
     return (
       <div className="w-full px-3 pt-24 pb-4 sm:px-6">
@@ -22,10 +18,8 @@ export default function WorkspaceLayout({ tools, visualization, subscriptionData
   }
 
   return (
-    // This is the main layout for your workspace.
     <div className="w-full px-3 pt-24 pb-4 sm:px-6">
       
-      {/* Subscription status and paywall notice section */}
       <div className="mb-8">
         <SubscriptionStatus status={status} />
         <PaywallNotice 
@@ -34,15 +28,24 @@ export default function WorkspaceLayout({ tools, visualization, subscriptionData
         />
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left column for tools */}
+      {/* MODIFICATION: Reduced the gap between columns */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* MODIFICATION: Left column is now narrower to maximize visualization space */}
         <div className="lg:col-span-3 lg:sticky lg:top-24 lg:self-start">
-          <div className="space-y-4 rounded-2xl border border-neutral-800 bg-neutral-950/50 p-4 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto">
+          <div className="
+            space-y-4 
+            lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto
+            [&::-webkit-scrollbar]:w-2
+            [&::-webkit-scrollbar-track]:bg-transparent
+            [&::-webkit-scrollbar-thumb]:rounded-full
+            [&::-webkit-scrollbar-thumb]:bg-neutral-700
+            hover:[&::-webkit-scrollbar-thumb]:bg-neutral-600
+          ">
             {tools}
           </div>
         </div>
         
-        {/* Right column for visualization */}
+        {/* MODIFICATION: Right column is now wider */}
         <div className="mt-6 lg:mt-0 lg:col-span-9 bg-black rounded-2xl shadow-lg border border-neutral-800 overflow-hidden min-h-[500px] lg:min-h-full h-full">
           {visualization}
         </div>
