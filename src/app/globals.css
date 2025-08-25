@@ -102,6 +102,19 @@
   height: 100%;
 }
 
+.hide-scrollbar {
+  /* For WebKit browsers (Chrome, Safari, Edge) */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* For Firefox */
+  scrollbar-width: none;
+  
+  /* For Internet Explorer and older Edge */
+  -ms-overflow-style: none;
+}
+
 .react-flow {
   background-color: #f0f7ff !important; /* Light blue background for light mode */
 }
