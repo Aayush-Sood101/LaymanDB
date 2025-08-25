@@ -28,6 +28,7 @@ const loadRazorpay = () => {
 };
 
 // A reusable component for pricing cards with the new UI
+// A reusable component for pricing cards with the new UI
 const PricingCard = ({ plan, loadingPlan, handlePayment }) => {
   const { name, price, description, features, isPopular } = plan;
   const isLoading = loadingPlan === plan.id;
@@ -80,23 +81,27 @@ const PricingCard = ({ plan, loadingPlan, handlePayment }) => {
           <div className="mt-10">
             <button
               onClick={() => handlePayment(plan.id)}
-              disabled={isLoading || loadingPlan !== null}
+              // Simplified the disabled logic for clarity. It achieves the same result.
+              disabled={loadingPlan !== null} 
               className={`w-full h-12 text-sm font-semibold rounded-lg transition-all duration-300 flex items-center justify-center relative overflow-hidden group ${
                 isPopular
                   ? "bg-gradient-to-br from-blue-500 to-purple-600 text-white hover:opacity-90"
                   : "bg-neutral-800 text-neutral-200 border border-neutral-700 hover:bg-neutral-700 hover:text-white"
-              } ${isLoading || loadingPlan !== null ? (isLoading ? "opacity-100" : "opacity-70 cursor-not-allowed") : ""}`}
+              } ${
+                // This class logic correctly fades the non-active button
+                loadingPlan !== null ? (isLoading ? "opacity-100" : "opacity-70 cursor-not-allowed") : ""
+              }`}
             >
+              {/* --- THIS IS THE CORRECTED LOGIC --- */}
               {isLoading ? (
                 <div className="flex items-center">
                   <Loader2 className="animate-spin h-5 w-5 mr-2" />
                   <span>Processing...</span>
                 </div>
-              ) : loadingPlan !== null ? (
-                "Please wait..."
               ) : (
                 `Get ${name}`
               )}
+              {/* --- END CORRECTION --- */}
             </button>
           </div>
         </div>
