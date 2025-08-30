@@ -16,7 +16,7 @@ export async function POST(req) {
     }
     
     // Call the backend API for prompt optimization
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
     
     try {
       const response = await fetch(`${backendUrl}/api/schema/optimize-prompt`, {
