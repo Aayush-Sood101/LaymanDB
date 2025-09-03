@@ -48,6 +48,7 @@ const PromptInputPanel = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [isEnhancing, setIsEnhancing] = useState(false);
+  const [generationStep, setGenerationStep] = useState(0); // 0: not started, 1: optimizing, 2: generating
   const [error, setError] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const [customExamples, setCustomExamples] = useState([]);
@@ -86,8 +87,10 @@ const PromptInputPanel = () => {
     
     setIsLoading(true);
     setError('');
+    
     try {
-      // First optimize the prompt (significant changes)
+      // STEP 1: Optimize the prompt (significant changes)
+      setGenerationStep(1); // Set to step 1: optimizing
       setIsEnhancing(true);
       let currentPrompt = prompt;
       
@@ -110,6 +113,9 @@ const PromptInputPanel = () => {
       } finally {
         setIsEnhancing(false);
       }
+      
+      // STEP 2: Generate schema with the optimized prompt
+      setGenerationStep(2); // Set to step 2: generating schema
       
       // Set timeout for the entire process
       const timeoutPromise = new Promise((_, reject) => {
@@ -138,6 +144,7 @@ const PromptInputPanel = () => {
       setError(userMessage);
     } finally {
       setIsLoading(false);
+      setGenerationStep(0); // Reset step
     }
   };
 
@@ -361,9 +368,9 @@ const PromptInputPanel = () => {
               disabled={isLoading || isOptimizing || !prompt.trim()}
               className={cn(
                 "border-2 border-[#1F2937]",
-                "bg-[#111827]",
+                "bg-[#000000]",
                 "text-[#D1D5DB]",
-                "hover:bg-[#1F2937]",
+                "hover:bg-[#111827]",
                 "hover:border-[#4B5563]",
                 "transition-all duration-200",
                 "disabled:opacity-50",
@@ -411,19 +418,39 @@ const PromptInputPanel = () => {
               size="lg"
               disabled={isLoading || isOptimizing || !prompt.trim()}
               className={cn(
-                "bg-[#FFFFFF]",
-                "text-[#000000]",
-                "hover:bg-[#E5E7EB]",
-                "shadow-lg hover:shadow-xl",
+                "bg-[#000000]",       // <-- FIXED: Changed from white to black
+                "text-[#FFFFFF]",     // <-- FIXED: Changed from black to white
+                "border-2 border-[#1F2937]", // Added border for consistency
+                "hover:bg-[#1F2937]", // <-- FIXED: Changed to a dark hover color
+                "shadow-md hover:shadow-lg",
                 "transition-all duration-200",
                 "disabled:opacity-50 disabled:cursor-not-allowed",
-                "font-medium tracking-wide h-11 px-8"
+                "font-medium tracking-wide",
+                isLoading ? "h-auto py-2 px-4 min-w-[180px]" : "h-11 px-8"
               )}
             >
-              {isLoading ? (
+              {isLoading && generationStep > 0 ? (
+                <>
+                  {/* Simplified progress indicator */}
+                  <div className="flex flex-col w-full">
+                    <div className="flex items-center">
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <span className="font-medium text-sm">
+                        {generationStep === 1 ? 'Step 1/2: Optimizing' : 'Step 2/2: Generating'}
+                      </span>
+                    </div>
+                    
+                    {/* Visual progress indicator */}
+                    <div className="w-full flex mt-1 gap-1">
+                      <div className={`h-1.5 rounded-full transition-all duration-300 flex-1 ${generationStep >= 1 ? 'bg-gray-400' : 'bg-gray-700'}`}></div>
+                      <div className={`h-1.5 rounded-full transition-all duration-300 flex-1 ${generationStep >= 2 ? 'bg-gray-400' : 'bg-gray-700'}`}></div>
+                    </div>
+                  </div>
+                </>
+              ) : isLoading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  {isEnhancing ? 'Optimizing prompt...' : 'Generating...'}
+                  <span>Processing...</span>
                 </>
               ) : (
                 <>
