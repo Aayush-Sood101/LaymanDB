@@ -47,11 +47,13 @@ const PromptInputPanel = () => {
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
+  const [isEnhancing, setIsEnhancing] = useState(false);
   const [error, setError] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const [customExamples, setCustomExamples] = useState([]);
   const [showAddExample, setShowAddExample] = useState(false);
   const [newExampleTitle, setNewExampleTitle] = useState('');
+  const [originalPrompt, setOriginalPrompt] = useState('');
   
   const { generateSchema } = useSchemaContext();
   
@@ -78,18 +80,50 @@ const PromptInputPanel = () => {
       setError('Please enter a description of your database');
       return;
     }
+    
+    // Save original prompt before any modifications
+    setOriginalPrompt(prompt);
+    
     setIsLoading(true);
     setError('');
     try {
+      // First optimize the prompt (significant changes)
+      setIsEnhancing(true);
+      let currentPrompt = prompt;
+      
+      try {
+        const optimizeResponse = await fetch('/api/schema/optimize-prompt', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ prompt: currentPrompt }),
+        });
+
+        if (optimizeResponse.ok) {
+          const { optimizedPrompt } = await optimizeResponse.json();
+          currentPrompt = optimizedPrompt;
+        }
+      } catch (optimizeErr) {
+        console.error('Prompt optimization error:', optimizeErr);
+        // Continue with original prompt if optimization fails
+      } finally {
+        setIsEnhancing(false);
+      }
+      
+      // Set timeout for the entire process
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => {
           reject(new Error('The request is taking longer than expected. The server might be overloaded.'));
         }, 90000);
       });
+      
+      // Now generate schema with the optimized prompt
       await Promise.race([
-        generateSchema(prompt),
+        generateSchema(currentPrompt),
         timeoutPromise
       ]);
+      
       setPrompt('');
     } catch (err) {
       console.error('Schema generation error:', err);
@@ -109,13 +143,18 @@ const PromptInputPanel = () => {
 
   const handleOptimizePrompt = async () => {
     if (!prompt.trim()) {
-      setError('Please enter a description to optimize');
+      setError('Please enter a description to enhance');
       return;
     }
+    
+    // Save original prompt before enhancement
+    setOriginalPrompt(prompt);
+    
     setIsOptimizing(true);
     setError('');
     try {
-      const response = await fetch('/api/schema/optimize-prompt', {
+      // Call enhance-prompt API for subtle improvements (AI Fix button)
+      const response = await fetch('/api/schema/enhance-prompt', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -125,14 +164,14 @@ const PromptInputPanel = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to optimize prompt');
+        throw new Error(errorData.error || 'Failed to enhance prompt');
       }
 
-      const { optimizedPrompt } = await response.json();
-      setPrompt(optimizedPrompt);
+      const { enhancedPrompt } = await response.json();
+      setPrompt(enhancedPrompt);
     } catch (err) {
-      console.error('Prompt optimization error:', err);
-      setError(`Optimization failed: ${err.message}`);
+      console.error('Prompt enhancement error:', err);
+      setError(`Enhancement failed: ${err.message}`);
     } finally {
       setIsOptimizing(false);
     }
@@ -334,12 +373,12 @@ const PromptInputPanel = () => {
               {isOptimizing ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Optimizing Prompt...
+                  Enhancing Prompt...
                 </>
               ) : (
                 <>
                   <Wand2 className="h-4 w-4 mr-2" />
-                  AI Fix - Improve My Prompt
+                  AI Fix - Enhance My Prompt
                 </>
               )}
             </Button>
@@ -384,7 +423,7 @@ const PromptInputPanel = () => {
               {isLoading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Generating...
+                  {isEnhancing ? 'Optimizing prompt...' : 'Generating...'}
                 </>
               ) : (
                 <>
