@@ -22,26 +22,38 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Database Creator - Intelligent Database Design Platform",
-  description: "Create database schemas from natural language descriptions using AI",
-  keywords: "database design, schema generation, SQL, database visualization, ERD, entity relationship diagram",
-  authors: [{ name: "Database Creator Team" }],
+  title: "LaymanDB - AI-Powered Database Design Made Simple",
+  description:
+    "LaymanDB helps you create, visualize, and manage database schemas effortlessly from natural language. Generate ERDs, SQL schemas, and database designs instantly using AI.",
+  keywords:
+    "LaymanDB, database design, schema generation, AI database tool, SQL generator, database visualization, ERD, entity relationship diagram, database modeling, intelligent DB design",
+  authors: [{ name: "LaymanDB Team" }],
   openGraph: {
-    title: "Database Creator - Intelligent Database Design Platform",
-    description: "Create database schemas from natural language descriptions using AI",
-    url: "https://database-creator.vercel.app",
-    siteName: "Database Creator",
-    images: [{ url: "/og-image.jpg", width: 1200, height: 630 }],
+    title: "LaymanDB - AI-Powered Database Design Made Simple",
+    description:
+      "Transform natural language into database schemas with LaymanDB. Instantly generate ER diagrams, SQL schemas, and visualize your databases using AI.",
+    url: "https://layman-db.vercel.app/",
+    siteName: "LaymanDB",
+    images: [
+      {
+        url: "/images/logo.png", // logo in public/images
+        width: 1200,
+        height: 630,
+        alt: "LaymanDB Logo",
+      },
+    ],
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Database Creator - Intelligent Database Design Platform",
-    description: "Create database schemas from natural language descriptions using AI",
-    images: ["/og-image.jpg"],
+    title: "LaymanDB - AI-Powered Database Design Made Simple",
+    description:
+      "Use AI to create and visualize database schemas instantly. With LaymanDB, database design becomes effortless.",
+    images: ["/images/logo.png"],
   },
 };
+
 
 export default function RootLayout({ children }) {
   return (
