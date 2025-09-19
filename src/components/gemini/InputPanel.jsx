@@ -1,14 +1,58 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { IconLoader2, IconSparkles, IconInfoCircle } from '@tabler/icons-react';
+import { IconLoader2, IconSparkles, IconInfoCircle, IconWand } from '@tabler/icons-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { useState } from 'react';
+import toast from 'react-hot-toast';
 
 export function InputPanel({ inputText, setInputText, isGenerating, onSubmit }) {
   const characterCount = inputText.length;
-  const maxCharacters = 2000;
+  const maxCharacters = 5000;
+  const [isEnhancing, setIsEnhancing] = useState(false);
+  
+  const handleAIFix = async () => {
+    if (!inputText.trim()) {
+      toast.error('Please enter a prompt to enhance');
+      return;
+    }
+    
+    setIsEnhancing(true);
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      const response = await fetch('/api/gemini/prompt/enhance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: inputText }),
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Server error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      if (!data.success || !data.enhancedPrompt) {
+        throw new Error(data.error || 'Failed to enhance the prompt.');
+      }
+      
+      setInputText(data.enhancedPrompt);
+      toast.success('Prompt enhanced successfully!');
+    } catch (error) {
+      console.error('Error enhancing prompt:', error);
+      const errorMessage = error.name === 'AbortError'
+        ? 'Request timed out. Try a simpler prompt.'
+        : error.message || 'An unknown error occurred.';
+      toast.error(errorMessage);
+    } finally {
+      setIsEnhancing(false);
+    }
+  };
   
   return (
     <div className="flex flex-col h-full bg-gradient-to-br from-neutral-950 via-black to-neutral-900">
@@ -84,22 +128,41 @@ export function InputPanel({ inputText, setInputText, isGenerating, onSubmit }) 
       {/* Enhanced Footer */}
       <CardFooter className="p-5 bg-gradient-to-r from-neutral-900/30 to-neutral-800/10 backdrop-blur-sm">
         <div className="w-full space-y-3">
-          <Button
-            onClick={onSubmit}
-            disabled={isGenerating || !inputText.trim() || characterCount > maxCharacters}
-            size="lg"
-            className="w-full gap-3 py-5 bg-gradient-to-r from-neutral-800 to-neutral-900 hover:from-neutral-700 hover:to-neutral-800 text-white font-bold shadow-xl shadow-black/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 rounded-lg border border-neutral-600/30"
-          >
-            {isGenerating ? 
-              <IconLoader2 className="w-5 h-5 animate-spin" /> : 
-              <IconSparkles className="w-5 h-5" />
-            }
-            <span className="text-sm font-semibold">
-              {isGenerating ? 'Generating ER Diagram...' : 'Generate ER Diagram'}
-            </span>
-          </Button>
+          <div className="flex gap-3 w-full">
+            {/* AI Fix Button */}
+            <Button
+              onClick={handleAIFix}
+              disabled={isEnhancing || isGenerating || !inputText.trim() || characterCount > maxCharacters}
+              size="lg"
+              className="flex-1 gap-3 py-5 bg-gradient-to-r from-neutral-800 to-neutral-900 hover:from-neutral-700 hover:to-neutral-800 text-white font-bold shadow-xl shadow-black/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 rounded-lg border border-neutral-600/30"
+            >
+              {isEnhancing ? 
+                <IconLoader2 className="w-5 h-5 animate-spin" /> : 
+                <IconWand className="w-5 h-5" />
+              }
+              <span className="text-sm font-semibold">
+                {isEnhancing ? 'Enhancing Prompt...' : 'AI Fix'}
+              </span>
+            </Button>
+            
+            {/* Generate ER Diagram Button */}
+            <Button
+              onClick={onSubmit}
+              disabled={isGenerating || isEnhancing || !inputText.trim() || characterCount > maxCharacters}
+              size="lg"
+              className="flex-1 gap-3 py-5 bg-gradient-to-r from-neutral-800 to-neutral-900 hover:from-neutral-700 hover:to-neutral-800 text-white font-bold shadow-xl shadow-black/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 rounded-lg border border-neutral-600/30"
+            >
+              {isGenerating ? 
+                <IconLoader2 className="w-5 h-5 animate-spin" /> : 
+                <IconSparkles className="w-5 h-5" />
+              }
+              <span className="text-sm font-semibold">
+                {isGenerating ? 'Generating..' : 'Generate'}
+              </span>
+            </Button>
+          </div>
           
-          {inputText.trim() && !isGenerating && (
+          {inputText.trim() && !isGenerating && !isEnhancing && (
             <p className="text-xs text-neutral-500 text-center">
               Ready to generate • {inputText.trim().split(/\s+/).length} words
             </p>
