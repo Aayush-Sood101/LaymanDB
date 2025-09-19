@@ -102,8 +102,8 @@ export default function GeminiPlayground() {
         </div>
 
         <div className="flex-grow min-h-0 w-full">
-          <ResizablePanelGroup direction="horizontal" className="h-full border rounded-lg border-[#27272A] bg-[#0A0A0A]">
-            <ResizablePanel defaultSize={35} minSize={25} maxSize={50}>
+          <ResizablePanelGroup direction="horizontal" className="h-full border rounded-lg border-[#27272A] bg-[#0A0A0A] overflow-hidden">
+            <ResizablePanel defaultSize={30} minSize={20} maxSize={45}>
               <InputPanel
                 inputText={inputText}
                 setInputText={setInputText}
@@ -112,7 +112,7 @@ export default function GeminiPlayground() {
               />
             </ResizablePanel>
             <ResizableHandle withHandle className="bg-[#27272A] border-x border-[#3F3F46]" />
-            <ResizablePanel defaultSize={65} minSize={50} maxSize={75}>
+            <ResizablePanel defaultSize={70} minSize={55}>
               <OutputPanel
                 mermaidCode={mermaidCode}
                 isGenerating={isGenerating}
