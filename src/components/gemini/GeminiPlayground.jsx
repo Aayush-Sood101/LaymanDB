@@ -14,8 +14,14 @@ mermaid.initialize({
   theme: 'neutral',
   securityLevel: 'loose',
   fontFamily: 'monospace',
+  er: {
+    diagramPadding: 20,
+    entityPadding: 15,
+    fill: '#f9f9f9',
+    stroke: '#999999',
+  },
   themeVariables: {
-    lineColor: '#ccc',
+    lineColor: '#999999',
     primaryColor: '#4f46e5',
     primaryTextColor: '#11181C',
     primaryBorderColor: '#4f46e5',
@@ -36,10 +42,21 @@ export default function GeminiPlayground() {
     if (mermaidCode && mermaidRef.current) {
       try {
         // Clear previous content
-        mermaidRef.current.innerHTML = mermaidCode;
+        mermaidRef.current.innerHTML = '';
         
-        // Re-render the diagram
-        mermaid.init(undefined, '.mermaid');
+        // Create a fresh div for the new diagram
+        const diagramDiv = document.createElement('div');
+        diagramDiv.className = 'mermaid';
+        diagramDiv.textContent = mermaidCode;
+        mermaidRef.current.appendChild(diagramDiv);
+        
+        // Re-render the diagram with a try-catch to handle syntax errors
+        mermaid.init(undefined, '.mermaid')
+          .catch(error => {
+            console.error('Error in mermaid initialization:', error);
+            toast.error('Error rendering diagram. Please try a simpler description.');
+            mermaidRef.current.innerHTML = '<div class="p-4 text-red-500">Error rendering Mermaid diagram. Please try a simpler description.</div>';
+          });
       } catch (error) {
         console.error('Error rendering Mermaid diagram:', error);
         toast.error('Error rendering diagram. Please check the generated code.');
@@ -83,7 +100,13 @@ export default function GeminiPlayground() {
         throw new Error(data.error || 'Failed to generate ER diagram');
       }
       
-      setMermaidCode(data.mermaidCode);
+      // Validate that the Mermaid code starts with erDiagram
+      const mermaidCode = data.mermaidCode.trim();
+      if (!mermaidCode.startsWith('erDiagram')) {
+        throw new Error('Invalid Mermaid ER diagram format. Please try again.');
+      }
+      
+      setMermaidCode(mermaidCode);
       toast.success('ER diagram generated successfully');
     } catch (error) {
       console.error('Error generating ER diagram:', error);
