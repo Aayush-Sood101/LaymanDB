@@ -7,7 +7,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/componen
 import { InputPanel } from './InputPanel';
 import { OutputPanel } from './OutputPanel';
 
-// --- Mermaid Black & White Theme Configuration ---
+// --- Mermaid Black & White Theme Configuration (Unchanged) ---
 mermaid.initialize({
   startOnLoad: false,
   theme: 'dark',
@@ -16,9 +16,9 @@ mermaid.initialize({
   er: {
     diagramPadding: 20,
     entityPadding: 15,
-    stroke: '#999999', // neutral-400
-    fill: '#171717',   // neutral-900
-    entityStroke: '#666666', // neutral-500
+    stroke: '#999999',
+    fill: '#171717',
+    entityStroke: '#666666',
   },
   themeVariables: {
     background: '#000000',
@@ -41,7 +41,7 @@ export default function GeminiPlayground() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleSubmit = async () => {
-    // Logic is unchanged
+    // Logic remains unchanged
     if (!inputText.trim()) {
       toast.error('Please enter a database description');
       return;
@@ -80,21 +80,25 @@ export default function GeminiPlayground() {
   };
 
   return (
-    <main className="flex h-dvh w-full flex-col bg-black text-white p-4 sm:p-6 lg:p-8 font-sans">
-      <div className="flex w-full max-w-screen-2xl mx-auto flex-col gap-y-6 flex-grow min-h-0">
+    // Main wrapper: min-height of screen, flexbox layout, and responsive padding.
+    // Increased top padding to better separate from a fixed navbar.
+    <main className="flex min-h-screen w-full flex-col bg-black p-4 pt-20 sm:p-6 sm:pt-24 lg:p-8 lg:pt-28">
+      
+      {/* Centered content container with a larger vertical gap */}
+      <div className="mx-auto flex w-full max-w-screen-2xl flex-grow flex-col gap-y-8">
+        
+        {/* Header Section: More impactful typography */}
         <div className="flex-shrink-0">
-          <h1 className="text-3xl lg:text-4xl font-bold tracking-tight text-white">
+          <h1 className="text-3xl font-bold tracking-tighter text-white sm:text-4xl lg:text-5xl">
             Gemini AI Playground
           </h1>
-          <p className="text-neutral-400 mt-2">
-            Describe your database schema in plain English. Let Gemini generate a styled Mermaid ER diagram for you.
-          </p>
         </div>
 
+        {/* Panel Wrapper: Uses flex-grow to fill all available vertical space */}
         <div className="flex-grow min-h-0">
           <ResizablePanelGroup
             direction="horizontal"
-            className="h-full rounded-lg border border-neutral-800 bg-[#0A0A0A] overflow-hidden"
+            className="h-full rounded-2xl border border-neutral-800 bg-[#0A0A0A] shadow-lg shadow-black/40"
           >
             <ResizablePanel defaultSize={35} minSize={25} maxSize={50}>
               <InputPanel
@@ -104,7 +108,13 @@ export default function GeminiPlayground() {
                 onSubmit={handleSubmit}
               />
             </ResizablePanel>
-            <ResizableHandle withHandle className="bg-transparent border-x border-neutral-800" />
+            
+            {/* Handle: Improved interactive states for hover and dragging */}
+            <ResizableHandle 
+              withHandle 
+              className="bg-transparent border-x border-neutral-800 transition-colors duration-200 data-[state=hover]:border-neutral-600 data-[state=dragging]:border-white" 
+            />
+            
             <ResizablePanel defaultSize={65} minSize={50}>
               <OutputPanel
                 mermaidCode={mermaidCode}

@@ -1,35 +1,110 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { IconLoader2, IconSparkles } from '@tabler/icons-react';
+import { IconLoader2, IconSparkles, IconInfoCircle } from '@tabler/icons-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 
 export function InputPanel({ inputText, setInputText, isGenerating, onSubmit }) {
+  const characterCount = inputText.length;
+  const maxCharacters = 2000;
+  
   return (
-    <div className="flex flex-col h-full">
-      <CardHeader className="p-4 border-b border-neutral-800">
-        <CardTitle className="text-lg font-semibold text-white">Input Description</CardTitle>
-        <CardDescription className="text-neutral-400">Provide a natural language prompt.</CardDescription>
+    <div className="flex flex-col h-full bg-gradient-to-br from-neutral-950 via-black to-neutral-900">
+      {/* Enhanced Header */}
+      <CardHeader className="p-5 border-b border-neutral-800/60 bg-gradient-to-r from-neutral-900/40 to-neutral-800/20 backdrop-blur-sm">
+        <div className="flex items-start justify-between">
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-neutral-700 to-neutral-800 flex items-center justify-center shadow-lg">
+                <IconSparkles className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <CardTitle className="text-lg font-bold text-white tracking-tight">
+                  Database Description
+                </CardTitle>
+                <CardDescription className="text-neutral-400 text-sm mt-1">
+                  Describe your database schema in natural language
+                </CardDescription>
+              </div>
+            </div>
+          </div>
+          
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="p-2 rounded-lg bg-neutral-800/50 hover:bg-neutral-700/50 transition-colors cursor-help">
+                  <IconInfoCircle className="w-4 h-4 text-neutral-400 hover:text-white transition-colors" />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent className="bg-neutral-800 border-neutral-700 text-white max-w-sm">
+                <p className="text-sm">
+                  Provide a detailed description of your database structure, including entities, relationships, and constraints.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </CardHeader>
       
-      <div className="flex-grow p-4">
-        <Textarea
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          placeholder="e.g., A blog with users, posts, and comments. A user can write many posts..."
-          className="h-full w-full resize-none rounded-md border border-neutral-700 bg-black p-4 font-mono text-sm text-neutral-200 placeholder:text-neutral-600 focus-visible:ring-1 focus-visible:ring-white focus-visible:ring-offset-0"
-        />
+      <div className="p-5 relative">
+        <div className="relative">
+          <div className="absolute -inset-1 bg-gradient-to-r from-neutral-800/20 via-neutral-700/10 to-neutral-800/20 blur-sm rounded-lg"></div>
+          <Textarea
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            placeholder="Example: A blog platform with users, posts, and comments. Each user can create multiple posts..."
+            maxLength={maxCharacters}
+            className="h-72 w-full resize-none rounded-lg border border-neutral-700/60 bg-neutral-950/80 backdrop-blur-sm p-4 font-mono text-sm text-neutral-100 placeholder:text-neutral-500 focus-visible:ring-2 focus-visible:ring-neutral-400/50 focus-visible:ring-offset-0 shadow-inner shadow-black/50 relative transition-all duration-200"
+            style={{ 
+              lineHeight: '1.6',
+            }}
+          />
+          
+          <div className="absolute bottom-3 right-3">
+            <Badge 
+              variant="outline" 
+              className={`text-xs backdrop-blur-sm ${
+                characterCount > maxCharacters * 0.9 
+                  ? 'bg-red-900/20 text-red-400 border-red-700/50' 
+                  : 'bg-neutral-800/50 text-neutral-400 border-neutral-600/50'
+              }`}
+            >
+              {characterCount}/{maxCharacters}
+            </Badge>
+          </div>
+        </div>
       </div>
 
-      <CardFooter className="p-4 border-t border-neutral-800">
-        <Button
-          onClick={onSubmit}
-          disabled={isGenerating || !inputText.trim()}
-          size="lg"
-          className="w-full gap-2 bg-white text-black font-bold hover:bg-neutral-200 disabled:bg-neutral-800 disabled:text-neutral-500 disabled:cursor-not-allowed"
-        >
-          {isGenerating ? <IconLoader2 className="w-5 h-5 animate-spin" /> : <IconSparkles className="w-5 h-5" />}
-          {isGenerating ? 'Generating...' : 'Generate'}
-        </Button>
+      {/* REMOVED: The spacer div that was pushing the footer down is now gone. */}
+
+      <Separator className="bg-neutral-800/60" />
+
+      {/* Enhanced Footer */}
+      <CardFooter className="p-5 bg-gradient-to-r from-neutral-900/30 to-neutral-800/10 backdrop-blur-sm">
+        <div className="w-full space-y-3">
+          <Button
+            onClick={onSubmit}
+            disabled={isGenerating || !inputText.trim() || characterCount > maxCharacters}
+            size="lg"
+            className="w-full gap-3 py-5 bg-gradient-to-r from-neutral-800 to-neutral-900 hover:from-neutral-700 hover:to-neutral-800 text-white font-bold shadow-xl shadow-black/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 rounded-lg border border-neutral-600/30"
+          >
+            {isGenerating ? 
+              <IconLoader2 className="w-5 h-5 animate-spin" /> : 
+              <IconSparkles className="w-5 h-5" />
+            }
+            <span className="text-sm font-semibold">
+              {isGenerating ? 'Generating ER Diagram...' : 'Generate ER Diagram'}
+            </span>
+          </Button>
+          
+          {inputText.trim() && !isGenerating && (
+            <p className="text-xs text-neutral-500 text-center">
+              Ready to generate • {inputText.trim().split(/\s+/).length} words
+            </p>
+          )}
+        </div>
       </CardFooter>
     </div>
   );
