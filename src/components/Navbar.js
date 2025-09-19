@@ -41,10 +41,10 @@ export function NavbarComponent() {
   return (
     <Navbar
       className={`
-        fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out
+        fixed top-0 left-0 right-0 z-50 transition-all duration-0 ease-in-out
         border-b
         ${isScrolled 
-          ? "py-2 bg-white/80 backdrop-blur-sm border-neutral-200" 
+          ? "py-3 bg-transparent backdrop-transparent border-transparent" 
           : "py-4 bg-white border-transparent"
         }
       `}
