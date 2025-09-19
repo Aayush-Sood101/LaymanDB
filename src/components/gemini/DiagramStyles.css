@@ -1,77 +1,153 @@
-/* Custom Styles for Mermaid Diagrams and Zoom/Pan functionality */
+/*
+ * =========================================
+ * Custom Stylesheet for AI Playground
+ * Theme: High-Contrast Black & White
+ * =========================================
+ */
 
+/* * 1. THEME DEFINITION (CSS VARIABLES)
+ * ------------------------------------
+ * All theme values are controlled from here for easy customization.
+ */
+:root {
+  /* Color Palette */
+  --color-bg-canvas: #0A0A0A;    /* Main background for the diagram area */
+  --color-bg-panel: #111111;     /* Background for entities and panels */
+  --color-bg-panel-alt: #1C1C1C; /* Background for attributes */
+  
+  --color-text-primary: #F5F5F5; /* Primary text (white) */
+  --color-text-secondary: #A3A3A3;/* Secondary text (light gray) */
+  
+  --color-border-primary: #262626; /* Main borders around panels */
+  --color-border-secondary: #404040;/* Borders for internal elements like entities */
+
+  --color-accent: #FFFFFF;        /* Accent color for relationship lines and highlights */
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: 'Geist Mono', 'SF Mono', 'Fira Code', 'Consolas', monospace;
+
+  /* Sizing & Radius */
+  --border-radius-main: 0.75rem; /* 12px */
+  --border-radius-inner: 0.5rem;  /* 8px */
+}
+
+
+/* * 2. DIAGRAM WRAPPER & LAYOUT
+ * ----------------------------
+ * Styles for the react-zoom-pan-pinch containers.
+ */
 .transform-wrapper-diagram {
   width: 100%;
   height: 100%;
-  background-color: #0A0A0A;
+  background-color: var(--color-bg-canvas);
+  /* Add a subtle dot pattern for a 'canvas' feel */
+  background-image: radial-gradient(var(--color-border-primary) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
 .transform-component-diagram {
-  height: 100%;
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  height: 100%;
 }
 
-.diagram-container {
-  transition: background-color 0.3s ease;
-  padding: 1rem;
-  border-radius: 0.5rem;
+
+/* * 3. MERMAID.JS THEME OVERRIDES
+ * -----------------------------
+ * These styles create a custom, high-contrast look for the generated diagrams.
+ * Using !important is necessary to override Mermaid's inline styles.
+ */
+
+/* General Diagram Text */
+.mermaid text {
+  font-family: var(--font-sans) !important;
+  fill: var(--color-text-primary) !important;
+  font-weight: 500 !important;
 }
 
-.diagram-container svg {
-  max-width: 100%;
-  height: auto;
-}
-
-/* Styling for the mermaid diagram elements */
+/* Entity (Table) Container */
 .mermaid .entityBox {
-  fill: #18181B !important;
-  stroke: #3F3F46 !important;
+  fill: var(--color-bg-panel) !important;
+  stroke: var(--color-border-secondary) !important;
+  stroke-width: 1.5px !important;
+  rx: var(--border-radius-inner) !important; /* Rounded corners */
+  transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
 }
 
-.mermaid .er.relationshipLabelBox {
-  fill: #27272A !important;
+.mermaid .entityBox:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
-.mermaid .er.relationshipLine {
-  stroke: #6D28D9 !important;
+/* Entity Title Text */
+.mermaid .entityTitle {
+  font-weight: 700 !important;
+  font-size: 16px !important;
 }
 
-.mermaid .er.attributeBoxEven,
-.mermaid .er.attributeBoxOdd {
-  fill: #27272A !important;
+/* Attribute (Column) Rows */
+.mermaid .attributeBoxOdd,
+.mermaid .attributeBoxEven {
+  fill: var(--color-bg-panel-alt) !important;
+  stroke: var(--color-border-secondary) !important;
 }
 
-.mermaid .er text {
-  fill: #E4E4E7 !important;
+/* Attribute Text */
+.mermaid .attributeText {
+  fill: var(--color-text-secondary) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 13px !important;
 }
 
-/* Custom scrollbar for the code section */
+/* Relationship Line */
+.mermaid .relationshipLine {
+  stroke: var(--color-accent) !important;
+  stroke-width: 2px !important;
+}
+
+/* Relationship Text Label */
+.mermaid .relationshipLabelBox {
+  fill: var(--color-bg-canvas) !important;
+  opacity: 0.9;
+}
+
+
+/* * 4. CUSTOM UI ELEMENTS
+ * ---------------------
+ */
+
+/* --- Custom Scrollbar for Code View --- */
 .code-container::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 .code-container::-webkit-scrollbar-track {
-  background: #18181B;
+  background: transparent;
 }
 
 .code-container::-webkit-scrollbar-thumb {
-  background: #3F3F46;
-  border-radius: 4px;
+  background-color: var(--color-border-secondary);
+  border-radius: 5px;
+  border: 2px solid var(--color-bg-panel);
 }
 
 .code-container::-webkit-scrollbar-thumb:hover {
-  background: #52525B;
+  background-color: var(--color-text-secondary);
 }
 
-/* Custom drag cursor */
-.draggable-active * {
-  cursor: grab !important;
+
+/* --- Custom Panning/Dragging Cursor --- */
+/* This class should be applied to the TransformWrapper when panning is active */
+.panning-active {
+  cursor: grab;
 }
 
-.draggable-active:active * {
-  cursor: grabbing !important;
+.panning-active:active {
+  cursor: grabbing;
+}
+
+/* Apply grabbing cursor to children as well for a seamless feel */
+.panning-active .react-transform-component * {
+    cursor: grabbing !important;
 }
