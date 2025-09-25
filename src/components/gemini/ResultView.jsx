@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { exportToHighResSvg, exportToHighResPng, downloadDataUrl } from '@/lib/diagramExport';
 import { 
   IconClipboardCopy, 
   IconZoomIn, 
@@ -23,7 +24,11 @@ import {
   IconEye,
   IconEyeOff,
   IconRefresh,
-  IconX
+  IconX,
+  IconPhoto,
+  IconFileVector,
+  IconDownload,
+  IconLoader2
 } from '@tabler/icons-react';
 
 export function ResultView({ mermaidCode }) {
@@ -35,6 +40,8 @@ export function ResultView({ mermaidCode }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showCode, setShowCode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportType, setExportType] = useState(null);
 
   // Render mermaid diagram
   const renderMermaid = async (container, code) => {
@@ -147,13 +154,139 @@ export function ResultView({ mermaidCode }) {
   const toggleCodeView = () => {
     setShowCode(!showCode);
   };
+  
+  // High-resolution SVG export
+  const exportAsSvg = async () => {
+    if (!mermaidCode) return;
+    
+    const targetRef = isFullscreen ? fullscreenMermaidRef.current : mermaidRef.current;
+    if (!targetRef) {
+      toast.error('Diagram container not available');
+      return;
+    }
+    
+    try {
+      setIsExporting(true);
+      setExportType('svg');
+      
+      const svgElement = targetRef.querySelector('svg');
+      if (!svgElement) {
+        toast.error('SVG element not found in the diagram');
+        return;
+      }
+      
+      // Display toast to indicate processing is happening
+      toast.loading('Generating HD SVG...', { 
+        duration: 2000,
+        style: {
+          background: '#18181B',
+          color: '#FFFFFF',
+          border: '1px solid #3F3F46',
+        }
+      });
+      
+      // Use our utility function for high-resolution SVG export
+      const svgData = await exportToHighResSvg(svgElement, {
+        pixelRatio: 2,
+        backgroundColor: '#0A0A0A',
+        fontWeight: 'normal',
+        removeClasses: ['controls'],
+        style: {
+          '.label': { 'font-weight': '500', 'font-size': '14px' },
+          '.entityLabel': { 'font-weight': '600' },
+          '.edgeLabel': { 'background-color': 'rgba(0,0,0,0.6)', 'border-radius': '3px', 'padding': '2px 4px' },
+          '.relationshipLine': { 'stroke-width': '2px' }
+        }
+      });
+      
+      // Download the SVG file
+      downloadDataUrl(svgData, `laymandb-diagram-hd.svg`);
+      
+      toast.success('HD SVG Diagram Downloaded!', {
+        style: {
+          background: '#18181B',
+          color: '#FFFFFF',
+          border: '1px solid #3F3F46',
+        },
+      });
+    } catch (error) {
+      console.error('Error exporting SVG:', error);
+      toast.error(`Export failed: ${error.message || 'Unknown error'}`);
+    } finally {
+      setIsExporting(false);
+      setExportType(null);
+    }
+  };
+  
+  // High-resolution PNG export
+  const exportAsPng = async () => {
+    if (!mermaidCode) return;
+    
+    const targetRef = isFullscreen ? fullscreenMermaidRef.current : mermaidRef.current;
+    if (!targetRef) {
+      toast.error('Diagram container not available');
+      return;
+    }
+    
+    try {
+      setIsExporting(true);
+      setExportType('png');
+      
+      const svgElement = targetRef.querySelector('svg');
+      if (!svgElement) {
+        toast.error('SVG element not found in the diagram');
+        return;
+      }
+      
+      // Display toast to indicate processing is happening
+      toast.loading('Generating HD PNG...', { 
+        duration: 3000,
+        style: {
+          background: '#18181B',
+          color: '#FFFFFF',
+          border: '1px solid #3F3F46',
+        }
+      });
+      
+      // Use our utility function for high-resolution PNG export
+      const pngData = await exportToHighResPng(svgElement, {
+        pixelRatio: 3, // Triple resolution for better quality
+        backgroundColor: '#0A0A0A',
+        fontWeight: '500',
+        filter: (node) => !node.classList?.contains('controls'),
+        style: {
+          '.label': { 'font-weight': '500', 'font-size': '14px' },
+          '.entityLabel': { 'font-weight': '600' },
+          '.edgeLabel': { 'background-color': 'rgba(0,0,0,0.6)', 'border-radius': '3px', 'padding': '2px 4px' },
+          '.relationshipLine': { 'stroke-width': '2px' }
+        }
+      });
+      
+      // Download the PNG file
+      downloadDataUrl(pngData, `laymandb-diagram-hd.png`);
+      
+      toast.success('HD PNG Diagram Downloaded!', {
+        style: {
+          background: '#18181B',
+          color: '#FFFFFF',
+          border: '1px solid #3F3F46',
+        },
+      });
+    } catch (error) {
+      console.error('Error exporting PNG:', error);
+      toast.error(`Export failed: ${error.message || 'Unknown error'}`);
+    } finally {
+      setIsExporting(false);
+      setExportType(null);
+    }
+  };
 
   // Enhanced Fullscreen Mode
   if (isFullscreen) {
     return (
       <div className="fixed inset-0 z-[9999] bg-gradient-to-br from-[#09090B] via-[#0A0A0A] to-[#09090B]">
         {/* Enhanced Fullscreen Controls */}
-        <Card className="absolute top-6 right-6 z-[10000] bg-[#18181B]/95 backdrop-blur-xl border-[#3F3F46] shadow-2xl">
+              <Card className="absolute top-6 right-6 z-[10000] bg-[#18181B]/95 backdrop-blur-xl border-[#3F3F46] shadow-2xl">
           <CardContent className="flex items-center gap-2 p-3">
             <TooltipProvider>
               <Tooltip>
@@ -169,6 +302,46 @@ export function ResultView({ mermaidCode }) {
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>{showCode ? 'Hide Code' : 'Show Code'}</p>
+                </TooltipContent>
+              </Tooltip>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className={`h-10 w-10 bg-[#27272A] hover:bg-[#3F3F46] text-white transition-all duration-200 shadow-lg ${isExporting && exportType === 'svg' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    onClick={exportAsSvg}
+                    disabled={isExporting}
+                  >
+                    {isExporting && exportType === 'svg' ? 
+                      <IconLoader2 className="h-5 w-5 animate-spin" /> : 
+                      <IconFileVector className="h-5 w-5" />
+                    }
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Download HD SVG</p>
+                </TooltipContent>
+              </Tooltip>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className={`h-10 w-10 bg-[#27272A] hover:bg-[#3F3F46] text-white transition-all duration-200 shadow-lg ${isExporting && exportType === 'png' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    onClick={exportAsPng}
+                    disabled={isExporting}
+                  >
+                    {isExporting && exportType === 'png' ? 
+                      <IconLoader2 className="h-5 w-5 animate-spin" /> : 
+                      <IconPhoto className="h-5 w-5" />
+                    }
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Download HD PNG</p>
                 </TooltipContent>
               </Tooltip>
               
@@ -191,9 +364,7 @@ export function ResultView({ mermaidCode }) {
               </Tooltip>
             </TooltipProvider>
           </CardContent>
-        </Card>
-
-        {/* Enhanced Status Badge */}
+        </Card>        {/* Enhanced Status Badge */}
         <Badge 
           variant="secondary" 
           className="absolute top-6 left-1/2 transform -translate-x-1/2 z-[10000] bg-purple-600/20 text-purple-300 border-purple-600/30 backdrop-blur-sm px-4 py-2 text-sm font-medium"
@@ -476,6 +647,48 @@ export function ResultView({ mermaidCode }) {
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>Reset View</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    
+                    <Separator orientation="vertical" className="h-6 bg-[#3F3F46]" />
+                    
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className={`h-9 w-9 bg-[#27272A] hover:bg-[#3F3F46] text-white transition-all duration-200 ${isExporting && exportType === 'svg' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          onClick={exportAsSvg}
+                          disabled={isExporting}
+                        >
+                          {isExporting && exportType === 'svg' ? 
+                            <IconLoader2 className="h-4 w-4 animate-spin" /> : 
+                            <IconFileVector className="h-4 w-4" />
+                          }
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Download HD SVG</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className={`h-9 w-9 bg-[#27272A] hover:bg-[#3F3F46] text-white transition-all duration-200 ${isExporting && exportType === 'png' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          onClick={exportAsPng}
+                          disabled={isExporting}
+                        >
+                          {isExporting && exportType === 'png' ? 
+                            <IconLoader2 className="h-4 w-4 animate-spin" /> : 
+                            <IconPhoto className="h-4 w-4" />
+                          }
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Download HD PNG</p>
                       </TooltipContent>
                     </Tooltip>
                     

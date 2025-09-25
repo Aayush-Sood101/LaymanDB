@@ -90,15 +90,20 @@ export function OutputPanel({ mermaidCode, isGenerating }) {
             <Badge variant="outline" className="bg-green-900/20 text-green-400 border-green-700/50 text-xs px-2 py-1">
               Generated
             </Badge>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleDownload} 
-              className="gap-2 bg-neutral-800/50 border-neutral-600/50 text-neutral-300 hover:bg-neutral-700/50 hover:text-white hover:border-neutral-500 transition-all duration-200 text-xs px-3 py-1 h-8"
-            >
-              <IconDownload className="w-3 h-3" />
-              Export .mmd
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleDownload} 
+                className="gap-2 bg-neutral-800/50 border-neutral-600/50 text-neutral-300 hover:bg-neutral-700/50 hover:text-white hover:border-neutral-500 transition-all duration-200 text-xs px-3 py-1 h-8"
+                title="Download Mermaid Code"
+              >
+                <IconDownload className="w-3 h-3" />
+                Export .mmd
+              </Button>
+              <div className="text-neutral-600 text-xs px-1">•</div>
+              <div className="text-neutral-500 text-xs">HD images in diagram view</div>
+            </div>
           </div>
         )}
       </CardHeader>
