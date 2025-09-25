@@ -439,7 +439,8 @@ export const SchemaProvider = ({ children, subscriptionData }) => {
       }
       
       let diagramData;
-      const exportTimeout = 5000;
+      // Extended timeout for higher resolution rendering
+      const exportTimeout = format.toLowerCase() === 'svg' ? 10000 : 15000;
       
       try {
         const exportPromise = format.toLowerCase() === 'svg' 

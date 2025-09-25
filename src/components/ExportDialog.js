@@ -122,10 +122,10 @@ const ExportDialog = () => {
             {/* Download button */}
             <a 
               href={data}
-              download={`schema-diagram.${format || 'svg'}`}
+              download={`laymandb-diagram-hd.${format || 'svg'}`}
               className="mt-4 px-4 py-2 bg-[#FFFFFF] text-[#000000] rounded-md hover:bg-[#E5E7EB]"
             >
-              Download Diagram
+              Download HD Diagram
             </a>
           </div>
         )}

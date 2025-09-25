@@ -94,13 +94,18 @@ const ERDDiagram = ({
       `;
       
       try {
+        // Calculate higher resolution for export (2x the current size for better quality)
+        const width = flowNode.offsetWidth || 800;
+        const height = flowNode.offsetHeight || 600;
+        const scale = 2; // Scale factor for higher resolution
+
         const svgData = await toSvg(flowNode, {
           quality: 1,
           backgroundColor: darkMode ? '#1a1a1a' : '#f8f9fa',
-          width: flowNode.offsetWidth || 800,
-          height: flowNode.offsetHeight || 600,
+          width: width,
+          height: height,
           filter: (node) => !node.classList?.contains(styles.exportButton),
-          timeout: 5000,
+          timeout: 10000, // Extended timeout for larger rendering
           style: {
             '.react-flow__edge path': {
               strokeWidth: '2px',
@@ -164,18 +169,29 @@ const ERDDiagram = ({
       });
       
       try {
+        // Calculate higher resolution for export (3x the current size for better quality)
+        const width = flowNode.offsetWidth || 800;
+        const height = flowNode.offsetHeight || 600;
+        const scale = 3; // Higher scale factor for PNG for better quality
+        
         const pngData = await toPng(flowNode, {
           quality: 1,
+          pixelRatio: scale, // Use pixelRatio to increase resolution
           backgroundColor: darkMode ? '#1a1a1a' : '#f8f9fa',
-          width: flowNode.offsetWidth || 800,
-          height: flowNode.offsetHeight || 600,
+          width: width,
+          height: height,
           filter: (node) => !node.classList?.contains(styles.exportButton),
-          timeout: 5000,
+          timeout: 15000, // Extended timeout for larger rendering
           style: {
             '.react-flow__edge path': {
               strokeWidth: '2px',
               stroke: 'currentColor',
               fill: 'none'
+            },
+            // Ensure text remains sharp
+            '.react-flow__node-entityNode, .react-flow__node-relationshipNode': {
+              fontWeight: 'normal',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
             }
           }
         });

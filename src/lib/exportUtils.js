@@ -83,7 +83,13 @@ export const processPngForExport = (pngData) => {
       return `data:image/png;base64,${pngData}`;
     }
     
-    // If it's already a data URL, return as is
+    // If it's already a data URL, check if we can enhance image quality
+    if (pngData.startsWith('data:image/png')) {
+      // For PNG images that are already in data URL format
+      // Return as is since pixelRatio is already applied in the toPng function
+      return pngData;
+    }
+    
     return pngData;
   } catch (error) {
     console.error('Error processing PNG for export:', error);
