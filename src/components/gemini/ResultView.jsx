@@ -11,7 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { exportToHighResSvg, exportToHighResPng, downloadDataUrl } from '@/lib/diagramExport';
+import { exportToHighResPng, downloadDataUrl } from '@/lib/diagramExport';
 import { 
   IconClipboardCopy, 
   IconZoomIn, 
@@ -26,7 +26,6 @@ import {
   IconRefresh,
   IconX,
   IconPhoto,
-  IconFileVector,
   IconDownload,
   IconLoader2
 } from '@tabler/icons-react';
@@ -155,68 +154,7 @@ export function ResultView({ mermaidCode }) {
     setShowCode(!showCode);
   };
   
-  // High-resolution SVG export
-  const exportAsSvg = async () => {
-    if (!mermaidCode) return;
-    
-    const targetRef = isFullscreen ? fullscreenMermaidRef.current : mermaidRef.current;
-    if (!targetRef) {
-      toast.error('Diagram container not available');
-      return;
-    }
-    
-    try {
-      setIsExporting(true);
-      setExportType('svg');
-      
-      const svgElement = targetRef.querySelector('svg');
-      if (!svgElement) {
-        toast.error('SVG element not found in the diagram');
-        return;
-      }
-      
-      // Display toast to indicate processing is happening
-      toast.loading('Generating HD SVG...', { 
-        duration: 2000,
-        style: {
-          background: '#18181B',
-          color: '#FFFFFF',
-          border: '1px solid #3F3F46',
-        }
-      });
-      
-      // Use our utility function for high-resolution SVG export
-      const svgData = await exportToHighResSvg(svgElement, {
-        pixelRatio: 2,
-        backgroundColor: '#0A0A0A',
-        fontWeight: 'normal',
-        removeClasses: ['controls'],
-        style: {
-          '.label': { 'font-weight': '500', 'font-size': '14px' },
-          '.entityLabel': { 'font-weight': '600' },
-          '.edgeLabel': { 'background-color': 'rgba(0,0,0,0.6)', 'border-radius': '3px', 'padding': '2px 4px' },
-          '.relationshipLine': { 'stroke-width': '2px' }
-        }
-      });
-      
-      // Download the SVG file
-      downloadDataUrl(svgData, `laymandb-diagram-hd.svg`);
-      
-      toast.success('HD SVG Diagram Downloaded!', {
-        style: {
-          background: '#18181B',
-          color: '#FFFFFF',
-          border: '1px solid #3F3F46',
-        },
-      });
-    } catch (error) {
-      console.error('Error exporting SVG:', error);
-      toast.error(`Export failed: ${error.message || 'Unknown error'}`);
-    } finally {
-      setIsExporting(false);
-      setExportType(null);
-    }
-  };
+
   
   // High-resolution PNG export
   const exportAsPng = async () => {
@@ -305,25 +243,7 @@ export function ResultView({ mermaidCode }) {
                 </TooltipContent>
               </Tooltip>
               
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className={`h-10 w-10 bg-[#27272A] hover:bg-[#3F3F46] text-white transition-all duration-200 shadow-lg ${isExporting && exportType === 'svg' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    onClick={exportAsSvg}
-                    disabled={isExporting}
-                  >
-                    {isExporting && exportType === 'svg' ? 
-                      <IconLoader2 className="h-5 w-5 animate-spin" /> : 
-                      <IconFileVector className="h-5 w-5" />
-                    }
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Download HD SVG</p>
-                </TooltipContent>
-              </Tooltip>
+
               
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -650,27 +570,7 @@ export function ResultView({ mermaidCode }) {
                       </TooltipContent>
                     </Tooltip>
                     
-                    <Separator orientation="vertical" className="h-6 bg-[#3F3F46]" />
-                    
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className={`h-9 w-9 bg-[#27272A] hover:bg-[#3F3F46] text-white transition-all duration-200 ${isExporting && exportType === 'svg' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                          onClick={exportAsSvg}
-                          disabled={isExporting}
-                        >
-                          {isExporting && exportType === 'svg' ? 
-                            <IconLoader2 className="h-4 w-4 animate-spin" /> : 
-                            <IconFileVector className="h-4 w-4" />
-                          }
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Download HD SVG</p>
-                      </TooltipContent>
-                    </Tooltip>
+
                     
                     <Tooltip>
                       <TooltipTrigger asChild>
