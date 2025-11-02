@@ -2,11 +2,14 @@
 
 import GeminiPlayground from "@/components/gemini/GeminiPlayground";
 import RouteProtection from "@/components/RouteProtection";
+import { SchemaProvider } from '@/contexts/SchemaContext';
 
 export default function GeminiPlaygroundPage() {
   return (
     <RouteProtection>
-      <GeminiPlayground />
+      <SchemaProvider>
+        <GeminiPlayground />
+      </SchemaProvider>
     </RouteProtection>
   );
 }

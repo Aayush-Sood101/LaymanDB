@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import mermaid from 'mermaid';
 import toast from 'react-hot-toast';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { InputPanel } from './InputPanel';
 import { OutputPanel } from './OutputPanel';
+import { useSchemaContext } from '@/contexts/SchemaContext';
 
 // --- Mermaid Black & White Theme Configuration (Unchanged) ---
 mermaid.initialize({
@@ -35,10 +36,110 @@ mermaid.initialize({
   },
 });
 
+import QueryPlayground from '../QueryPlayground';
+
 export default function GeminiPlayground() {
   const [inputText, setInputText] = useState('');
   const [mermaidCode, setMermaidCode] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [activeTab, setActiveTab] = useState('schema'); // 'schema' or 'query'
+  const { setCurrentSchema } = useSchemaContext();
+  const lastParsedMermaidRef = useRef('');
+
+  // Parse Mermaid code and convert to schema format when mermaidCode changes
+  useEffect(() => {
+    // Only parse if mermaidCode has changed from the last parsed version
+    if (mermaidCode && 
+        mermaidCode.trim().startsWith('erDiagram') && 
+        mermaidCode !== lastParsedMermaidRef.current) {
+      const parsedSchema = parseMermaidToSchema(mermaidCode);
+      if (parsedSchema) {
+        setCurrentSchema(parsedSchema);
+        lastParsedMermaidRef.current = mermaidCode;
+      }
+    }
+  }, [mermaidCode]); // Removed setCurrentSchema from dependencies
+
+  // Function to parse Mermaid ER diagram code into schema format
+  const parseMermaidToSchema = (mermaidCode) => {
+    try {
+      const lines = mermaidCode.split('\n').filter(line => line.trim());
+      const tables = [];
+      const relationships = [];
+      let currentTable = null;
+
+      for (const line of lines) {
+        const trimmedLine = line.trim();
+        
+        // Skip erDiagram declaration and comments
+        if (trimmedLine === 'erDiagram' || trimmedLine.startsWith('%%')) continue;
+
+        // Parse relationships (e.g., USERS ||--o{ ORDERS : places)
+        const relMatch = trimmedLine.match(/(\w+)\s+([\|\}][\|\o]--[\|\o][\|\{])\s+(\w+)\s*:\s*(.+)/);
+        if (relMatch) {
+          const [, fromTable, relType, toTable, description] = relMatch;
+          let type = 'one-to-many';
+          if (relType.includes('||') && relType.includes('||')) type = 'one-to-one';
+          else if (relType.includes('}') && relType.includes('{')) type = 'many-to-many';
+          
+          relationships.push({
+            fromTable,
+            toTable,
+            type,
+            description: description.trim()
+          });
+          continue;
+        }
+
+        // Parse table definition (e.g., USERS {)
+        const tableMatch = trimmedLine.match(/^(\w+)\s*\{/);
+        if (tableMatch) {
+          currentTable = {
+            name: tableMatch[1],
+            columns: []
+          };
+          continue;
+        }
+
+        // End of table definition
+        if (trimmedLine === '}' && currentTable) {
+          tables.push(currentTable);
+          currentTable = null;
+          continue;
+        }
+
+        // Parse column definition (e.g., int user_id PK)
+        if (currentTable) {
+          const columnMatch = trimmedLine.match(/(\w+)\s+(\w+)(?:\s+(PK|FK|UK))?/);
+          if (columnMatch) {
+            const [, dataType, columnName, constraint] = columnMatch;
+            currentTable.columns.push({
+              name: columnName,
+              dataType: dataType,
+              isPrimaryKey: constraint === 'PK',
+              isForeignKey: constraint === 'FK',
+              isUnique: constraint === 'UK',
+              isNullable: !constraint
+            });
+          }
+        }
+      }
+
+      // Add any remaining table
+      if (currentTable) {
+        tables.push(currentTable);
+      }
+
+      return {
+        name: 'Gemini Generated Schema',
+        tables,
+        relationships
+      };
+    } catch (error) {
+      console.error('Error parsing Mermaid code:', error);
+      return null;
+    }
+  };
 
   const handleSubmit = async () => {
     // Logic remains unchanged
@@ -87,41 +188,69 @@ export default function GeminiPlayground() {
       {/* Centered content container with a larger vertical gap */}
       <div className="mx-auto flex w-full max-w-screen-2xl flex-grow flex-col gap-y-8">
         
-        {/* Header Section: More impactful typography */}
-        <div className="flex-shrink-0">
+        {/* Header Section with Tabs */}
+        <div className="flex-shrink-0 space-y-6">
           <h1 className="text-3xl font-bold tracking-tighter text-white sm:text-4xl lg:text-5xl">
             Gemini AI Playground
           </h1>
+          
+          {/* Tab Navigation */}
+          <div className="flex gap-2 border-b border-neutral-800">
+            <button
+              onClick={() => setActiveTab('schema')}
+              className={`px-6 py-3 font-semibold transition-all duration-200 border-b-2 ${
+                activeTab === 'schema'
+                  ? 'text-white border-white'
+                  : 'text-neutral-400 border-transparent hover:text-neutral-300'
+              }`}
+            >
+              Schema Generator
+            </button>
+            <button
+              onClick={() => setActiveTab('query')}
+              className={`px-6 py-3 font-semibold transition-all duration-200 border-b-2 ${
+                activeTab === 'query'
+                  ? 'text-white border-white'
+                  : 'text-neutral-400 border-transparent hover:text-neutral-300'
+              }`}
+            >
+              Query Playground
+            </button>
+          </div>
         </div>
 
-        {/* Panel Wrapper: Uses flex-grow to fill all available vertical space */}
+        {/* Content Area */}
         <div className="flex-grow min-h-0">
-          <ResizablePanelGroup
-            direction="horizontal"
-            className="h-full rounded-2xl border border-neutral-800 bg-[#0A0A0A] shadow-lg shadow-black/40"
-          >
-            <ResizablePanel defaultSize={35} minSize={25} maxSize={50}>
-              <InputPanel
-                inputText={inputText}
-                setInputText={setInputText}
-                isGenerating={isGenerating}
-                onSubmit={handleSubmit}
+          {activeTab === 'schema' ? (
+            <ResizablePanelGroup
+              direction="horizontal"
+              className="h-full rounded-2xl border border-neutral-800 bg-[#0A0A0A] shadow-lg shadow-black/40"
+            >
+              <ResizablePanel defaultSize={35} minSize={25} maxSize={50}>
+                <InputPanel
+                  inputText={inputText}
+                  setInputText={setInputText}
+                  isGenerating={isGenerating}
+                  onSubmit={handleSubmit}
+                />
+              </ResizablePanel>
+              
+              {/* Handle: Improved interactive states for hover and dragging */}
+              <ResizableHandle 
+                withHandle 
+                className="bg-transparent border-x border-neutral-800 transition-colors duration-200 data-[state=hover]:border-neutral-600 data-[state=dragging]:border-white" 
               />
-            </ResizablePanel>
-            
-            {/* Handle: Improved interactive states for hover and dragging */}
-            <ResizableHandle 
-              withHandle 
-              className="bg-transparent border-x border-neutral-800 transition-colors duration-200 data-[state=hover]:border-neutral-600 data-[state=dragging]:border-white" 
-            />
-            
-            <ResizablePanel defaultSize={65} minSize={50}>
-              <OutputPanel
-                mermaidCode={mermaidCode}
-                isGenerating={isGenerating}
-              />
-            </ResizablePanel>
-          </ResizablePanelGroup>
+              
+              <ResizablePanel defaultSize={65} minSize={50}>
+                <OutputPanel
+                  mermaidCode={mermaidCode}
+                  isGenerating={isGenerating}
+                />
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          ) : (
+            <QueryPlayground />
+          )}
         </div>
       </div>
     </main>

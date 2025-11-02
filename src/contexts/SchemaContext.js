@@ -550,6 +550,11 @@ export const SchemaProvider = ({ children, subscriptionData }) => {
   const clearExportData = () => {
     dispatch({ type: ActionTypes.CLEAR_EXPORT_DATA });
   };
+
+  // Set current schema directly (useful for external schema sources)
+  const setCurrentSchema = (schema) => {
+    dispatch({ type: ActionTypes.SET_SCHEMA, payload: schema });
+  };
   
   // Provide context value
   const value = {
@@ -564,6 +569,7 @@ export const SchemaProvider = ({ children, subscriptionData }) => {
     generateMermaidERD,
     clearExportData,
     fetchSubscriptionStatus,
+    setCurrentSchema,
   };
   
   return (
