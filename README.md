@@ -1,78 +1,185 @@
 # LaymanDB
 
-LaymanDB is a revolutionary database design platform that transforms natural language descriptions into professional database schemas. Bridging the gap between conceptual thinking and technical implementation, it empowers both developers and non-technical stakeholders to create sophisticated database designs without writing a single line of SQL.
+LaymanDB is an AI-powered database design platform that transforms natural language descriptions into professional database schemas. It bridges the gap between conceptual thinking and technical implementation, empowering both developers and non-technical stakeholders to create sophisticated database designs without writing a single line of SQL.
 
-By combining state-of-the-art natural language processing with interactive visualization tools, LaymanDB streamlines the database design process from initial concept to implementation-ready SQL and comprehensive documentation.
+By combining Google Gemini AI with interactive visualization tools, LaymanDB streamlines the entire database design process—from initial concept to implementation-ready SQL scripts and comprehensive documentation.
+
+> **Live App**: [https://layman-db.vercel.app](https://layman-db.vercel.app)
+
+---
+
+## Table of Contents
+
+1. [Key Features](#key-features)
+2. [Why LaymanDB?](#why-laymandb)
+3. [Tech Stack](#tech-stack)
+4. [Architecture Overview](#architecture-overview)
+5. [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+    - [Environment Variables](#environment-variables)
+    - [Running the Application](#running-the-application)
+6. [Usage Guide](#usage-guide)
+7. [Pricing & Credits](#pricing--credits)
+8. [Authentication](#authentication)
+9. [API Routes](#api-routes)
+10. [Component Reference](#component-reference)
+11. [Sample Inputs](#sample-inputs)
+12. [Common Issues & Solutions](#common-issues--solutions)
+13. [License](#license)
+
+---
 
 ## Key Features
 
-- **AI-Powered Input Refinement Loop**: Moving beyond simple "text-in, code-out" models, LaymanDB engages users in an interactive dialogue to improve their initial descriptions. The system analyzes your prompt, suggests improvements to clarify ambiguities, and normalizes your requirements—resulting in more accurate and comprehensive database designs. This human-computer collaboration creates better schemas than either could produce alone.
+### 🤖 AI-Powered Schema Generation (Google Gemini)
+LaymanDB uses **Google Gemini** to process natural language descriptions and generate complete, normalized database schemas. Simply describe your requirements in plain English—no SQL knowledge required.
 
-- **Textbook-Quality Visualization as a Core Feature**: Unlike tools that treat visualization as an afterthought, LaymanDB prioritizes the generation of high-fidelity, pedagogically sound ER diagrams using ReactFlow. These interactive visualizations serve both as a design interface and a learning tool, allowing real-time manipulation of entities and relationships while maintaining visual clarity that meets academic standards for entity-relationship modeling.
+### 🔄 Two-Step AI Refinement Loop
+Before generating the final schema, LaymanDB runs a two-step AI pipeline:
+1. **Prompt Enhancement** – Gemini analyzes and enriches your initial description, surfacing missing details and clarifying ambiguities.
+2. **Prompt Optimization** – A second pass further refines the prompt for the most accurate schema output.
 
-- **Integrated Multi-Dialect SQL Generation**: From a single natural language input, LaymanDB generates optimized SQL for multiple database systems (MySQL, PostgreSQL, SQLite, SQL Server). The platform intelligently handles dialect-specific syntax, data types, and performance optimizations—bridging the gap between conceptual design and practical implementation across different database environments.
+This "human-in-the-loop" approach produces schemas that are more complete and accurate than a single-pass system.
 
-- **Intelligent, Context-Aware Documentation**: Automatically create comprehensive markdown documentation that combines your original natural language intent with the final structured schema. This documentation includes detailed explanations of entities, relationships, design decisions, and embedded diagrams—closing the loop from requirements to design to documentation and ensuring stakeholders at all technical levels can understand the schema.
+### 📊 Interactive ERD Visualization (ReactFlow)
+The generated schema is rendered as a fully interactive **Entity-Relationship Diagram** using ReactFlow:
+- Drag and reposition entities freely on the canvas
+- Zoom, pan, and focus on specific areas of complex schemas
+- Automatic node placement for optimal readability
+- Visual indicators for relationship types and cardinality (1:1, 1:N, N:M)
+
+### 🗄️ Multi-Dialect SQL Export
+Export production-ready SQL for multiple database engines from a single design:
+- **PostgreSQL**
+- **MySQL**
+- **SQLite**
+- **SQL Server**
+
+All SQL output is formatted for readability using `sql-formatter`, with proper indexes, foreign keys, and constraints.
+
+### 📐 Mermaid ER Diagram Export
+Export your schema as **Mermaid syntax** for seamless embedding in:
+- GitHub/GitLab Markdown files
+- Wikis and Confluence pages
+- Any documentation tool that supports Mermaid
+
+Diagrams can be previewed live within the application before exporting.
+
+### 📝 Intelligent Context-Aware Documentation
+Automatically generate comprehensive **Markdown documentation** that includes:
+- Detailed descriptions of every entity and its attributes
+- Explanations of each relationship and its cardinality
+- Design rationale derived from your original natural language input
+- Embedded Mermaid diagrams for visual reference
+
+### 🖼️ Diagram Image Export
+Export your ERD as a **PNG image** using `html-to-image`, ready for presentations, reports, or archival.
+
+### 💬 Gemini Playground
+An interactive chat-style playground where you can ask Gemini questions about your schema, explore design decisions, or iterate on ideas in a conversational interface.
+
+### 🔒 Session & Schema History
+- Your schema is persisted in the application session
+- A **Session History** panel lets you view and restore previous schema generations within the same session
+
+---
 
 ## Why LaymanDB?
 
-### Bridging the Gap Between Concept and Implementation
+| Aspect | Benefit |
+|---|---|
+| **Non-technical users** | Business analysts and product managers can design schemas without SQL knowledge |
+| **Speed** | Go from idea to a deployable schema in minutes, not hours |
+| **Multi-database** | One design, multiple SQL dialects—no manual translation |
+| **Documentation** | Auto-generated docs keep stakeholders aligned at every level |
+| **Education** | High-fidelity ERDs follow academic ER modeling standards, making LaymanDB a useful learning tool |
+| **Collaboration** | Shareable exports (SQL, Mermaid, PNG, Markdown) fit naturally into any team's workflow |
 
-- **Accessible to Non-Technical Stakeholders**: Business analysts, product managers, and domain experts can contribute directly to database design without deep technical knowledge.
+---
 
-- **Educational Value**: Perfect for students and educators, LaymanDB's visualizations and documentation serve as learning tools for database design principles.
+## Tech Stack
 
-- **Rapid Prototyping**: Quickly generate and iterate on database designs during early project phases, accelerating development timelines.
+### Frontend (this repository)
 
-- **Cross-Team Collaboration**: Create a common language between business and technical teams with visualizations that both can understand.
+| Technology | Purpose |
+|---|---|
+| **Next.js 15** (App Router) | Full-stack React framework with server-side API routes |
+| **React 19** | UI rendering |
+| **ReactFlow 11** | Interactive ERD canvas and node editor |
+| **Mermaid.js 11** | Mermaid diagram rendering and preview |
+| **Tailwind CSS v4** | Utility-first styling |
+| **Framer Motion** | Page transitions and animations |
+| **Clerk** | User authentication (sign-up, sign-in, session management) |
+| **Razorpay** | One-time credit pack payments |
+| **sql-formatter** | SQL output formatting |
+| **html-to-image** | PNG diagram export |
+| **Vercel Analytics** | Page-level performance analytics |
+| **Vercel Speed Insights** | Core Web Vitals monitoring |
+| **@paper-design/shaders-react** | Background shader animations on the landing page |
+| **Spline** | 3D hero scene rendering |
+| **Radix UI** | Accessible dialog, dropdown, tooltip primitives |
+| **D3.js** | Supplementary data visualization utilities |
 
-- **Consistency Across Implementations**: Generate dialect-specific SQL while maintaining the same conceptual schema, ensuring consistency across different database implementations.
+### Backend (separate service)
 
-- **Living Documentation**: Documentation stays in sync with the schema design, eliminating the common problem of outdated documentation.
+The frontend proxies all `/api/*` requests to a separate backend server defined by `NEXT_PUBLIC_BACKEND_URL`.
 
-### What Sets LaymanDB Apart
+| Technology | Purpose |
+|---|---|
+| **Node.js + Express** | RESTful API server |
+| **Google Gemini AI** | Schema generation, prompt enhancement, optimization |
+| **MongoDB** | Schema and session storage |
+| **Mongoose** | MongoDB ODM |
+| **Winston** | Structured logging |
 
-- **Beyond Text-to-SQL Generation**: Unlike tools that simply convert text to SQL, LaymanDB offers a complete design workflow with refinement, visualization, and multi-format export.
+---
 
-- **Focused on Educational Quality**: The ER diagrams prioritize clarity and adhere to standard entity-relationship modeling conventions used in academic settings.
+## Architecture Overview
 
-- **Human-AI Collaboration**: Instead of treating AI as a black box, LaymanDB creates a collaborative loop where human insight and AI capabilities enhance each other.
+```
+┌─────────────────────────────────────────────┐
+│              Browser (Client)               │
+│  Next.js App (React 19, ReactFlow, Mermaid) │
+│  Authentication: Clerk                      │
+│  Payments: Razorpay                         │
+└──────────────┬──────────────────────────────┘
+               │  HTTP / Next.js API Routes
+               │  (/api/gemini, /api/schema, etc.)
+               ▼
+┌─────────────────────────────────────────────┐
+│        Next.js API Layer (Proxy)            │
+│  Clerk session validation                   │
+│  Credit/usage gating                        │
+│  User metadata stored in Clerk              │
+└──────────────┬──────────────────────────────┘
+               │  Proxied to NEXT_PUBLIC_BACKEND_URL
+               ▼
+┌─────────────────────────────────────────────┐
+│         Backend API Server                  │
+│  Express.js + Node.js                       │
+│  Google Gemini AI (schema generation)       │
+│  MongoDB (schema / session storage)         │
+└─────────────────────────────────────────────┘
+```
 
-- **Cross-Dialect Support**: Generate SQL for multiple database systems from a single source of truth, eliminating the need for manual translation between dialects.
+**Key design decisions:**
+- User authentication and credit tracking are handled entirely through **Clerk private metadata**, removing the need for a separate user database table.
+- Next.js API routes act as a secure proxy and middleware layer, enforcing auth and credit checks before forwarding requests to the backend.
+- The frontend is deployed on **Vercel**; the backend can be deployed independently (e.g., Railway, Render, or a VPS).
 
-## Additional Features
-
-- **Interactive ERD Visualization**: Visualize and edit database structures in real-time with drag-and-drop functionality
-- **Smart Entity-Relationship Modeling**: Create entities, attributes, and relationships with automatic placement and organization
-- **Mermaid ER Diagram Export**: Generate Mermaid syntax diagrams for embedding in documentation
-- **Schema Versioning & History**: Track changes and maintain a complete history of your database designs
-
-## Architecture
-
-### Frontend
-
-- Next.js 15.x with React 19.x for a modern, performant UI
-- ReactFlow for sophisticated, interactive ERD visualization
-- Context API for state management
-- Tailwind CSS with custom UI components for responsive design
-- Mermaid.js for diagram rendering in documentation
-- Framer Motion for smooth animations and transitions
-
-### Backend
-
-- Node.js with Express for RESTful API endpoints
-- MongoDB for schema storage and versioning
-- OpenAI integration for natural language processing and schema generation
-- Multi-dialect SQL generation (MySQL, PostgreSQL, SQLite, SQL Server)
-- Winston for comprehensive error handling and logging
-- Socket.io for real-time updates
+---
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18.x or higher
-- MongoDB (local or remote instance)
+- **Node.js 18.x or higher** – [Download](https://nodejs.org/)
+- **npm 9.x or higher** (bundled with Node.js)
+- A running **backend server** (see [Backend Setup](#backend-setup))
+- A **Clerk account** – [clerk.com](https://clerk.com) (free tier available)
+- A **Razorpay account** – [razorpay.com](https://razorpay.com) (required for payment features; test mode is sufficient for development)
+- A **Google Gemini API key** – required by the backend for schema generation
 
 ### Installation
 
@@ -83,297 +190,326 @@ git clone https://github.com/Aayush-Sood101/LaymanDB.git
 cd LaymanDB
 ```
 
-#### 2. Install backend dependencies
+#### 2. Install dependencies
 
 ```bash
-cd backend
 npm install
 ```
 
-#### 3. Configure environment variables
+This is a **single Next.js application**—there is no separate `frontend/` directory to navigate to.
 
-Create a `.env` file in the backend directory:
+### Environment Variables
 
+Create a `.env.local` file in the project root with the following variables:
+
+```env
+# ─── Clerk Authentication ──────────────────────────────────────────
+# Get these from https://dashboard.clerk.com → Your App → API Keys
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_xxxxxxxxxxxxxxxx
+CLERK_SECRET_KEY=sk_test_xxxxxxxxxxxxxxxx
+
+# Optional: Customize Clerk redirect URLs
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/generate
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/generate
+
+# ─── Backend API ────────────────────────────────────────────────────
+# URL of your backend Express server (no trailing slash)
+NEXT_PUBLIC_BACKEND_URL=http://localhost:4000
+
+# ─── Razorpay Payments ──────────────────────────────────────────────
+# Get these from https://dashboard.razorpay.com → Settings → API Keys
+NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_xxxxxxxxxxxxxxxx
+RAZORPAY_KEY_SECRET=xxxxxxxxxxxxxxxxxxxxxxxx
 ```
+
+> **Never commit `.env.local` to version control.** It is already listed in `.gitignore`.
+
+#### Backend environment variables
+
+The backend server requires its own environment file. Create a `.env` file in your backend project directory:
+
+```env
 PORT=4000
 NODE_ENV=development
 FRONTEND_URL=http://localhost:3000
 MONGODB_URI=mongodb://localhost:27017/laymandb
+GOOGLE_AI_API_KEY=your_google_ai_api_key
 LOG_LEVEL=info
 ```
 
-#### 4. Install frontend dependencies
+### Backend Setup
 
-```bash
-cd ../frontend
-npm install
-```
+Before running the frontend, make sure the backend server is running.
 
-### Running the application
+#### Option A – Local backend
 
-#### 1. Start the backend server
+1. Clone and navigate to the backend repository.
+2. Install dependencies: `npm install`
+3. Configure the backend `.env` file as described above.
+4. Start MongoDB locally:
 
-```bash
-cd backend
-npm run dev
-```
-
-#### 2. Start the frontend development server
-
-```bash
-cd frontend
-npm run dev
-```
-
-#### 3. Open your browser
-
-Navigate to `http://localhost:3000` to use the application.
-
-## Usage
-
-### Workflow: From Natural Language to Complete Database Design
-
-1. **Describe Your Database**: Start by describing your database requirements in plain English. For example: "I need a system to manage an online bookstore with customers, orders, books, and authors. Books can have multiple authors, and customers can place multiple orders."
-
-2. **Refine with AI Assistance**: LaymanDB analyzes your description and suggests improvements to clarify ambiguities or add missing details. This collaborative refinement process ensures your final schema will be comprehensive and accurate.
-
-3. **Generate Schema**: Once your description is refined, LaymanDB processes it through advanced NLP models to identify entities, relationships, attributes, and constraints—creating a complete database schema.
-
-4. **Visualize and Customize**: The generated schema appears as an interactive Entity-Relationship Diagram. Drag entities to reposition them, modify relationships, and fine-tune the design to meet your specific needs.
-
-5. **Export and Implement**: When satisfied with your design, export it in multiple formats:
-   - SQL scripts for your preferred database system (MySQL, PostgreSQL, SQLite, SQL Server)
-   - Visual ER diagrams (SVG, PNG)
-   - Mermaid syntax diagrams for embedding in documentation
-   - Comprehensive markdown documentation that explains the schema design
-
-6. **Save and Iterate**: Save your schema to revisit and modify it later as requirements evolve. LaymanDB maintains a version history of your designs for easy tracking of changes.
-
-## Detailed Project Overview
-
-### Entity-Relationship Diagram (ERD) Editor
-
-The heart of LaymanDB is its powerful ERD editor, built with React Flow. This interactive canvas allows you to:
-
-- **Create Entities**: Add tables with a simple click
-- **Add Attributes**: Define columns with data types, constraints, and descriptions
-- **Establish Relationships**: Connect entities with various relationship types (one-to-one, one-to-many, many-to-many)
-- **Visual Feedback**: Receive immediate visual feedback on your database design
-- **Automatic Layout**: Intelligently positions entities and attributes for optimal readability
-
-### SQL Generation
-
-LaymanDB translates your visual designs into production-ready SQL scripts:
-
-- **Dialect Support**: Generate SQL for multiple database systems
-- **Optimization**: Create optimized table structures with proper indexes and constraints
-- **Foreign Key Management**: Automatically handle foreign key relationships
-- **Customization**: Fine-tune the generated SQL to meet specific requirements
-
-### ER Diagram Export
-
-LaymanDB provides multiple options for exporting your database designs:
-
-- **SVG Diagrams**: Export clean, vector-based diagrams for documentation
-- **Mermaid Support**: Generate Mermaid syntax for embedding in Markdown files or documentation
-- **Interactive Viewing**: Preview Mermaid diagrams directly in the application
-- **Customization**: Adjust diagram appearance and layout for optimal presentation
-
-### Schema Management
-
-Keep track of your database designs with built-in versioning:
-
-- **Version History**: Track changes to your schema over time
-- **Session Management**: Save and resume work on multiple projects
-- **Export Options**: Download your designs in various formats (SQL, Documentation, JSON)
-- **Schema Validation**: Automatic validation ensures database integrity
-
-## Detailed Setup and Running Guide
-
-### 1. Clone and Set Up the Project Structure
-
-1. Clone the repository (or create the project structure if you're building from scratch):
+   **macOS (Homebrew)**:
    ```bash
-   git clone https://github.com/Aayush-Sood101/LaymanDB.git
-   cd LaymanDB
+   brew tap mongodb/brew
+   brew install mongodb-community
+   brew services start mongodb-community
    ```
 
-### 2. Backend Setup
-
-1. Navigate to the backend directory:
+   **Ubuntu/Debian**:
    ```bash
-   cd backend
+   sudo apt update && sudo apt install -y mongodb
+   sudo systemctl start mongodb
    ```
 
-2. Install backend dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Create a `.env` file in the backend directory with the following content:
-   ```
-   PORT=4000
-   NODE_ENV=development
-   FRONTEND_URL=http://localhost:3000
-   MONGODB_URI=mongodb://localhost:27017/laymandb
-   LOG_LEVEL=info
-   OPENAI_API_KEY=your_openai_api_key
-   GOOGLE_AI_API_KEY=your_google_ai_api_key
-   ```
-
-4. Install and start MongoDB (if not already installed):
-   - **Windows**: 
-     - Download and install from [MongoDB website](https://www.mongodb.com/try/download/community)
-     - Create a data directory: `mkdir -p C:/data/db`
-     - Start MongoDB: `"C:\Program Files\MongoDB\Server\6.0\bin\mongod.exe" --dbpath="C:/data/db"`
-   
-   - **macOS** (using Homebrew):
-     ```bash
-     brew tap mongodb/brew
-     brew install mongodb-community
-     brew services start mongodb-community
-     ```
-
-   - **Linux**:
-     ```bash
-     sudo apt update
-     sudo apt install -y mongodb
-     sudo systemctl start mongodb
-     ```
+   **Windows**: Download and install from the [MongoDB website](https://www.mongodb.com/try/download/community), then start `mongod`.
 
 5. Start the backend server:
    ```bash
    npm run dev
    ```
-   This will start the server on http://localhost:4000
+   The server will be available at `http://localhost:4000`.
 
-### 3. Frontend Setup
+#### Option B – Cloud/hosted backend
 
-1. Open a new terminal window and navigate to the frontend directory:
-   ```bash
-   cd ../frontend
-   ```
+Set `NEXT_PUBLIC_BACKEND_URL` in `.env.local` to the public URL of your deployed backend (e.g., `https://your-backend.railway.app`).
 
-2. Install frontend dependencies:
-   ```bash
-   npm install
-   ```
+### Running the Application
 
-3. Start the frontend development server:
-   ```bash
-   npm run dev
-   ```
-   This will start the Next.js development server on http://localhost:3000
+```bash
+npm run dev
+```
 
-### 4. Using the Application
+Open your browser and navigate to **[http://localhost:3000](http://localhost:3000)**.
 
-1. Open your browser and navigate to http://localhost:3000
-2. You should see the LaymanDB interface with the ERD design canvas
-3. Create your database schema:
-   - Add entities using the toolbar
-   - Add attributes to entities
-   - Define relationships between entities
-4. Explore the generated ERD diagram, export SQL scripts, and view documentation
+Available scripts:
 
-### 5. Common Issues and Solutions
+| Script | Description |
+|---|---|
+| `npm run dev` | Start the development server with Turbopack |
+| `npm run build` | Build the application for production |
+| `npm run start` | Start the production server (requires `npm run build` first) |
+| `npm run lint` | Run ESLint across the project |
 
-1. **MongoDB Connection Error**:
-   - Ensure MongoDB is running
-   - Check your MONGODB_URI in the .env file
-   - Run `mongod` manually to start the MongoDB server
+---
 
-2. **Port Already in Use**:
-   - Change the PORT in the .env file
-   - Kill the process using the port: `npx kill-port 4000` (for backend) or `npx kill-port 3000` (for frontend)
+## Usage Guide
 
-3. **Missing Dependencies**:
-   - Run `npm install` in both frontend and backend directories
-   - Check for errors in the console and install any missing packages
+### Step-by-step workflow
 
-4. **React Flow Rendering Issues**:
-   - Ensure you have the correct CSS imports
-   - Check browser console for any JavaScript errors
-   - Try clearing your browser cache
+#### 1. Sign up or sign in
+Navigate to `/sign-up` to create a free account, or `/sign-in` to log in. Authentication is handled by **Clerk**—you can sign in with email/password or OAuth providers configured in your Clerk dashboard.
 
-## Technical Implementation Details
+#### 2. Go to the Generate page
+After signing in, navigate to `/generate`. New users receive **10 free schema generations**—no payment required.
 
-### Frontend Components
+#### 3. Describe your database
+In the **Prompt Input Panel** on the left, type a natural language description of your database requirements. Be as specific or as high-level as you like. Example:
 
-- **ERD Diagram**: Core visualization component built on React Flow
-  - `ERDDiagram.js`: Main component that manages the diagram canvas
-  - `EntityNode.js`: Custom node for database tables/entities
-  - `AttributeNode.js`: Custom node for columns/attributes
-  - `RelationshipNode.js`: Custom node for representing relationships
-  - `ERDEdge.js`: Custom edge component for connecting nodes
+```
+I need a database for an online bookstore. It should have customers who can place
+orders, books that belong to categories, and authors. A book can have multiple authors,
+and a customer can place multiple orders. Each order contains multiple books with
+quantities. Track inventory and order status.
+```
 
-- **User Interface**:
-  - `ExportDialog.js`: Modal for exporting schema to SQL/documentation
-  - `SchemaVisualization.js`: Container for the ERD diagram
-  - `SessionHistory.js`: Component for tracking schema versions
-  - `PromptInputPanel.js`: Natural language input interface with refinement capabilities
+#### 4. Enhance and optimize (AI refinement)
+Click **Enhance Prompt** to have Gemini improve and expand your description. Then click **Optimize Prompt** to fine-tune it further. You can accept, edit, or skip these suggestions. This two-step refinement loop produces more accurate schemas.
 
-### Backend Architecture
+#### 5. Generate schema
+Click **Generate Schema**. Gemini processes your refined prompt and returns a complete schema with entities, attributes, and relationships. This uses one credit from your free trial or paid pack.
 
-- **API Routes**:
-  - `/api/schema`: CRUD operations for database schemas
-  - `/api/session`: Manage user sessions and schema history
-  - `/api/export`: Export schemas to various formats
+#### 6. Explore the ERD
+The **Schema Visualization** panel on the right renders an interactive Entity-Relationship Diagram. You can:
+- Drag entities to rearrange the layout
+- Zoom in/out and pan around the canvas
+- Hover over nodes to inspect attributes and data types
 
-- **Core Services**:
-  - `schemaGenerator.service.js`: Create and manage database schema objects
-  - `sqlGenerator.service.js`: Convert schema to SQL for different dialects
-  - `documentation.service.js`: Generate human-readable documentation
-  - `nlp.service.js`: Natural language processing for schema generation
-  - `mermaidGenerator.service.js`: Generate Mermaid syntax diagrams
+#### 7. Export your design
+Click the **Export** button to open the Export Dialog. Choose from:
 
-- **Database Models**:
-  - `schema.model.js`: Mongoose model for database schemas
-  - `session.model.js`: Track user sessions and schema history
+| Export Format | Description |
+|---|---|
+| **PostgreSQL SQL** | CREATE TABLE statements for PostgreSQL |
+| **MySQL SQL** | CREATE TABLE statements for MySQL |
+| **SQLite SQL** | CREATE TABLE statements for SQLite |
+| **SQL Server SQL** | CREATE TABLE statements for SQL Server |
+| **Mermaid Diagram** | Mermaid `erDiagram` syntax for docs/wikis |
+| **Documentation** | Full Markdown documentation of the schema |
+| **PNG Image** | Visual snapshot of the ERD canvas |
 
-### Core Features Implementation
+All text-based exports include a **Copy to Clipboard** button.
 
-1. **AI-Powered Input Refinement Loop**:
-   - Intelligent prompt optimization through `nlp.service.js`
-   - Two-step process: initial input analysis and suggested improvements
-   - Natural language processing to identify key database concepts
-   - Real-time feedback loop for prompt refinement before schema generation
-   - Helps users clarify their requirements and produce more accurate schemas
-   - User interface for accepting or modifying AI suggestions
+#### 8. Use the Gemini Playground
+Navigate to `/gemini-playground` for a conversational AI interface. Ask follow-up questions about your schema, explore alternative designs, or query the AI directly.
 
-2. **Textbook-Quality Visualization**:
-   - High-fidelity Entity-Relationship diagrams using ReactFlow
-   - Custom entity and relationship node components that prioritize readability
-   - Interactive diagram manipulation with real-time updates
-   - Customizable visual themes (light/dark mode) for optimal presentation
-   - Automatic node positioning with manual override capabilities
-   - Zoom, pan, and focus controls for exploring complex schemas
-   - Visual indicators for relationship types and cardinality constraints
+---
 
-3. **Integrated Multi-Dialect SQL Generation**:
-   - Unified schema representation translated to multiple SQL dialects
-   - Dialect-specific generators in the `dialects/` directory
-   - Support for MySQL, PostgreSQL, SQLite, and SQL Server from a single source model
-   - Handling of dialect-specific data types and syntactic variations
-   - Optimized SQL output with proper indexes, constraints, and foreign keys
-   - SQL formatting for readability and compatibility
+## Pricing & Credits
 
-4. **Intelligent, Context-Aware Documentation**:
-   - Automatic markdown documentation generation
-   - Incorporation of original natural language intent in documentation
-   - Detailed explanations of entities, attributes, and relationships
-   - Context-aware descriptions that explain design decisions
-   - Integration of schema diagrams (Mermaid syntax) within documentation
-   - Complete end-to-end traceability from requirements to implementation
+LaymanDB uses a **pay-as-you-go credit system**. There are no recurring subscriptions.
 
-5. **Interactive ERD Editor**:
-   - Drag-and-drop interface for entity and attribute positioning
-   - Real-time updates as elements are modified
-   - Smart relationship routing to avoid diagram clutter
-   - Dynamic visualization of changes to schema structure
-   - Support for different relationship types (1:1, 1:N, N:M)
-   - Cardinality constraint visualization
-   - Attribute inheritance and propagation
+| Plan | Price | Credits | Notes |
+|---|---|---|---|
+| **Free Trial** | ₹0 | 10 generations | Automatically available to every new user |
+| **Basic** | ₹50 (one-time) | 100 generations | Standard SQL export and visualization |
+| **Premium** | ₹80 (one-time) | 200 generations | Advanced SQL export, priority email support |
+
+- Credits are stored securely in your **Clerk user profile** (private metadata).
+- Payments are processed by **Razorpay** and verified server-side before credits are applied.
+- You can check your remaining credits at any time on the `/pricing` page.
+
+---
+
+## Authentication
+
+Authentication is powered by **[Clerk](https://clerk.com)**:
+
+- **Sign up**: `/sign-up`
+- **Sign in**: `/sign-in`
+- **Protected routes**: The `/generate` and `/billing/*` routes require an active session. Unauthenticated users are redirected to `/sign-in` by the `RouteProtection` component and Clerk middleware.
+- **User metadata**: Free trial usage count and paid credit balance are stored in Clerk's private user metadata—never exposed to the client directly.
+
+---
+
+## API Routes
+
+All Next.js API routes live under `src/app/api/`. Requests to `/api/*` from the frontend are either handled locally (auth/payment) or proxied to the backend server.
+
+### Locally handled routes
+
+| Route | Method | Description |
+|---|---|---|
+| `/api/schema-generation` | `POST` | Validates auth, checks/deducts credits, forwards to backend |
+| `/api/user/status` | `GET` | Returns current user's credit balance and subscription tier |
+| `/api/payment` | `POST` | Creates a Razorpay order for the selected credit plan |
+| `/api/payment/verify` | `POST` | Verifies Razorpay payment signature and applies credits |
+
+### Proxied to backend
+
+| Route | Method | Description |
+|---|---|---|
+| `/api/gemini/generate` | `POST` | Generate an ER schema from a natural language prompt |
+| `/api/gemini/prompt` | `POST` | Gemini Playground conversational query |
+| `/api/schema/*` | `GET/POST/PUT/DELETE` | Schema CRUD operations |
+| `/api/query/generate` | `POST` | Generate SQL queries from natural language |
+| `/api/mermaid-query` | `POST` | Generate/process Mermaid diagram queries |
+
+---
+
+## Component Reference
+
+### Page Components (`src/app/`)
+
+| Page | Route | Description |
+|---|---|---|
+| `home/page.js` | `/` | Landing page with hero, features, and pricing overview |
+| `generate/page.js` | `/generate` | Main workspace: prompt input + ERD visualization |
+| `pricing/page.js` | `/pricing` | Pricing plans, current credit balance, Razorpay checkout |
+| `features/page.js` | `/features` | Detailed feature showcase with parallax visuals |
+| `gemini-playground/page.js` | `/gemini-playground` | Conversational AI interface |
+| `contact-us/page.js` | `/contact-us` | Contact form (EmailJS) |
+| `billing/page.js` | `/billing/success`, `/billing/cancel` | Post-payment confirmation pages |
+| `sign-in/page.js` | `/sign-in` | Clerk sign-in page |
+| `sign-up/page.js` | `/sign-up` | Clerk sign-up page |
+| `subscribe/page.js` | `/subscribe` | Subscription management |
+
+### UI Components (`src/components/`)
+
+| Component | Description |
+|---|---|
+| `PromptInputPanel.js` | Natural language input, prompt enhancement/optimization controls, and schema generation trigger |
+| `SchemaVisualization.js` | Container for the ReactFlow ERD canvas |
+| `ExportDialog.js` | Multi-tab export modal (SQL, Mermaid, Documentation, PNG) |
+| `SessionHistory.js` | Sidebar panel listing previously generated schemas in the session |
+| `MermaidDiagram.js` | Client-side Mermaid diagram renderer |
+| `MermaidQueryPlayground.js` | Interactive Mermaid diagram editor |
+| `QueryPlayground.js` | SQL query generation playground |
+| `Navbar.js` | Top navigation bar with auth-aware links |
+| `Footer.js` / `StackedCircularFooter.js` | Site footer |
+| `PaywallNotice.js` | Shown when a user runs out of credits |
+| `RouteProtection.js` | Wraps protected pages; redirects unauthenticated users |
+| `WorkspaceLayout.js` | Resizable two-panel layout for the Generate page |
+| `PageTemplate.js` | Consistent page wrapper with navigation and footer |
+| `SubscriptionStatus.js` | Compact credit/plan status indicator |
+
+### Diagram Components (`src/components/diagram/`)
+
+Custom ReactFlow node and edge components that render the ERD canvas.
+
+### Context (`src/contexts/`)
+
+| Context | Description |
+|---|---|
+| `SchemaContext.js` | Global state for the current schema, ERD nodes/edges, export data, and dialog visibility |
+| `SubscriptionLoaderContext.js` | Subscription data loading state (legacy; most pages now fetch directly — new code should not use this context) |
+
+---
+
+## Sample Inputs
+
+The file [`sample-inputs.md`](./sample-inputs.md) contains **20 ready-to-use database descriptions** covering a wide range of domains:
+
+1. E-commerce platform
+2. Blog / CMS
+3. Hospital management
+4. University management
+5. Inventory / warehouse
+6. Real estate agency
+7. Library management
+8. Project management
+9. Social network
+10. Event management
+11. Financial management
+12. Hotel reservation
+13. Human resources
+14. Supply chain
+15. Fitness center
+16. Music streaming service
+17. Insurance management
+18. Restaurant operations
+19. Airline reservation
+20. Healthcare information system
+
+Use these as starting points to explore LaymanDB's capabilities.
+
+---
+
+## Common Issues & Solutions
+
+### Authentication errors
+
+| Issue | Solution |
+|---|---|
+| "Authentication required" on `/generate` | Ensure you are signed in. Check that `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` are set correctly. |
+| Redirect loop on sign-in | Verify `NEXT_PUBLIC_CLERK_SIGN_IN_URL` and `NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL` in `.env.local`. |
+
+### Backend connection errors
+
+| Issue | Solution |
+|---|---|
+| "Failed to generate schema" / 502 errors | Confirm the backend server is running. Check `NEXT_PUBLIC_BACKEND_URL` in `.env.local`. |
+| CORS errors in the browser console | Set `FRONTEND_URL=http://localhost:3000` in the backend `.env` file. |
+
+### Payment errors
+
+| Issue | Solution |
+|---|---|
+| "Payment system could not be initialized" | Ensure `NEXT_PUBLIC_RAZORPAY_KEY_ID` is set in `.env.local`. |
+| "Payment verification failed" | Check that `RAZORPAY_KEY_SECRET` is correct and matches the key ID. |
+
+### General issues
+
+| Issue | Solution |
+|---|---|
+| Port already in use (3000) | Run `npx kill-port 3000` or change the port with `PORT=3001 npm run dev`. |
+| Missing dependencies | Run `npm install` from the project root. |
+| ReactFlow rendering issues | Clear your browser cache. Ensure `import 'reactflow/dist/style.css'` is present in `layout.js`. |
+| Stale subscription data | Add a cache-busting parameter: the app already does this automatically via `?t=<timestamp>`. |
+
+---
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
